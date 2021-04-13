@@ -136,6 +136,11 @@ logRatioPlot <- function(contrastsDF,
                             nrow(contrastsDF) > 0,
                             "data.frame" %in% class(contrastsDF),
                             msg = "contrastsDF must be specified and should be of class 'data.frame'.")
+    assertthat::assert_that(!missing(facetColname),
+                            !is.null(facetColname),
+                            length(facetColname) == 1,
+                            facetColname %in% colnames(contrastsDF),
+                            msg = "facetColname must be one of contrastsDF columns.")
     if (any(is.null(plotCategory),
             !is.character(plotCategory),
             length(plotCategory) != 1,
@@ -145,8 +150,7 @@ logRatioPlot <- function(contrastsDF,
     } else {
         plotCategory <- tolower(plotCategory)
     }
-    assertthat::assert_that(facetColname %in% colnames(contrastsDF),
-                            msg = "facetColname must be included in the colnames of data.")
+
     assertthat::assert_that(xColname %in% colnames(contrastsDF),
                             msg = "xColname must be included in the colnames of data.")
     assertthat::assert_that(yColname %in% colnames(contrastsDF),
