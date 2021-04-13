@@ -16,16 +16,17 @@ test_that('tidyContrasts: tidyContrasts()', {
     expect_equal(ncol(tidyContrast_two_test), 15)
     expect_true("rownameColumn" %in% names(tidyContrast_two_test))
 
+    # Testing asserts
+    ## DGEdata
+    msg <- "DGEdata must be of class 'DGEobj' or 'list'."
+    expect_error(tidyContrasts(),
+                 regexp = msg)
+    expect_error(tidyContrasts(NULL),
+                 regexp = msg)
+    expect_error(tidyContrasts(t_obj1$counts),
+                 regexp = msg)
+
     expect_warning(tidyContrasts(t_obj1,
                                  includeColumns = c("rownames", "logFC", "CI.L", "CI.R")),
                    regexp = "Some requested columns are not present in all dataframes.")
-
-    expect_error(tidyContrasts(dgeObj_test),
-                 regexp = "object 'dgeObj_test' not found")
-})
-
-
-test_that('tidyContrasts: incorrect usage', {
-    expect_error(tidyContrasts(),
-                 regexp = "argument \"DGEdata\" is missing, with no default")
 })

@@ -38,13 +38,13 @@
 tidyContrasts <- function(DGEdata,
                           rownameColumn = "rownames",
                           includeColumns) {
-
-    assertthat::assert_that(any(c("DGEobj", "list") %in% class(DGEdata)),
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            any(c("DGEobj", "list") %in% class(DGEdata)),
                             msg = "DGEdata must be of class 'DGEobj' or 'list'.")
-
     if ("DGEobj" %in% class(DGEdata)) {
         DGEdata <- DGEobj::getType(DGEdata, "topTable")
-        assertthat::assert_that(!(length(DGEdata) == 0),
+        assertthat::assert_that(length(DGEdata) != 0,
                                 msg = "No topTable dataframes found in DGEdata. Please specify a DGEdata that contains topTable dataframes.")
 
     }
