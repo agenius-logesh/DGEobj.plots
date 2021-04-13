@@ -191,4 +191,48 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 facetCol     = 2,
                                 plotCategory = c("bar", "point")),
                    regexp = msg)
+    ## refLine
+    msg <- "refLine must be singular logical value. Setting default value 'TRUE'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLine      = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLine      = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLine      = "FALSE"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLine      = c("TRUE", "FALSE")),
+                   regexp = msg)
+    ## refLineColor
+    msg <- "refLineColor must be a singular value of class character. Assigning default value 'red'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLineColor = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLineColor = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLineColor = "FALSE"),
+                   regexp = "Color specified is not valid. Assigning default value 'red'.")
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                refLineColor = c("red", "red")),
+                   regexp = msg)
 })

@@ -153,6 +153,16 @@ logRatioPlot <- function(contrastsDF,
         }
     }
 
+    if (any(is.null(plotCategory),
+            !is.character(plotCategory),
+            length(plotCategory) != 1,
+            !(tolower(plotCategory) %in% c("bar", "point")))) {
+        warning("plotCategory must be either 'bar' or 'point'. Setting default value 'bar'")
+        plotCategory  <-  "bar"
+    } else {
+        plotCategory <- tolower(plotCategory)
+    }
+
     is_confidence_used <- TRUE
     if (any(is.null(CI.R_colname),
             length(CI.R_colname) != 1,
@@ -179,15 +189,25 @@ logRatioPlot <- function(contrastsDF,
         }
     }
 
-    if (any(is.null(plotCategory),
-            !is.character(plotCategory),
-            length(plotCategory) != 1,
-            !(tolower(plotCategory) %in% c("bar", "point")))) {
-        warning("plotCategory must be either 'bar' or 'point'. Setting default value 'bar'")
-        plotCategory  <-  "bar"
-    } else {
-        plotCategory <- tolower(plotCategory)
+    if (any(is.null(refLine),
+           !is.logical(refLine),
+           length(refLine) != 1)) {
+        warning("refLine must be singular logical value. Setting default value 'TRUE'.")
+        refLine <- TRUE
     }
+
+    if (refLine) {
+        if (any(is.null(refLineColor),
+                !is.character(refLineColor),
+                length(refLineColor) != 1)) {
+            warning("refLineColor must be a singular value of class character. Assigning default value 'red'.")
+            refLineColor <- "red"
+        } else if (.rgbaConversion(refLineColor) == "invalid value") {
+            warning("Color specified is not valid. Assigning default value 'red'.")
+            refLineColor <- "red"
+        }
+    }
+
 
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
@@ -251,7 +271,7 @@ logRatioPlot <- function(contrastsDF,
         }
 
         #Add refLine at 0
-        if (refLine == TRUE) {
+        if (refLine) {
             myPlot <- myPlot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
         }
 
