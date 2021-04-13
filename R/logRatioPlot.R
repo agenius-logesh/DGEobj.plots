@@ -146,6 +146,18 @@ logRatioPlot <- function(contrastsDF,
                             length(xColname) == 1,
                             xColname %in% colnames(contrastsDF),
                             msg = "xColname must be one of contrastsDF columns.")
+    if (any( is.null(yColname),
+            length(yColname) != 1,
+            !yColname %in% colnames(contrastsDF))) {
+        if ("logFC" %in% colnames(contrastsDF)) {
+            warning("yColname must be one of contrastsDF columns.Setting default value 'logFC'")
+            yColname <- "logFC"
+        } else{
+            assertthat::assert_that(FALSE, msg = "yColname must be one of contrastsDF columns.")
+        }
+    }
+    assertthat::assert_that(yColname %in% colnames(contrastsDF),
+                            msg = "yColname must be included in the colnames of data.")
     if (any(is.null(plotCategory),
             !is.character(plotCategory),
             length(plotCategory) != 1,
@@ -155,8 +167,6 @@ logRatioPlot <- function(contrastsDF,
     } else {
         plotCategory <- tolower(plotCategory)
     }
-    assertthat::assert_that(yColname %in% colnames(contrastsDF),
-                            msg = "yColname must be included in the colnames of data.")
     assertthat::assert_that(all(xOrder %in% as.character(contrastsDF[xColname, , drop = TRUE])))
 
     .addGeoms <- function(myPlot){
