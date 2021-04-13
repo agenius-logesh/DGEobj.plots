@@ -146,18 +146,43 @@ logRatioPlot <- function(contrastsDF,
                             length(xColname) == 1,
                             xColname %in% colnames(contrastsDF),
                             msg = "xColname must be one of contrastsDF columns.")
-    if (any( is.null(yColname),
+    if (any(is.null(yColname),
             length(yColname) != 1,
             !yColname %in% colnames(contrastsDF))) {
         if ("logFC" %in% colnames(contrastsDF)) {
-            warning("yColname must be one of contrastsDF columns.Setting default value 'logFC'")
+            warning("yColname must be one of contrastsDF columns. Setting default value 'logFC'")
             yColname <- "logFC"
         } else{
             assertthat::assert_that(FALSE, msg = "yColname must be one of contrastsDF columns.")
         }
     }
-    assertthat::assert_that(yColname %in% colnames(contrastsDF),
-                            msg = "yColname must be included in the colnames of data.")
+
+    is_confidence_used <- TRUE
+    if (any(is.null(CI.R_colname),
+            length(CI.R_colname) != 1,
+            !CI.R_colname %in% colnames(contrastsDF))) {
+        if ("CI.R" %in% colnames(contrastsDF)) {
+            warning("CI.R_colname must be one of contrastsDF columns. Setting default value 'CI.R'")
+            CI.R_colname <- "CI.R"
+        } else{
+            warning("CI.R_colname must be one of contrastsDF columns. Disabling confidenece limits.")
+            is_confidence_used <- FALSE
+        }
+    }
+
+    if (is_confidence_used &&
+        any(is.null(CI.L_colname),
+            length(CI.L_colname) != 1,
+            !CI.L_colname %in% colnames(contrastsDF))) {
+        if ("CI.L" %in% colnames(contrastsDF)) {
+            warning("CI.L_colname must be one of contrastsDF columns. Setting default value 'CI.L'")
+            CI.L_colname <- "CI.L"
+        } else{
+            warning("CI.L_colname must be one of contrastsDF columns. Disabling confidenece limits.")
+            is_confidence_used <- FALSE
+        }
+    }
+
     if (any(is.null(plotCategory),
             !is.character(plotCategory),
             length(plotCategory) != 1,
@@ -186,10 +211,8 @@ logRatioPlot <- function(contrastsDF,
         }
 
         # Add error bars if columns present
-        if (all(c(CI.L_colname, CI.R_colname) %in% colnames(contrastsDF) )) {
+        if (is_confidence_used) {
             myPlot <- myPlot + geom_errorbar(aes_string(ymin = CI.L_colname, ymax = CI.R_colname), width = .2)
-        } else {
-            warning("Confidence limits columns not found.")
         }
 
         if (lineLayer) {

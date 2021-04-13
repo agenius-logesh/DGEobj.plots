@@ -80,7 +80,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                               facetColname = "GeneSymbol"),
                  regexp = msg)
     ## yColname
-    msg <- "yColname must be one of contrastsDF columns.Setting default value 'logFC'"
+    msg <- "yColname must be one of contrastsDF columns. Setting default value 'logFC'"
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
@@ -101,6 +101,70 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                               facetColname = "GeneSymbol",
                               xColname     = "Contrast"),
                  regexp = "yColname must be one of contrastsDF columns.")
+    ## CI.R_colname
+    msg <- "CI.R_colname must be one of contrastsDF columns. Setting default value 'CI.R'"
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname = c("CI.R", "CI.R")),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname =  "abc"),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname = NULL),
+                   regexp = msg,
+                   fixed = TRUE)
+    tidyDat2 <- tidyDat %>% dplyr::rename(MyCI.R = CI.R)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat2,
+                              facetColname = "GeneSymbol",
+                              xColname     = "Contrast",
+                              yColname     = "logFC"),
+                 regexp = "CI.R_colname must be one of contrastsDF columns. Disabling confidenece limits.",
+                 fixed = TRUE)
+    ## CI.L_colname
+    msg <- "CI.L_colname must be one of contrastsDF columns. Setting default value 'CI.L'"
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname = "CI.R",
+                                CI.L_colname = c("CI.L", "CI.L")),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname = "CI.R",
+                                CI.L_colname =  "abc"),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname = "CI.R",
+                                CI.L_colname = NULL),
+                   regexp = msg,
+                   fixed = TRUE)
+    tidyDat2 <- tidyDat %>% dplyr::rename(MyCI.L = CI.L)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat2,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                yColname     = "logFC",
+                                CI.R_colname = "CI.R"),
+                   regexp = "CI.L_colname must be one of contrastsDF columns. Disabling confidenece limits.",
+                   fixed = TRUE)
     ## plotCategory
     msg <- "plotCategory must be either 'bar' or 'point'. Setting default value 'bar'"
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
@@ -127,11 +191,4 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 facetCol     = 2,
                                 plotCategory = c("bar", "point")),
                    regexp = msg)
-    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
-                                facetColname = "GeneSymbol",
-                                xColname     = "Contrast",
-                                facetCol     = 2 ,
-                                CI.R_colname = "xyz",
-                                CI.L_colname = "xyz"),
-                   regexp = "Confidence limits columns not found.")
 })
