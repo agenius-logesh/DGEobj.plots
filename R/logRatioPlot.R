@@ -15,7 +15,7 @@
 #' @param xOrder Define the order for the groups in each plot.  Should
 #'   contain values in unique(contrastsDF$group) listed in the order that
 #'   groups should appear in the plot. (Optional; Default = unique(contrastsDF[xColname]))
-#' @param plotType One of "bar" or "point" (Default = "bar")
+#' @param plotCategory One of "bar" or "point" (Default = "bar")
 #' @param refLine Adds a horizontal line at y = 0 (Default = TRUE)
 #' @param refLineColor Color for the reference line (Default = "red")
 #' @param xlab X axis label (Defaults to xColname)
@@ -80,7 +80,7 @@
 #'
 #'   # Lineplot with some options
 #'   logRatioPlot(tidyDat,
-#'                plotType = "point",
+#'                plotCategory = "point",
 #'                facetColname = "GeneSymbol",
 #'                xColname = "Contrast",
 #'                facetCol = 4,
@@ -105,7 +105,7 @@ logRatioPlot <- function(contrastsDF,
                          CI.R_colname = "CI.R",
                          CI.L_colname = "CI.L",
                          xOrder = unique(as.character(contrastsDF[xColname, , drop = TRUE])),
-                         plotType = "bar",
+                         plotCategory = "bar",
                          refLine = TRUE,
                          refLineColor = "red",
                          xlab = xColname, ylab = yColname,
@@ -131,19 +131,37 @@ logRatioPlot <- function(contrastsDF,
                          facetCol,
                          xAngle = 45,
                          scales = "free_y") {
-
-    assertthat::assert_that(plotType %in% c("bar", "point"),
-                            msg = "plotType must be either 'bar' or 'point'.")
+    assertthat::assert_that(!missing(contrastsDF),
+                            !is.null(contrastsDF),
+                            nrow(contrastsDF) > 0,
+                            "data.frame" %in% class(contrastsDF),
+                            msg = "contrastsDF must be specified and should be of class 'data.frame'.")
+    if (any(is.null(plotCategory),
+            !is.character(plotCategory),
+            length(plotCategory) != 1,
+            !(tolower(plotCategory) %in% c("bar", "point")))) {
+        warning("plotCategory must be either 'bar' or 'point'. Setting default value 'bar'")
+        plotCategory  <-  "bar"
+    } else {
+        plotCategory <- tolower(plotCategory)
+    }
+    assertthat::assert_that(facetColname %in% colnames(contrastsDF),
+                            msg = "facetColname must be included in the colnames of data.")
+    assertthat::assert_that(xColname %in% colnames(contrastsDF),
+                            msg = "xColname must be included in the colnames of data.")
+    assertthat::assert_that(yColname %in% colnames(contrastsDF),
+                            msg = "yColname must be included in the colnames of data.")
+    assertthat::assert_that(all(xOrder %in% as.character(contrastsDF[xColname, , drop = TRUE])))
 
     .addGeoms <- function(myPlot){
-        if (tolower(plotType) == "bar") {
+        if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
                                         alpha = barAlpha,
                                         color = barColor,
                                         fill = barFill,
                                         size = barSize,
                                         width = barWidth)
-        } else if (tolower(plotType) == "point") {
+        } else if (plotCategory == "point") {
             myPlot <- myPlot + geom_point(alpha = pointAlpha,
                                           color = pointColor,
                                           fill = pointFill,
@@ -158,7 +176,7 @@ logRatioPlot <- function(contrastsDF,
             warning("Confidence limits columns not found.")
         }
 
-        if (lineLayer == TRUE) {
+        if (lineLayer) {
             myPlot <- myPlot + geom_smooth(aes_string(group = facetColname),
                                            method = lineFit,
                                            formula = y ~ x,
@@ -166,22 +184,9 @@ logRatioPlot <- function(contrastsDF,
                                            size = lineSize,
                                            se = FALSE)
         }
-
-        return(myPlot)
+        myPlot
     }
 
-    assertthat::assert_that(!missing(contrastsDF),
-                            "data.frame" %in% class(contrastsDF),
-                            msg = "data must be specified and should be of class 'data.frame'.")
-    assertthat::assert_that(facetColname %in% colnames(contrastsDF),
-                            msg = "facetColname must be included in the colnames of data.")
-    assertthat::assert_that(xColname %in% colnames(contrastsDF),
-                            msg = "xColname must be included in the colnames of data.")
-    assertthat::assert_that(yColname %in% colnames(contrastsDF),
-                            msg = "yColname must be included in the colnames of data.")
-    assertthat::assert_that(all(xOrder %in% as.character(contrastsDF[xColname, , drop = TRUE])))
-
-    # Plot code here
     if (facet) {
         # Set facet columns to sqrt of unique observations (rounded up)
         if (missing(facetCol)) {
@@ -216,14 +221,10 @@ logRatioPlot <- function(contrastsDF,
             myPlot <- myPlot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
         }
 
-    } else { # Individual plots for each Gene returned in a list
-
+    } else {# Individual plots for each Gene returned in a list
         plotlist <- list()
-
         for (obs in unique(contrastsDF[[facetColname]])) { # For each gene
-
             dat <- contrastsDF[contrastsDF[[facetColname]] == obs, ] # Pull data for one gene
-
             aplot <- ggplot(dat, aes_string(x = xColname, y = yColname)) + # Samples vs Log2CPM
                 xlab(xlab) +
                 ylab(ylab) +
@@ -239,15 +240,12 @@ logRatioPlot <- function(contrastsDF,
                 aplot <- aplot + theme(axis.text.x = element_text(angle = xAngle, hjust = 1))
             }
 
-            if (refLine == TRUE) {
+            if (refLine) {
                 aplot <- aplot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
             }
-
             plotlist[[obs]] <- aplot
         }
-
         myPlot = plotlist
     }
-
-    return(myPlot)
+    myPlot
 }

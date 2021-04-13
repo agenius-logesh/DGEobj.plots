@@ -13,7 +13,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
     colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
 
-    tidyDat <- left_join(tidyDat, ens2genesym) %>% head(10)
+    tidyDat <- dplyr::left_join(tidyDat, ens2genesym) %>% head(10)
 
     # Simple barplot
     log_ratio_plot <- logRatioPlot(contrastsDF  = tidyDat,
@@ -24,7 +24,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
 
     # Lineplot with some options
     log_ratio_plot <- logRatioPlot(contrastsDF  = tidyDat,
-                                   plotType     = "point",
+                                   plotCategory = "point",
                                    facetColname = "GeneSymbol",
                                    xColname     = "Contrast",
                                    facetCol     = 4,
@@ -38,12 +38,43 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_type(log_ratio_plot, "list")
     expect_s3_class(log_ratio_plot[[1]], c("gg", "ggplot"))
 
-    expect_error(logRatioPlot(contrastsDF  = tidyDat,
+    # Testing asserts
+    ## contrastsDF
+    msg <- "contrastsDF must be specified and should be of class 'data.frame'."
+    expect_error(logRatioPlot(),
+                 regexp = msg)
+    expect_error(logRatioPlot(NULL),
+                 regexp = msg)
+    expect_error(logRatioPlot(data.frame()),
+                 regexp = msg)
+    expect_error(logRatioPlot(tidyDat %>% as.matrix()),
+                 regexp = msg)
+    ## plotCategory
+    msg <- "plotCategory must be either 'bar' or 'point'. Setting default value 'bar'"
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                               facetColname = "GeneSymbol",
                               xColname     = "Contrast",
                               facetCol     = 2,
-                              plotType     = "heatmap"),
-                 regexp = "plotType must be either 'bar' or 'point'.")
+                              plotCategory = "heatmap"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facetCol     = 2,
+                                plotCategory = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facetCol     = 2,
+                                plotCategory = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facetCol     = 2,
+                                plotCategory = c("bar", "point")),
+                   regexp = msg)
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
