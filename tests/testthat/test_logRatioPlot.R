@@ -62,6 +62,23 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                  regexp = msg)
     expect_error(logRatioPlot(contrastsDF  = tidyDat),
                  regexp = msg)
+    ## xColname
+    msg <- "xColname must be one of contrastsDF columns."
+    expect_error(logRatioPlot(contrastsDF  = tidyDat,
+                              facetColname = "GeneSymbol",
+                              xColname = c("Contrast", "Contrast")),
+                 regexp = msg)
+    expect_error(logRatioPlot(contrastsDF  = tidyDat,
+                              facetColname = "GeneSymbol",
+                              xColname = "abc"),
+                 regexp = msg)
+    expect_error(logRatioPlot(contrastsDF  = tidyDat,
+                              facetColname = "GeneSymbol",
+                              xColname = NULL),
+                 regexp = msg)
+    expect_error(logRatioPlot(contrastsDF = tidyDat,
+                              facetColname = "GeneSymbol"),
+                 regexp = msg)
     ## plotCategory
     msg <- "plotCategory must be either 'bar' or 'point'. Setting default value 'bar'"
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
