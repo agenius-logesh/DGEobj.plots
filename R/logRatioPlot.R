@@ -12,9 +12,6 @@
 #' @param yColname Define the column name for the output of the boxplots (Default = "logFC")
 #' @param CI.R_colname Define name of the CI high value (Default = "CI.R")
 #' @param CI.L_colname Define name of the CI low value (Default =  "CI.L")
-#' @param xOrder Define the order for the groups in each plot.  Should
-#'   contain values in unique(contrastsDF$group) listed in the order that
-#'   groups should appear in the plot. (Optional; Default = unique(contrastsDF[xColname]))
 #' @param plotCategory One of "bar" or "point" (Default = "bar")
 #' @param refLine Adds a horizontal line at y = 0 (Default = TRUE)
 #' @param refLineColor Color for the reference line (Default = "red")
@@ -104,7 +101,6 @@ logRatioPlot <- function(contrastsDF,
                          yColname = "logFC",
                          CI.R_colname = "CI.R",
                          CI.L_colname = "CI.L",
-                         xOrder = unique(as.character(contrastsDF[xColname, , drop = TRUE])),
                          plotCategory = "bar",
                          refLine = TRUE,
                          refLineColor = "red",
@@ -192,7 +188,6 @@ logRatioPlot <- function(contrastsDF,
     } else {
         plotCategory <- tolower(plotCategory)
     }
-    assertthat::assert_that(all(xOrder %in% as.character(contrastsDF[xColname, , drop = TRUE])))
 
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
