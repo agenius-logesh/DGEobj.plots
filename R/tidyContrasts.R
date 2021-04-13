@@ -91,7 +91,5 @@ tidyContrasts <- function(DGEdata,
     }
 
     # Now merge the dataframes vertically
-    DGEdata <- do.call(rbind, DGEdata)
-
-    return(DGEdata)
+    do.call(rbind, DGEdata)
 }
