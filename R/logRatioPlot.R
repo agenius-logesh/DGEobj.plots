@@ -300,6 +300,16 @@ logRatioPlot <- function(contrastsDF,
         lineLayer <- FALSE
     }
 
+    if (any(is.null(lineColor),
+            !is.character(lineColor),
+            length(lineColor) != 1)) {
+        warning("lineColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
+        lineColor <- "dodgerblue4"
+    } else if (.rgbaConversion(lineColor) == "invalid value") {
+        warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
+        lineColor <- "dodgerblue4"
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",

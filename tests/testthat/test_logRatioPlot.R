@@ -494,4 +494,26 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 xColname     = "Contrast",
                                 lineLayer    = c(FALSE, TRUE)),
                    regexp = msg)
+    ## lineColor
+    msg <- "lineColor must be a singular value of class character. Assigning default value 'dodgerblue4'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineColor    = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineColor    = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineColor    = "abc"),
+                   regexp = "Color specified is not valid. Assigning default value 'dodgerblue4'.")
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineColor    = c("dodgerblue4", "dodgerblue4")),
+                   regexp = msg)
 })
