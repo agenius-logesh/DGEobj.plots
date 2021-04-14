@@ -310,6 +310,14 @@ logRatioPlot <- function(contrastsDF,
         lineColor <- "dodgerblue4"
     }
 
+    if (any(is.null(lineSize),
+            !is.numeric(lineSize),
+            length(lineSize) != 1,
+            lineSize < 0)) {
+        warning("lineSize must be a singular value of class numeric Assigning default value '1'.")
+        lineSize <- 1
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
