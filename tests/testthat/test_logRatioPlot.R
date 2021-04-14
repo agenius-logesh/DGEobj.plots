@@ -235,4 +235,55 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 xColname     = "Contrast",
                                 refLineColor = c("red", "red")),
                    regexp = msg)
+    ## title
+    msg <- "title must be a singular value of class character. Assigning default value 'NULL'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                title        = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                title        = c(123, 345)),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                title        = c("title1", "title2")),
+                   regexp = msg)
+    ## xlab
+    msg <- "xlab must be a singular value of class character. Assigning default value 'NULL'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                xlab         = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                xlab         = c(123, 345)),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                xlab         = c("title1", "title2")),
+                   regexp = msg)
+    ## ylab
+    msg <- "ylab must be a singular value of class character. Assigning default value 'NULL'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                ylab         = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                ylab         = c(123, 345)),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                ylab         = c("title1", "title2")),
+                   regexp = msg)
 })

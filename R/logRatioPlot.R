@@ -104,8 +104,9 @@ logRatioPlot <- function(contrastsDF,
                          plotCategory = "bar",
                          refLine = TRUE,
                          refLineColor = "red",
-                         xlab = xColname, ylab = yColname,
-                         title,
+                         xlab = xColname,
+                         ylab = yColname,
+                         title = NULL,
                          barColor = "dodgerblue4",
                          barFill = "dodgerblue3",
                          barSize = 0.1,
@@ -208,6 +209,23 @@ logRatioPlot <- function(contrastsDF,
         }
     }
 
+    if (!is.null(title) &&
+        !all(is.character(title), length(title) == 1)) {
+        warning("title must be a singular value of class character. Assigning default value 'NULL'.")
+        title <- NULL
+    }
+
+    if (!is.null(xlab) &&
+        !all(is.character(xlab), length(xlab) == 1)) {
+        warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
+        xlab <- NULL
+    }
+
+    if (!is.null(ylab) &&
+        !all(is.character(ylab), length(ylab) == 1)) {
+        warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
+        ylab <- NULL
+    }
 
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
@@ -256,7 +274,7 @@ logRatioPlot <- function(contrastsDF,
 
         myPlot <- myPlot + ggplot2::xlab(xlab)
         myPlot <- myPlot + ggplot2::ylab(ylab)
-        if (!missing(title)) {
+        if (!is.null(title)) {
             myPlot <- myPlot + ggplot2::ggtitle(title)
         }
         if (tolower(themeStyle) == "bw") {
@@ -286,7 +304,7 @@ logRatioPlot <- function(contrastsDF,
                 theme_grey() + facetTheme(baseFontSize)
             aplot <- .addGeoms(aplot)
 
-            if (!missing(title)) {
+            if (!is.null(title)) {
                 aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
             }
 
