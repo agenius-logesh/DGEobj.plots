@@ -23,7 +23,6 @@
 #' @param barWidth Set the bar width (Default = 0.8)
 #' @param barTransparency Transparency for the bar layer (Default = 1)
 #' @param pointColor Color for the point layer (Default = "grey30")
-#' @param pointFill Fill color for the point layer (Default = "dodgerblue4")
 #' @param pointShape Shape for the point layer (Default = 21; fillable circle)
 #' @param barTransparency Transparency for the box layer (Default = 1)
 #' @param pointSize Size of the points (Default = 4)
@@ -110,8 +109,7 @@ logRatioPlot <- function(contrastsDF,
                          barSize = 0.1,
                          barTransparency = 1,
                          barWidth = 0.9,
-                         pointColor = "grey30",
-                         pointFill = "dodgerblue4",
+                         pointColor = "dodgerblue4",
                          pointShape = 21,
                          pointAlpha = 1,
                          pointSize = 2,
@@ -269,7 +267,7 @@ logRatioPlot <- function(contrastsDF,
         } else if (plotCategory == "point") {
             myPlot <- myPlot + geom_point(alpha = pointAlpha,
                                           color = pointColor,
-                                          fill = pointFill,
+                                          fill = pointColor,
                                           size = pointSize,
                                           shape = pointShape)
         }
