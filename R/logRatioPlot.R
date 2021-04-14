@@ -9,40 +9,40 @@
 #' @param contrastsDF A tidy dataframe of data to plot (Required) (see ?tidyContrasts).
 #' @param facetColname Define the column name to separate plots (Required) (e.g. GeneID).
 #' @param xColname Define the column name to group boxplots by (Required) (e.g. Contrast).
-#' @param yColname Define the column name for the output of the boxplots (Default = "logFC")
-#' @param CI.R_colname Define name of the CI high value (Default = "CI.R")
-#' @param CI.L_colname Define name of the CI low value (Default =  "CI.L")
-#' @param plotCategory One of "bar" or "point" (Default = "bar")
-#' @param refLine Adds a horizontal line at y = 0 (Default = TRUE)
-#' @param refLineColor Color for the reference line (Default = "red")
-#' @param xlab X axis label (Defaults to xColname)
-#' @param ylab Y axis label (Defaults to yColname)
+#' @param yColname Define the column name for the output of the boxplots (default = "logFC")
+#' @param CI.R_colname Define name of the CI high value (default = "CI.R")
+#' @param CI.L_colname Define name of the CI low value (default =  "CI.L")
+#' @param plotCategory One of "bar" or "point" (default = "bar")
+#' @param refLine Adds a horizontal line at y = 0 (default = TRUE)
+#' @param refLineColor Color for the reference line (default = "red")
+#' @param xlab X axis label (defaults to xColname)
+#' @param ylab Y axis label (defaults to yColname)
 #' @param title Plot title (Optional)
-#' @param barColor Color for the bar outline (Default = "dodgerblue4")
-#' @param barSize Set the bar size (thickness of each bar perimeter; Default = 0.1)
-#' @param barWidth Set the bar width (Default = 0.8)
-#' @param barTransparency Transparency for the bar layer (Default = 1)
-#' @param pointColor Color for the point layer (Default = "grey30")
-#' @param pointShape Shape for the point layer (Default = 21; fillable circle)
-#' @param barTransparency Transparency for the box layer (Default = 1)
-#' @param pointSize Size of the points (Default = 4)
-#' @param lineLayer Add a fitted line layer (Default = FALSE)
-#' @param lineColor Color of the line fit (Default = "dodgerblue4")
-#' @param lineSize Size of the line fit (Default = 1)
+#' @param barColor Color for the bar outline (default = "dodgerblue4")
+#' @param barSize Set the bar size (thickness of each bar perimeter; default = 0.1)
+#' @param barWidth Set the bar width (default = 0.8)
+#' @param barTransparency Transparency for the bar layer (default = 1)
+#' @param pointColor Color for the point layer (default = "grey30")
+#' @param pointShape Shape for the point layer (default = "circle")
+#' @param barTransparency Transparency for the box layer (default = 1)
+#' @param pointSize Size of the points (default = 4)
+#' @param lineLayer Add a fitted line layer (default = FALSE)
+#' @param lineColor Color of the line fit (default = "dodgerblue4")
+#' @param lineSize Size of the line fit (default = 1)
 #' @param lineFit Type of fit to use.  One of c("auto", "lm", "glm", "gam",
-#'   "loess"). (Default = "loess")
+#'   "loess"). (default = "loess")
 #' @param lineType One of c("solid", "dashed", "dotted", "dotdash", "longdash",
-#'   "twodash"). (Default = "solid")
-#' @param baseFontSize The smallest size font in the figure in points. (Default =
+#'   "twodash"). (default = "solid")
+#' @param baseFontSize The smallest size font in the figure in points. (default =
 #'   12)
 #' @param themeStyle "bw" or "grey" which correspond to theme_bw or theme_grey
-#'   respectively. (Default = "bw")
+#'   respectively. (default = "bw")
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
-#'   (FALSE)  (Default = TRUE)
-#' @param facetCol Explicitly set the number of rows for the facet plot. Default
-#'   behavior will automatically set the columns. (Default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))
-#' @param xAngle Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)
-#' @param scales Specify same scales or independent scales for each subplot (Default = "free_y";
+#'   (FALSE)  (default = TRUE)
+#' @param facetCol Explicitly set the number of rows for the facet plot. default
+#'   behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))
+#' @param xAngle Angle to set the sample labels on the X axis (default =  45; Range = 0-90)
+#' @param scales Specify same scales or independent scales for each subplot (default = "free_y";
 #'   Allowed values: "fixed", "free_x", "free_y", "free")
 #'
 #' @return ggplot object. If facet = TRUE (default), returns a faceted ggplot object. If
@@ -110,7 +110,7 @@ logRatioPlot <- function(contrastsDF,
                          barTransparency = 1,
                          barWidth = 0.9,
                          pointColor = "dodgerblue4",
-                         pointShape = 21,
+                         pointShape = "circle",
                          pointAlpha = 1,
                          pointSize = 2,
                          lineLayer = FALSE,
@@ -254,6 +254,24 @@ logRatioPlot <- function(contrastsDF,
             barTransparency > 1)) {
         warning("barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'.")
         transparency <- 1
+    }
+
+    if (any(is.null(pointColor),
+            !is.character(pointColor),
+            length(pointColor) != 1)) {
+        warning("pointColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
+        pointColor <- "dodgerblue4"
+    } else if (.rgbaConversion(pointColor) == "invalid value") {
+        warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
+        pointColor <- "dodgerblue4"
+    }
+
+    if (any(is.null(pointShape),
+            !is.character(pointShape),
+            length(pointShape)  != 1,
+            !is.null(pointShape) && !.is_valid_symbolShapes_ggplot(pointShape))) {
+        warning("pointShape must be a singular charcter values. Assigning default values 'circle'.")
+        pointShape  <- "circle"
     }
 
     .addGeoms <- function(myPlot){

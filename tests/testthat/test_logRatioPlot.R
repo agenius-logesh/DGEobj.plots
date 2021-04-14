@@ -369,4 +369,48 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 xColname     = "Contrast",
                                 barTransparency     = 9),
                    regexp = msg)
+    ## pointColor
+    msg <- "pointColor must be a singular value of class character. Assigning default value 'dodgerblue4'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointColor   = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointColor   = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointColor   = "abc"),
+                   regexp = "Color specified is not valid. Assigning default value 'dodgerblue4'.")
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointColor   = c("dodgerblue4", "dodgerblue4")),
+                   regexp = msg)
+    ## pointShape
+    msg <- "pointShape must be a singular charcter values. Assigning default values 'circle'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointShape   = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointShape   = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointShape   = "abc"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointShape   = c("circle", "circle")),
+                   regexp = msg)
 })
