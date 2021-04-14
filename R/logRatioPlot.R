@@ -19,7 +19,6 @@
 #' @param ylab Y axis label (Defaults to yColname)
 #' @param title Plot title (Optional)
 #' @param barColor Color for the bar outline (Default = "dodgerblue4")
-#' @param barFill Color for the bar area (Default = "dodgerblue3")
 #' @param barSize Set the bar size (thickness of each bar perimeter; Default = 0.1)
 #' @param barWidth Set the bar width (Default = 0.8)
 #' @param barAlpha Transparency for the bar layer (Default = 1)
@@ -108,7 +107,6 @@ logRatioPlot <- function(contrastsDF,
                          ylab = yColname,
                          title = NULL,
                          barColor = "dodgerblue4",
-                         barFill = "dodgerblue3",
                          barSize = 0.1,
                          barAlpha = 1,
                          barWidth = 0.9,
@@ -242,7 +240,7 @@ logRatioPlot <- function(contrastsDF,
             myPlot <- myPlot + geom_bar(stat = "identity",
                                         alpha = barAlpha,
                                         color = barColor,
-                                        fill = barFill,
+                                        fill = barColor,
                                         size = barSize,
                                         width = barWidth)
         } else if (plotCategory == "point") {
