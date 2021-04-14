@@ -227,6 +227,16 @@ logRatioPlot <- function(contrastsDF,
         ylab <- NULL
     }
 
+    if (any(is.null(barColor),
+            !is.character(barColor),
+            length(barColor) != 1)) {
+        warning("barColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
+        barColor <- "dodgerblue4"
+    } else if (.rgbaConversion(barColor) == "invalid value") {
+        warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
+        barColor <- "dodgerblue4"
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
