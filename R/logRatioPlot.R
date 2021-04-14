@@ -235,6 +235,20 @@ logRatioPlot <- function(contrastsDF,
         barColor <- "dodgerblue4"
     }
 
+    if (any(is.null(barSize),
+            !is.numeric(barSize),
+            length(barSize) != 1)) {
+        warning("barSize must be a singular value of class numeric Assigning default value '0.1'.")
+        barSize <- 0.1
+    }
+
+    if (any(is.null(barWidth),
+            !is.numeric(barWidth),
+            length(barWidth) != 1)) {
+        warning("barWidth must be a singular value of class numeric Assigning default value '0.9'.")
+        barWidth <- 0.9
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
