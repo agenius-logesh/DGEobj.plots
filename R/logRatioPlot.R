@@ -306,7 +306,6 @@ logRatioPlot <- function(contrastsDF,
         }
     }
 
-
     if (!is.null(lineFit) &&
         any(is.null(lineSize),
             !is.numeric(lineSize),
@@ -321,6 +320,13 @@ logRatioPlot <- function(contrastsDF,
             !tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam'))) {
         warning("lineFit must be one of 'glm', 'lm', 'loess', 'gam' or NULL to disable. Assigning default value 'loess'.")
         lineFit <- "loess"
+    }
+
+    if (any(is.null(facet),
+            !is.logical(facet),
+            length(facet) != 1)) {
+        warning("facet must be singular logical value. Setting default value 'TRUE'.")
+        facet <- TRUE
     }
 
     .addGeoms <- function(myPlot){

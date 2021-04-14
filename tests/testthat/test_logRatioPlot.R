@@ -33,8 +33,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                    title        = "Test",
                                    pointSize    = 4,
                                    lineLayer    = TRUE,
-                                   lineSize     = 0.1,
-                                   xAngle       = 60)
+                                   lineSize     = 0.1)
     expect_type(log_ratio_plot, "list")
     expect_s3_class(log_ratio_plot[[1]], c("gg", "ggplot"))
 
@@ -554,5 +553,27 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
                                 lineFit      = c("loess", "loess")),
+                   regexp = msg)
+    ## facet
+    msg <- "facet must be singular logical value. Setting default value 'TRUE'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facet        = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facet        = 123),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facet        = "FALSE"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                facet        = c("TRUE", "FALSE")),
                    regexp = msg)
 })
