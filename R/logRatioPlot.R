@@ -300,22 +300,33 @@ logRatioPlot <- function(contrastsDF,
         lineLayer <- FALSE
     }
 
-    if (any(is.null(lineColor),
-            !is.character(lineColor),
-            length(lineColor) != 1)) {
-        warning("lineColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
-        lineColor <- "dodgerblue4"
-    } else if (.rgbaConversion(lineColor) == "invalid value") {
-        warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
-        lineColor <- "dodgerblue4"
+    if (!is.null(lineFit)) {
+        if (any(is.null(lineColor),
+                !is.character(lineColor),
+                length(lineColor) != 1)) {
+            warning("lineColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
+            lineColor <- "dodgerblue4"
+        } else if (.rgbaConversion(lineColor) == "invalid value") {
+            warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
+            lineColor <- "dodgerblue4"
+        }
     }
 
-    if (any(is.null(lineSize),
+
+    if (!is.null(lineFit) &&
+        any(is.null(lineSize),
             !is.numeric(lineSize),
             length(lineSize) != 1,
             lineSize < 0)) {
         warning("lineSize must be a singular value of class numeric Assigning default value '1'.")
         lineSize <- 1
+    }
+
+    if (!is.null(lineFit) &&
+        any(length(lineFit) != 1,
+            !tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam'))) {
+        warning("lineFit must be one of 'glm', 'lm', 'loess', 'gam' or NULL to disable. Assigning default value 'loess'.")
+        lineFit <- "loess"
     }
 
     .addGeoms <- function(myPlot){
