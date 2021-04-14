@@ -111,7 +111,7 @@ logRatioPlot <- function(contrastsDF,
                          barWidth = 0.9,
                          pointColor = "dodgerblue4",
                          pointShape = "circle",
-                         pointAlpha = 1,
+                         pointTransparency = 1,
                          pointSize = 2,
                          lineLayer = FALSE,
                          lineColor = "dodgerblue4",
@@ -235,14 +235,16 @@ logRatioPlot <- function(contrastsDF,
 
     if (any(is.null(barSize),
             !is.numeric(barSize),
-            length(barSize) != 1)) {
+            length(barSize) != 1,
+            barSize < 0)) {
         warning("barSize must be a singular value of class numeric Assigning default value '0.1'.")
         barSize <- 0.1
     }
 
     if (any(is.null(barWidth),
             !is.numeric(barWidth),
-            length(barWidth) != 1)) {
+            length(barWidth) != 1,
+            barWidth < 0)) {
         warning("barWidth must be a singular value of class numeric Assigning default value '0.9'.")
         barWidth <- 0.9
     }
@@ -253,7 +255,7 @@ logRatioPlot <- function(contrastsDF,
             barTransparency <= 0,
             barTransparency > 1)) {
         warning("barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'.")
-        transparency <- 1
+        barTransparency <- 1
     }
 
     if (any(is.null(pointColor),
@@ -274,6 +276,23 @@ logRatioPlot <- function(contrastsDF,
         pointShape  <- "circle"
     }
 
+    if (any(is.null(pointTransparency),
+            !is.numeric(pointTransparency),
+            length(pointTransparency) != 1,
+            pointTransparency <= 0,
+            pointTransparency > 1)) {
+        warning("pointTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'.")
+        pointTransparency <- 1
+    }
+
+    if (any(is.null(pointSize),
+            !is.numeric(pointSize),
+            length(pointSize) != 1,
+            pointSize < 0)) {
+        warning("pointSize must be a singular value of class numeric Assigning default value '2'.")
+        pointSize <- 2
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
@@ -283,7 +302,7 @@ logRatioPlot <- function(contrastsDF,
                                         size = barSize,
                                         width = barWidth)
         } else if (plotCategory == "point") {
-            myPlot <- myPlot + geom_point(alpha = pointAlpha,
+            myPlot <- myPlot + geom_point(alpha = pointTransparency,
                                           color = pointColor,
                                           fill = pointColor,
                                           size = pointSize,

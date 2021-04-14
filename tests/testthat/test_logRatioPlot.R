@@ -323,6 +323,11 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
+                                barSize      = -0.1),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
                                 barSize      = c(0.1, 0.1)),
                    regexp = msg)
     ## barWidth
@@ -336,6 +341,11 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
                                 barWidth     = "0.9"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                barWidth     = -0.9),
                    regexp = msg)
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
@@ -412,5 +422,54 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
                                 pointShape   = c("circle", "circle")),
+                   regexp = msg)
+    ## pointTransparency
+    msg <- "pointTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'."
+    expect_warning(logRatioPlot(contrastsDF     = tidyDat,
+                                facetColname    = "GeneSymbol",
+                                xColname        = "Contrast",
+                                pointTransparency = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointTransparency     = "0.9"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointTransparency     = c(0.9, 0.9)),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointTransparency     = 0),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointTransparency     = 9),
+                   regexp = msg)
+    ## pointSize
+    msg <- "pointSize must be a singular value of class numeric Assigning default value '2'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointSize    = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointSize    = "0.1"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointSize    = -0.1),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                pointSize    = c(0.1, 0.1)),
                    regexp = msg)
 })
