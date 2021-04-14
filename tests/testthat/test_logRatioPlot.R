@@ -472,4 +472,26 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 xColname     = "Contrast",
                                 pointSize    = c(0.1, 0.1)),
                    regexp = msg)
+    ## lineLayer
+    msg <- "lineLayer must be a singular value of class logical Assigning default value 'FALSE'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineLayer    = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineLayer    = "0.1"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineLayer    = 0.1),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                lineLayer    = c(FALSE, TRUE)),
+                   regexp = msg)
 })

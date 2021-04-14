@@ -293,6 +293,13 @@ logRatioPlot <- function(contrastsDF,
         pointSize <- 2
     }
 
+    if (any(is.null(lineLayer),
+            !is.logical(lineLayer),
+            length(lineLayer) != 1)) {
+        warning("lineLayer must be a singular value of class logical Assigning default value 'FALSE'.")
+        lineLayer <- FALSE
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
