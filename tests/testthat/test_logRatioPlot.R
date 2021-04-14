@@ -342,4 +342,31 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 xColname     = "Contrast",
                                 barWidth     = c(0.9, 0.9)),
                    regexp = msg)
+    ## barTransparency
+    msg <- "barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'."
+    expect_warning(logRatioPlot(contrastsDF     = tidyDat,
+                                facetColname    = "GeneSymbol",
+                                xColname        = "Contrast",
+                                barTransparency = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                barTransparency     = "0.9"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                barTransparency     = c(0.9, 0.9)),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                barTransparency     = 0),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                barTransparency     = 9),
+                   regexp = msg)
 })

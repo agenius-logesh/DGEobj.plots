@@ -21,11 +21,11 @@
 #' @param barColor Color for the bar outline (Default = "dodgerblue4")
 #' @param barSize Set the bar size (thickness of each bar perimeter; Default = 0.1)
 #' @param barWidth Set the bar width (Default = 0.8)
-#' @param barAlpha Transparency for the bar layer (Default = 1)
+#' @param barTransparency Transparency for the bar layer (Default = 1)
 #' @param pointColor Color for the point layer (Default = "grey30")
 #' @param pointFill Fill color for the point layer (Default = "dodgerblue4")
 #' @param pointShape Shape for the point layer (Default = 21; fillable circle)
-#' @param pointAlpha Transparency for the box layer (Default = 1)
+#' @param barTransparency Transparency for the box layer (Default = 1)
 #' @param pointSize Size of the points (Default = 4)
 #' @param lineLayer Add a fitted line layer (Default = FALSE)
 #' @param lineColor Color of the line fit (Default = "dodgerblue4")
@@ -108,7 +108,7 @@ logRatioPlot <- function(contrastsDF,
                          title = NULL,
                          barColor = "dodgerblue4",
                          barSize = 0.1,
-                         barAlpha = 1,
+                         barTransparency = 1,
                          barWidth = 0.9,
                          pointColor = "grey30",
                          pointFill = "dodgerblue4",
@@ -249,10 +249,19 @@ logRatioPlot <- function(contrastsDF,
         barWidth <- 0.9
     }
 
+    if (any(is.null(barTransparency),
+            !is.numeric(barTransparency),
+            length(barTransparency) != 1,
+            barTransparency <= 0,
+            barTransparency > 1)) {
+        warning("barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'.")
+        transparency <- 1
+    }
+
     .addGeoms <- function(myPlot){
         if (plotCategory == "bar") {
             myPlot <- myPlot + geom_bar(stat = "identity",
-                                        alpha = barAlpha,
+                                        alpha = barTransparency,
                                         color = barColor,
                                         fill = barColor,
                                         size = barSize,
