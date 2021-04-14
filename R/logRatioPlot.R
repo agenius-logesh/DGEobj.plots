@@ -35,13 +35,10 @@
 #'   "twodash"). (default = "solid")
 #' @param baseFontSize The smallest size font in the figure in points. (default =
 #'   12)
-#' @param themeStyle "bw" or "grey" which correspond to theme_bw or theme_grey
-#'   respectively. (default = "bw")
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
 #' @param facetCol Explicitly set the number of rows for the facet plot. default
 #'   behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))
-#' @param xAngle Angle to set the sample labels on the X axis (default =  45; Range = 0-90)
 #' @param scales Specify same scales or independent scales for each subplot (default = "free_y";
 #'   Allowed values: "fixed", "free_x", "free_y", "free")
 #'
@@ -84,8 +81,7 @@
 #'                title = "Test",
 #'                pointSize = 4,
 #'                lineLayer = TRUE,
-#'                lineSize = 0.1,
-#'                xAngle = 60)
+#'                lineSize = 0.1)
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -119,10 +115,8 @@ logRatioPlot <- function(contrastsDF,
                          lineType = "solid",
                          lineFit = "loess",
                          baseFontSize = 12,
-                         themeStyle = "grey",
                          facet = TRUE,
                          facetCol,
-                         xAngle = 45,
                          scales = "free_y") {
     assertthat::assert_that(!missing(contrastsDF),
                             !is.null(contrastsDF),
@@ -379,16 +373,6 @@ logRatioPlot <- function(contrastsDF,
         if (!is.null(title)) {
             myPlot <- myPlot + ggplot2::ggtitle(title)
         }
-        if (tolower(themeStyle) == "bw") {
-            myPlot <- myPlot + theme_bw() + baseTheme(baseFontSize)
-        } else {
-            myPlot <- myPlot + theme_grey() + baseTheme(baseFontSize)
-        }
-
-        #rotate xaxis group labels
-        if (xAngle > 0) {
-            myPlot <- myPlot + theme(axis.text.x = element_text(angle = xAngle, hjust = 1))
-        }
 
         #Add refLine at 0
         if (refLine) {
@@ -408,10 +392,6 @@ logRatioPlot <- function(contrastsDF,
 
             if (!is.null(title)) {
                 aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
-            }
-
-            if (xAngle > 0) {
-                aplot <- aplot + theme(axis.text.x = element_text(angle = xAngle, hjust = 1))
             }
 
             if (refLine) {
