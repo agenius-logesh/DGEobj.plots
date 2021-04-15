@@ -31,8 +31,6 @@
 #' @param lineSize Size of the line fit (default = 1)
 #' @param lineFit Type of fit to use.  One of c("auto", "lm", "glm", "gam",
 #'   "loess"). (default = "loess")
-#' @param lineType One of c("solid", "dashed", "dotted", "dotdash", "longdash",
-#'   "twodash"). (default = "solid")
 #' @param baseFontSize The smallest size font in the figure in points. (default =
 #'   12)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
@@ -114,7 +112,6 @@ logRatioPlot <- function(contrastsDF,
                          lineLayer = FALSE,
                          lineColor = "dodgerblue4",
                          lineSize = 1,
-                         lineType = "solid",
                          lineFit = "loess",
                          baseFontSize = 12,
                          facet = TRUE,
