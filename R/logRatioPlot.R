@@ -31,8 +31,6 @@
 #' @param lineSize Size of the line fit (default = 1)
 #' @param lineFit Type of fit to use.  One of c("auto", "lm", "glm", "gam",
 #'   "loess"). (default = "loess")
-#' @param baseFontSize The smallest size font in the figure in points. (default =
-#'   12)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
 #' @param facetCol Explicitly set the number of rows for the facet plot. default
@@ -81,7 +79,7 @@
 #'                pointSize = 4,
 #'                lineLayer = TRUE,
 #'                lineSize = 0.1,
-#'                Angle = 60)
+#'                labelAngle = 60)
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -90,6 +88,7 @@
 #'
 #' @export
 logRatioPlot <- function(contrastsDF,
+                         plotType = "canvasXpress",
                          facetColname,
                          xColname,
                          yColname = "logFC",
@@ -113,7 +112,6 @@ logRatioPlot <- function(contrastsDF,
                          lineColor = "dodgerblue4",
                          lineSize = 1,
                          lineFit = "loess",
-                         baseFontSize = 12,
                          facet = TRUE,
                          facetCol,
                          labelAngle = 45,
@@ -123,6 +121,12 @@ logRatioPlot <- function(contrastsDF,
                             nrow(contrastsDF) > 0,
                             "data.frame" %in% class(contrastsDF),
                             msg = "contrastsDF must be specified and should be of class 'data.frame'.")
+    plotType <- tolower(plotType)
+    if (any(length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Setting default value 'canvasXpress'")
+        plotType <- "canvasxpress"
+    }
     assertthat::assert_that(!missing(facetColname),
                             !is.null(facetColname),
                             length(facetColname) == 1,
@@ -338,91 +342,100 @@ logRatioPlot <- function(contrastsDF,
         facet <- TRUE
     }
 
-    .addGeoms <- function(myPlot){
-        if (plotCategory == "bar") {
-            myPlot <- myPlot + geom_bar(stat = "identity",
-                                        alpha = barTransparency,
-                                        color = barColor,
-                                        fill = barColor,
-                                        size = barSize,
-                                        width = barWidth)
-        } else if (plotCategory == "point") {
-            myPlot <- myPlot + geom_point(alpha = pointTransparency,
-                                          color = pointColor,
-                                          fill = pointColor,
-                                          size = pointSize,
-                                          shape = pointShape)
+    if (facet && !missing(facetColname)) {
+        if (missing(facetCol)) {
+            facetCol <- contrastsDF[facetColname] %>% unique %>% length %>% sqrt %>% ceiling
+        } else if (any(is.null(facetCol),
+                       !is.numeric(facetCol),
+                       length(facetCol) != 1,
+                       facetCol < 0)) {
+            warning("facetCol must be a singular value of class numeric. Assigning default value.")
+            facetCol <- contrastsDF[facetColname] %>% unique %>% length %>% sqrt %>% ceiling
         }
-
-        # Add error bars if columns present
-        if (is_confidence_used) {
-            myPlot <- myPlot + geom_errorbar(aes_string(ymin = CI.L_colname, ymax = CI.R_colname), width = .2)
-        }
-
-        if (lineLayer) {
-            myPlot <- myPlot + geom_smooth(aes_string(group = facetColname),
-                                           method = lineFit,
-                                           formula = y ~ x,
-                                           color = lineColor,
-                                           size = lineSize,
-                                           se = FALSE)
-        }
-        myPlot
     }
 
-    if (facet) {
-        # Set facet columns to sqrt of unique observations (rounded up)
-        if (missing(facetCol)) {
-            numcol <- contrastsDF[facetCol] %>% unique %>% length %>% sqrt %>% ceiling
-        } else {
-            numcol = facetCol
+    if (plotType == "canvasxpress") {
+
+    } else {
+        .addGeoms <- function(myPlot){
+            if (plotCategory == "bar") {
+                myPlot <- myPlot + geom_bar(stat = "identity",
+                                            alpha = barTransparency,
+                                            color = barColor,
+                                            fill = barColor,
+                                            size = barSize,
+                                            width = barWidth)
+            } else if (plotCategory == "point") {
+                myPlot <- myPlot + geom_point(alpha = pointTransparency,
+                                              color = pointColor,
+                                              fill = pointColor,
+                                              size = pointSize,
+                                              shape = pointShape)
+            }
+
+            # Add error bars if columns present
+            if (is_confidence_used) {
+                myPlot <- myPlot + geom_errorbar(aes_string(ymin = CI.L_colname, ymax = CI.R_colname), width = .2)
+            }
+
+            if (lineLayer) {
+                myPlot <- myPlot + geom_smooth(aes_string(group = facetColname),
+                                               method = lineFit,
+                                               formula = y ~ x,
+                                               color = lineColor,
+                                               size = lineSize,
+                                               se = FALSE)
+            }
+            myPlot
         }
 
-        myPlot <- ggplot2::ggplot(contrastsDF, aes_string(x = xColname, y = yColname))
-        myPlot <- .addGeoms(myPlot)
-        facetFormula <- stringr::str_c("~", facetColname, sep = " ")
-        myPlot <- myPlot + ggplot2::facet_wrap(facetFormula, ncol = numcol, scales = scales)
+        if (facet) {
+            myPlot <- ggplot2::ggplot(contrastsDF, aes_string(x = xColname, y = yColname))
+            myPlot <- .addGeoms(myPlot)
+            facetFormula <- stringr::str_c("~", facetColname, sep = " ")
+            myPlot <- myPlot + ggplot2::facet_wrap(facetFormula, ncol = facetCol, scales = scales)
 
-        myPlot <- myPlot + ggplot2::xlab(xlab)
-        myPlot <- myPlot + ggplot2::ylab(ylab)
-        if (!is.null(title)) {
-            myPlot <- myPlot + ggplot2::ggtitle(title)
-        }
-
-        if (labelAngle > 0) {
-            myPlot <- myPlot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
-        }
-
-        #Add refLine at 0
-        if (refLine) {
-            myPlot <- myPlot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
-        }
-
-    } else {# Individual plots for each Gene returned in a list
-        plotlist <- list()
-        for (obs in unique(contrastsDF[[facetColname]])) { # For each gene
-            dat <- contrastsDF[contrastsDF[[facetColname]] == obs, ] # Pull data for one gene
-            aplot <- ggplot(dat, aes_string(x = xColname, y = yColname)) + # Samples vs Log2CPM
-                xlab(xlab) +
-                ylab(ylab) +
-                ggtitle(obs) +
-                theme_grey() + facetTheme(baseFontSize)
-            aplot <- .addGeoms(aplot)
-
+            myPlot <- myPlot + ggplot2::xlab(xlab)
+            myPlot <- myPlot + ggplot2::ylab(ylab)
             if (!is.null(title)) {
-                aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
+                myPlot <- myPlot + ggplot2::ggtitle(title)
             }
 
             if (labelAngle > 0) {
-                aplot <- aplot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
+                myPlot <- myPlot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
             }
 
+            #Add refLine at 0
             if (refLine) {
-                aplot <- aplot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
+                myPlot <- myPlot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
             }
-            plotlist[[obs]] <- aplot
+
+        } else {# Individual plots for each Gene returned in a list
+            plotlist <- list()
+            for (obs in unique(contrastsDF[[facetColname]])) { # For each gene
+                dat <- contrastsDF[contrastsDF[[facetColname]] == obs, ] # Pull data for one gene
+                aplot <- ggplot(dat, aes_string(x = xColname, y = yColname)) + # Samples vs Log2CPM
+                    xlab(xlab) +
+                    ylab(ylab) +
+                    ggtitle(obs) +
+                    theme_grey()
+                aplot <- .addGeoms(aplot)
+
+                if (!is.null(title)) {
+                    aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
+                }
+
+                if (labelAngle > 0) {
+                    aplot <- aplot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
+                }
+
+                if (refLine) {
+                    aplot <- aplot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
+                }
+                plotlist[[obs]] <- aplot
+            }
+            myPlot = plotlist
         }
-        myPlot = plotlist
+        myPlot
     }
-    myPlot
 }
