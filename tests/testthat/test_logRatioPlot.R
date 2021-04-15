@@ -33,7 +33,8 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                    title        = "Test",
                                    pointSize    = 4,
                                    lineLayer    = TRUE,
-                                   lineSize     = 0.1)
+                                   lineSize     = 0.1,
+                                   labelAngle   =  60)
     expect_type(log_ratio_plot, "list")
     expect_s3_class(log_ratio_plot[[1]], c("gg", "ggplot"))
 
@@ -308,7 +309,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 barColor    = c("dodgerblue4", "dodgerblue4")),
                    regexp = msg)
     ## barSize
-    msg <- "barSize must be a singular value of class numeric Assigning default value '0.1'."
+    msg <- "barSize must be a singular value of class numeric. Assigning default value '0.1'."
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
@@ -330,7 +331,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 barSize      = c(0.1, 0.1)),
                    regexp = msg)
     ## barWidth
-    msg <- "barWidth must be a singular value of class numeric Assigning default value '0.9'."
+    msg <- "barWidth must be a singular value of class numeric. Assigning default value '0.9'."
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
@@ -450,7 +451,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 pointTransparency     = 9),
                    regexp = msg)
     ## pointSize
-    msg <- "pointSize must be a singular value of class numeric Assigning default value '2'."
+    msg <- "pointSize must be a singular value of class numeric. Assigning default value '2'."
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
@@ -472,7 +473,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 pointSize    = c(0.1, 0.1)),
                    regexp = msg)
     ## lineLayer
-    msg <- "lineLayer must be a singular value of class logical Assigning default value 'FALSE'."
+    msg <- "lineLayer must be a singular value of class logical. Assigning default value 'FALSE'."
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
@@ -516,7 +517,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 lineColor    = c("dodgerblue4", "dodgerblue4")),
                    regexp = msg)
     ## lineSize
-    msg <- "lineSize must be a singular value of class numeric Assigning default value '1'."
+    msg <- "lineSize must be a singular value of class numeric. Assigning default value '1'."
     expect_warning(logRatioPlot(contrastsDF  = tidyDat,
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
@@ -575,5 +576,32 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                 facetColname = "GeneSymbol",
                                 xColname     = "Contrast",
                                 facet        = c("TRUE", "FALSE")),
+                   regexp = msg)
+    ## labelAngle
+    msg <- "labelAngle must be a singular value of class numeric between 0 and 90. Assigning default value '45'."
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                labelAngle   = NULL),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                labelAngle   = "0.1"),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                labelAngle   = -45),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                labelAngle   = 145),
+                   regexp = msg)
+    expect_warning(logRatioPlot(contrastsDF  = tidyDat,
+                                facetColname = "GeneSymbol",
+                                xColname     = "Contrast",
+                                labelAngle   = c(45, 90)),
                    regexp = msg)
 })

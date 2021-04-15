@@ -39,6 +39,7 @@
 #'   (FALSE)  (default = TRUE)
 #' @param facetCol Explicitly set the number of rows for the facet plot. default
 #'   behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))
+#' @param labelAngle Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)
 #' @param scales Specify same scales or independent scales for each subplot (default = "free_y";
 #'   Allowed values: "fixed", "free_x", "free_y", "free")
 #'
@@ -81,7 +82,8 @@
 #'                title = "Test",
 #'                pointSize = 4,
 #'                lineLayer = TRUE,
-#'                lineSize = 0.1)
+#'                lineSize = 0.1,
+#'                Angle = 60)
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -117,6 +119,7 @@ logRatioPlot <- function(contrastsDF,
                          baseFontSize = 12,
                          facet = TRUE,
                          facetCol,
+                         labelAngle = 45,
                          scales = "free_y") {
     assertthat::assert_that(!missing(contrastsDF),
                             !is.null(contrastsDF),
@@ -231,7 +234,7 @@ logRatioPlot <- function(contrastsDF,
             !is.numeric(barSize),
             length(barSize) != 1,
             barSize < 0)) {
-        warning("barSize must be a singular value of class numeric Assigning default value '0.1'.")
+        warning("barSize must be a singular value of class numeric. Assigning default value '0.1'.")
         barSize <- 0.1
     }
 
@@ -239,7 +242,7 @@ logRatioPlot <- function(contrastsDF,
             !is.numeric(barWidth),
             length(barWidth) != 1,
             barWidth < 0)) {
-        warning("barWidth must be a singular value of class numeric Assigning default value '0.9'.")
+        warning("barWidth must be a singular value of class numeric. Assigning default value '0.9'.")
         barWidth <- 0.9
     }
 
@@ -283,14 +286,14 @@ logRatioPlot <- function(contrastsDF,
             !is.numeric(pointSize),
             length(pointSize) != 1,
             pointSize < 0)) {
-        warning("pointSize must be a singular value of class numeric Assigning default value '2'.")
+        warning("pointSize must be a singular value of class numeric. Assigning default value '2'.")
         pointSize <- 2
     }
 
     if (any(is.null(lineLayer),
             !is.logical(lineLayer),
             length(lineLayer) != 1)) {
-        warning("lineLayer must be a singular value of class logical Assigning default value 'FALSE'.")
+        warning("lineLayer must be a singular value of class logical. Assigning default value 'FALSE'.")
         lineLayer <- FALSE
     }
 
@@ -311,7 +314,7 @@ logRatioPlot <- function(contrastsDF,
             !is.numeric(lineSize),
             length(lineSize) != 1,
             lineSize < 0)) {
-        warning("lineSize must be a singular value of class numeric Assigning default value '1'.")
+        warning("lineSize must be a singular value of class numeric. Assigning default value '1'.")
         lineSize <- 1
     }
 
@@ -320,6 +323,15 @@ logRatioPlot <- function(contrastsDF,
             !tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam'))) {
         warning("lineFit must be one of 'glm', 'lm', 'loess', 'gam' or NULL to disable. Assigning default value 'loess'.")
         lineFit <- "loess"
+    }
+
+    if (any(is.null(labelAngle),
+            !is.numeric(labelAngle),
+            length(labelAngle) != 1,
+            labelAngle < 0,
+            labelAngle > 90)) {
+        warning("labelAngle must be a singular value of class numeric between 0 and 90. Assigning default value '45'.")
+        labelAngle <- 45
     }
 
     if (any(is.null(facet),
@@ -380,6 +392,10 @@ logRatioPlot <- function(contrastsDF,
             myPlot <- myPlot + ggplot2::ggtitle(title)
         }
 
+        if (labelAngle > 0) {
+            myPlot <- myPlot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
+        }
+
         #Add refLine at 0
         if (refLine) {
             myPlot <- myPlot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
@@ -398,6 +414,10 @@ logRatioPlot <- function(contrastsDF,
 
             if (!is.null(title)) {
                 aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
+            }
+
+            if (labelAngle > 0) {
+                aplot <- aplot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
             }
 
             if (refLine) {
