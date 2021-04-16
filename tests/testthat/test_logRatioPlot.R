@@ -16,12 +16,18 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     tidyDat <- dplyr::left_join(tidyDat, ens2genesym) %>% head(10)
 
     # Simple barplot
-    log_ratio_plot <- logRatioPlot(contrastsDF  = tidyDat,
-                                   plotType     = "ggplot",
-                                   facetColname = "GeneSymbol",
-                                   xColname     = "Contrast",
-                                   facetCol     = 2)
-    expect_s3_class(log_ratio_plot, c("gg", "ggplot"))
+    plot <- logRatioPlot(contrastsDF  = tidyDat,
+                         plotType     = "canvasXpress",
+                         facetColname = "GeneSymbol",
+                         xColname     = "Contrast",
+                         facetCol     = 2)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    plot <- logRatioPlot(contrastsDF  = tidyDat,
+                         plotType     = "ggplot",
+                         facetColname = "GeneSymbol",
+                         xColname     = "Contrast",
+                         facetCol     = 2)
+    expect_s3_class(plot, c("gg", "ggplot"))
 
     # Lineplot with some options
     log_ratio_plot <- logRatioPlot(contrastsDF  = tidyDat,
@@ -30,7 +36,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                    facetColname = "GeneSymbol",
                                    xColname     = "Contrast",
                                    facetCol     = 4,
-                                   scales       = "fixed",
+                                   axisFree     = FALSE,
                                    facet        = FALSE,
                                    title        = "Test",
                                    pointSize    = 4,
@@ -839,4 +845,34 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                          xColname     = "Contrast",
                                          plotType     = c("canvasXpress", "ggplot")),
                     regexp = msg)
+     ## axisFree
+     msg <- "axisFree must be a singular logical value. Assigning default value TRUE."
+     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                         plotType     = "ggplot",
+                                         facetColname = "GeneSymbol",
+                                         xColname     = "Contrast",
+                                         axisFree     = NULL),
+                    regexp = msg)
+     expect_s3_class(plot, c("gg", "ggplot"))
+     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                         plotType     = "ggplot",
+                                         facetColname = "GeneSymbol",
+                                         xColname     = "Contrast",
+                                         axisFree     = 123),
+                    regexp = msg)
+     expect_s3_class(plot, c("gg", "ggplot"))
+     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                         plotType     = "ggplot",
+                                         facetColname = "GeneSymbol",
+                                         xColname     = "Contrast",
+                                         axisFree     = "FALSE"),
+                    regexp = msg)
+     expect_s3_class(plot, c("gg", "ggplot"))
+     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                         plotType     = "ggplot",
+                                         facetColname = "GeneSymbol",
+                                         xColname     = "Contrast",
+                                         axisFree     = c("TRUE", "FALSE")),
+                    regexp = msg)
+     expect_s3_class(plot, c("gg", "ggplot"))
 })

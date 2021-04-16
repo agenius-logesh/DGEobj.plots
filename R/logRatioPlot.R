@@ -36,8 +36,8 @@
 #' @param facetCol Explicitly set the number of rows for the facet plot. default
 #'   behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))
 #' @param labelAngle Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)
-#' @param scales Specify same scales or independent scales for each subplot (default = "free_y";
-#'   Allowed values: "fixed", "free_x", "free_y", "free")
+#' @param axisFree Specify same scale or independent scales for each subplot (Default = TRUE;
+#'   Allowed values: TRUE and FALSE)
 #'
 #' @return ggplot object. If facet = TRUE (default), returns a faceted ggplot object. If
 #'   facet = FALSE, returns a list of ggplot objects indexed
@@ -73,7 +73,7 @@
 #'                facetColname = "GeneSymbol",
 #'                xColname = "Contrast",
 #'                facetCol = 4,
-#'                scales = "fixed",
+#'                axisFree = FALSE,
 #'                facet = TRUE,
 #'                title = "Test",
 #'                pointSize = 4,
@@ -115,7 +115,7 @@ logRatioPlot <- function(contrastsDF,
                          facet = TRUE,
                          facetCol,
                          labelAngle = 45,
-                         scales = "free_y") {
+                         axisFree = TRUE) {
     assertthat::assert_that(!missing(contrastsDF),
                             !is.null(contrastsDF),
                             nrow(contrastsDF) > 0,
@@ -335,6 +335,14 @@ logRatioPlot <- function(contrastsDF,
         labelAngle <- 45
     }
 
+    #axisFree
+    if (any(is.null(axisFree),
+            length(axisFree) != 1,
+            !is.logical(axisFree))) {
+        warning("axisFree must be a singular logical value. Assigning default value TRUE.")
+        axisFree <- TRUE
+    }
+
     if (any(is.null(facet),
             !is.logical(facet),
             length(facet) != 1)) {
@@ -344,18 +352,86 @@ logRatioPlot <- function(contrastsDF,
 
     if (facet && !missing(facetColname)) {
         if (missing(facetCol)) {
-            facetCol <- contrastsDF[facetColname] %>% unique %>% length %>% sqrt %>% ceiling
+            facetCol <- contrastsDF[[facetColname]] %>% unique %>% length %>% sqrt %>% ceiling
         } else if (any(is.null(facetCol),
                        !is.numeric(facetCol),
                        length(facetCol) != 1,
                        facetCol < 0)) {
             warning("facetCol must be a singular value of class numeric. Assigning default value.")
-            facetCol <- contrastsDF[facetColname] %>% unique %>% length %>% sqrt %>% ceiling
+            facetCol <- contrastsDF[[facetColname]] %>% unique %>% length %>% sqrt %>% ceiling
         }
     }
 
-    if (plotType == "canvasxpress") {
 
+    if (plotType == "canvasxpress") {
+        tidy_data <- contrastsDF %>%
+            tidyr::gather(key = "logType",
+                          value = !!rlang::sym(yColname),
+                          !!rlang::sym(yColname),
+                          !!rlang::sym(CI.L_colname),
+                          !!rlang::sym(CI.R_colname))
+        if (facet) {
+            numrow   <- (contrastsDF[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
+            tidy_data <- tidy_data %>%
+                dplyr::arrange(!!rlang::sym(facetColname))
+            cx.data <- tidy_data %>%
+                dplyr::select(!!rlang::sym(yColname)) %>%
+                t() %>%
+                as.data.frame()
+            smp.data <- tidy_data %>%
+                dplyr::select(!!rlang::sym(facetColname),
+                              !!rlang::sym(xColname))
+            rownames(smp.data) <- colnames(cx.data)
+            canvasXpress::canvasXpress(data = cx.data,
+                                       smpAnnot         = smp.data,
+                                       groupingFactors  = xColname,
+                                       segregateSamplesBy = facetColname,
+                                       graphOrientation = "vertical",
+                                       colors           = barColor,
+                                       smpLabelRotate   = labelAngle,
+                                       graphType        = "Bar",
+                                       title            = title,
+                                       smpTitle         = xlab,
+                                       smpLableFontStyle = "bold",
+                                       smpTitleScaleFontFactor = 1,
+                                       xAxisTitle       = ylab,
+                                       layoutTopology = paste0(numrow, 'X', facetCol),
+                                       layoutAdjust = axisFree,
+                                       showLegend = FALSE,
+                                       xAxis2Show = FALSE,
+                                       transparency = barTransparency)
+        } else {
+            plotby_vec <- unique(contrastsDF[[facetColname]])
+            lapply(plotby_vec, function(x) {
+                tidy_data <- tidy_data %>%
+                    dplyr::filter(!!rlang::sym(facetColname) == x)
+                cx.data <- tidy_data %>%
+                    dplyr::select(!!rlang::sym(yColname)) %>%
+                    t() %>%
+                    as.data.frame()
+                smp.data <- tidy_data %>%
+                    dplyr::select(!!rlang::sym(facetColname),
+                                  !!rlang::sym(xColname))
+                rownames(smp.data) <- colnames(cx.data)
+                title <- x
+                canvasXpress::canvasXpress(data = cx.data,
+                                           smpAnnot         = smp.data,
+                                           groupingFactors  = xColname,
+                                           segregateSamplesBy = facetColname,
+                                           graphOrientation = "vertical",
+                                           colors           = barColor,
+                                           smpLabelRotate   = labelAngle,
+                                           graphType        = "Bar",
+                                           title            = title,
+                                           smpTitle         = xlab,
+                                           smpLableFontStyle = "bold",
+                                           smpTitleScaleFontFactor = 1,
+                                           xAxisTitle       = ylab,
+                                           showLegend = FALSE,
+                                           xAxis2Show = FALSE,
+                                           transparency = barTransparency)
+            })
+        }
     } else {
         .addGeoms <- function(myPlot){
             if (plotCategory == "bar") {
@@ -390,10 +466,15 @@ logRatioPlot <- function(contrastsDF,
         }
 
         if (facet) {
+            if (axisFree) {
+                axisFree <- "free"
+            } else {
+                axisFree <- "fixed"
+            }
             myPlot <- ggplot2::ggplot(contrastsDF, aes_string(x = xColname, y = yColname))
             myPlot <- .addGeoms(myPlot)
             facetFormula <- stringr::str_c("~", facetColname, sep = " ")
-            myPlot <- myPlot + ggplot2::facet_wrap(facetFormula, ncol = facetCol, scales = scales)
+            myPlot <- myPlot + ggplot2::facet_wrap(facetFormula, ncol = facetCol, scales = axisFree)
 
             myPlot <- myPlot + ggplot2::xlab(xlab)
             myPlot <- myPlot + ggplot2::ylab(ylab)
