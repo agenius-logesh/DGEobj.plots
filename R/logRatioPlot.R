@@ -364,12 +364,16 @@ logRatioPlot <- function(contrastsDF,
 
 
     if (plotType == "canvasxpress") {
-        tidy_data <- contrastsDF %>%
-            tidyr::gather(key = "logType",
-                          value = !!rlang::sym(yColname),
-                          !!rlang::sym(yColname),
-                          !!rlang::sym(CI.L_colname),
-                          !!rlang::sym(CI.R_colname))
+        if (is_confidence_used) {
+            tidy_data <- contrastsDF %>%
+                tidyr::gather(key = "logType",
+                              value = !!rlang::sym(yColname),
+                              !!rlang::sym(yColname),
+                              !!rlang::sym(CI.L_colname),
+                              !!rlang::sym(CI.R_colname))
+        } else {
+            tidy_data <- contrastsDF
+        }
         if (facet) {
             numrow   <- (contrastsDF[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
             tidy_data <- tidy_data %>%
