@@ -19,7 +19,6 @@
 #' @param ylab Y axis label (defaults to yColname)
 #' @param title Plot title (Optional)
 #' @param barColor Color for the bar outline (default = "dodgerblue4")
-#' @param barWidth Set the bar width (default = 0.8)
 #' @param barTransparency Transparency for the bar layer (default = 1)
 #' @param pointColor Color for the point layer (default = "grey30")
 #' @param pointShape Shape for the point layer (default = "circle")
@@ -101,7 +100,6 @@ logRatioPlot <- function(contrastsDF,
                          title = NULL,
                          barColor = "dodgerblue4",
                          barTransparency = 1,
-                         barWidth = 0.9,
                          pointColor = "dodgerblue4",
                          pointShape = "circle",
                          pointTransparency = 1,
@@ -227,14 +225,6 @@ logRatioPlot <- function(contrastsDF,
     } else if (.rgbaConversion(barColor) == "invalid value") {
         warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
         barColor <- "dodgerblue4"
-    }
-
-    if (any(is.null(barWidth),
-            !is.numeric(barWidth),
-            length(barWidth) != 1,
-            barWidth < 0)) {
-        warning("barWidth must be a singular value of class numeric. Assigning default value '0.9'.")
-        barWidth <- 0.9
     }
 
     if (any(is.null(barTransparency),
@@ -439,8 +429,7 @@ logRatioPlot <- function(contrastsDF,
                 myPlot <- myPlot + geom_bar(stat = "identity",
                                             alpha = barTransparency,
                                             color = barColor,
-                                            fill = barColor,
-                                            width = barWidth)
+                                            fill = barColor)
             } else if (plotCategory == "point") {
                 myPlot <- myPlot + geom_point(alpha = pointTransparency,
                                               color = pointColor,

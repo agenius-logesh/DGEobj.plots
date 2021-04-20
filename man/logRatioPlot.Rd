@@ -20,7 +20,6 @@ logRatioPlot(
   title = NULL,
   barColor = "dodgerblue4",
   barTransparency = 1,
-  barWidth = 0.9,
   pointColor = "dodgerblue4",
   pointShape = "circle",
   pointTransparency = 1,
@@ -63,8 +62,6 @@ logRatioPlot(
 \item{barColor}{Color for the bar outline (default = "dodgerblue4")}
 
 \item{barTransparency}{Transparency for the box layer (default = 1)}
-
-\item{barWidth}{Set the bar width (default = 0.8)}
 
 \item{pointColor}{Color for the point layer (default = "grey30")}
 

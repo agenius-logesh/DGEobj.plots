@@ -390,36 +390,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         barColor    = c("dodgerblue4", "dodgerblue4")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    ## barWidth
-    msg <- "barWidth must be a singular value of class numeric. Assigning default value '0.9'."
-    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
-                                        plotType     = "ggplot",
-                                        facetColname = "GeneSymbol",
-                                        xColname     = "Contrast",
-                                        barWidth     = NULL),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
-                                        plotType     = "ggplot",
-                                        facetColname = "GeneSymbol",
-                                        xColname     = "Contrast",
-                                        barWidth     = "0.9"),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
-                                        plotType     = "ggplot",
-                                        facetColname = "GeneSymbol",
-                                        xColname     = "Contrast",
-                                        barWidth     = -0.9),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
-                                        plotType     = "ggplot",
-                                        facetColname = "GeneSymbol",
-                                        xColname     = "Contrast",
-                                        barWidth     = c(0.9, 0.9)),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
     ## barTransparency
     msg <- "barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'."
     expect_warning(plot <- logRatioPlot(contrastsDF     = tidyDat,
