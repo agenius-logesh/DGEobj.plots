@@ -19,7 +19,6 @@
 #' @param ylab Y axis label (defaults to yColname)
 #' @param title Plot title (Optional)
 #' @param barColor Color for the bar outline (default = "dodgerblue4")
-#' @param barSize Set the bar size (thickness of each bar perimeter; default = 0.1)
 #' @param barWidth Set the bar width (default = 0.8)
 #' @param barTransparency Transparency for the bar layer (default = 1)
 #' @param pointColor Color for the point layer (default = "grey30")
@@ -101,7 +100,6 @@ logRatioPlot <- function(contrastsDF,
                          ylab = yColname,
                          title = NULL,
                          barColor = "dodgerblue4",
-                         barSize = 0.1,
                          barTransparency = 1,
                          barWidth = 0.9,
                          pointColor = "dodgerblue4",
@@ -231,14 +229,6 @@ logRatioPlot <- function(contrastsDF,
         barColor <- "dodgerblue4"
     }
 
-    if (any(is.null(barSize),
-            !is.numeric(barSize),
-            length(barSize) != 1,
-            barSize < 0)) {
-        warning("barSize must be a singular value of class numeric. Assigning default value '0.1'.")
-        barSize <- 0.1
-    }
-
     if (any(is.null(barWidth),
             !is.numeric(barWidth),
             length(barWidth) != 1,
@@ -364,6 +354,11 @@ logRatioPlot <- function(contrastsDF,
 
 
     if (plotType == "canvasxpress") {
+        if (plotCategory == "bar") {
+            graphType <- "Bar"
+        } else {
+            graphType <- "Boxplot"
+        }
         if (is_confidence_used) {
             tidy_data <- contrastsDF %>%
                 tidyr::gather(key = "logType",
@@ -393,7 +388,7 @@ logRatioPlot <- function(contrastsDF,
                                        graphOrientation = "vertical",
                                        colors           = barColor,
                                        smpLabelRotate   = labelAngle,
-                                       graphType        = "Bar",
+                                       graphType        = graphType,
                                        title            = title,
                                        smpTitle         = xlab,
                                        smpLableFontStyle = "bold",
@@ -403,6 +398,8 @@ logRatioPlot <- function(contrastsDF,
                                        layoutAdjust = axisFree,
                                        showLegend = FALSE,
                                        xAxis2Show = FALSE,
+                                       jitter=TRUE,
+                                       showBoxplotOriginalData=TRUE,
                                        transparency = barTransparency)
         } else {
             plotby_vec <- unique(contrastsDF[[facetColname]])
@@ -425,7 +422,7 @@ logRatioPlot <- function(contrastsDF,
                                            graphOrientation = "vertical",
                                            colors           = barColor,
                                            smpLabelRotate   = labelAngle,
-                                           graphType        = "Bar",
+                                           graphType        = graphType,
                                            title            = title,
                                            smpTitle         = xlab,
                                            smpLableFontStyle = "bold",
@@ -443,7 +440,6 @@ logRatioPlot <- function(contrastsDF,
                                             alpha = barTransparency,
                                             color = barColor,
                                             fill = barColor,
-                                            size = barSize,
                                             width = barWidth)
             } else if (plotCategory == "point") {
                 myPlot <- myPlot + geom_point(alpha = pointTransparency,
