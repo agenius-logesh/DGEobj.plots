@@ -11,70 +11,62 @@ comparePlot(
   xlab = NULL,
   ylab = NULL,
   title = NULL,
-  symbolSize = c(10, 10, 10, 4),
-  symbolShape = c(21, 21, 21, 20),
-  symbolColor = c("black", "grey0", "grey1", "grey25"),
-  symbolFill = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
-  alpha = 0.5,
+  symbolSize = c(7, 7, 7, 3),
+  symbolShape = c("circle", "circle", "circle", "circle"),
+  symbolColor = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
+  transparency = 0.5,
   crosshair = "grey50",
   referenceLine = "darkgoldenrod1",
   refLineThickness = 1,
   legendPosition = "right",
   footnote,
   footnoteSize = 3,
-  footnoteColor = "black",
-  footnoteJust = 1
+  footnoteColor = "black"
 )
 }
 \arguments{
 \item{compareDF}{A dataframe with the first two columns representing the x and y variables.
 Optionally add xp and yp columns to hold p-values or FDR values.}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{pThreshold}{Used to color points (Default = 0.01)}
+\item{pThreshold}{Used to color points (default = 0.01)}
 
-\item{xlab}{X-axis label (Default to first column name)}
+\item{xlab}{X-axis label (default = first column name)}
 
-\item{ylab}{Y-axis label (Default to second column name)}
+\item{ylab}{Y-axis label (default = second column name)}
 
 \item{title}{Plot title (Optional)}
 
-\item{symbolSize}{Size of symbols; default = c(4, 4, 4, 2)}
+\item{symbolSize}{Size of symbols (default = c(7, 7, 7, 3))}
 
-\item{symbolShape}{Shape of the symbols; Default = c(21, 21, 21, 20)  (20 = filled circle,
-21 = fillable open circle) See \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}}
+\item{symbolShape}{Shape of the symbols (default = c("circle", "circle", "circle", "circle")).
+For ggplot reference see \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}}
 
-\item{symbolColor}{c(Common, xUnique, yUnique, NoChange);
-default = c("black", "grey0", "grey1", "grey25")}
+\item{symbolColor}{c(Common, xUnique, yUnique, NoChange) symbols colors (default = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"))}
 
-\item{symbolFill}{Set the fill color for the symbols. Note only symbols 21-25 are fillable. This will
-have no effect on other symbols. Default = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25")}
+\item{transparency}{Controls the transparency of the plotted points (0-1; default = 0.5)}
 
-\item{alpha}{Controls the transparency of the plotted points (0-1; Default = 0.5)}
-
-\item{crosshair}{Color for the crosshair; (Default = "grey50", NULL disables)
+\item{crosshair}{Color for the crosshair (default = "grey50">, NULL disables)
 See \url{http://research.stowers-institute.org/efg/R/Color/Chart}}
 
 \item{referenceLine}{Color for a slope=1, intercept=0 reference line
-(Default = "darkgoldenrod1"; NULL disables)}
+(default = "darkgoldenrod1"; NULL disables)}
 
-\item{refLineThickness}{Set thickness for crosshair and referenceLine (Default = 1)}
+\item{refLineThickness}{Set thickness for crosshair and referenceLine (default = 1)}
 
 \item{legendPosition}{One of "top", "bottom", "left", "right", "ne", "se", "nw", "sw", NULL.
 top/bottom/left/right place the legend outside the figure.  ne/se/nw/sw place the figure
-inside the figure. NULL disables the legend. Default = "right"}
+inside the figure. NULL disables the legend (default = "right")}
 
 \item{footnote}{Optional string placed right justified at bottom of plot.}
 
-\item{footnoteSize}{Applies to footnote. (Default = 3)}
+\item{footnoteSize}{Applies to footnote (default = 3)}
 
-\item{footnoteColor}{Applies to footnote. (Default = "black")}
-
-\item{footnoteJust}{Value 0-1. 0 is left justified, 1 is right justified, 0.5 is centered. (Default = 1)}
+\item{footnoteColor}{Applies to footnote (default = "black")}
 }
 \value{
-canvasxpress or ggplot object based on plotType selection
+canvasXpress or ggplot object based on plotType selection
 }
 \description{
 Creates a nicely formatted scatterplot of the
@@ -123,10 +115,10 @@ values are used.
   print(cPlot)
 
   # Deluxe Plot with bells and whistles.
-  myPlot <- comparePlot(compareDF,
+  myPlot <- comparePlot(compareDat,
                         pThreshold = 0.5,
                         xlab = "x Axis Label",
-                        ylab = "y Axis Label"
+                        ylab = "y Axis Label",
                         title = "Plot Title",
                         crosshair = "red",
                         referenceLine = "blue",
