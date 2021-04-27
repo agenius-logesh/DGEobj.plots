@@ -13,20 +13,20 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
     colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
 
-    tidyDat <- dplyr::left_join(tidyDat, ens2genesym) %>% head(10)
+    tidyDat <- dplyr::left_join(tidyDat, ens2genesym) %>% dplyr::sample_n(10)
 
     # Simple barplot
     plot <- logRatioPlot(contrastsDF  = tidyDat,
                          plotType     = "canvasXpress",
                          facetColname = "GeneSymbol",
                          xColname     = "Contrast",
-                         facetCol     = 2)
+                         facetCol     = 3)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     plot <- logRatioPlot(contrastsDF  = tidyDat,
                          plotType     = "ggplot",
                          facetColname = "GeneSymbol",
                          xColname     = "Contrast",
-                         facetCol     = 2)
+                         facetCol     = 3)
     expect_s3_class(plot, c("gg", "ggplot"))
 
     # Lineplot with some options
