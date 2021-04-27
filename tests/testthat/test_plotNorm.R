@@ -78,6 +78,8 @@ test_that("plotNorm.R: plotNorm()", {
     expect_s3_class(norm_plot, c("gg", "ggplot"))
 
     ######### testing assert statements ####################
+    expect_error(plotNorm(),
+                 regexp = "DGEdata must be of either class 'matrix' or 'DGEobj'.")
     expect_error(plotNorm(NULL),
                  regexp = "DGEdata must be of either class 'matrix' or 'DGEobj'.")
     expect_error(plotNorm(t_obj1, plotCategory = "heatmap"),

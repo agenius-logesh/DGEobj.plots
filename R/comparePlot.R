@@ -31,32 +31,29 @@
 #'
 #' @param compareDF A dataframe with the first two columns representing the x and y variables.
 #'          Optionally add xp and yp columns to hold p-values or FDR values.
-#' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
-#' @param xlab X-axis label (Default to first column name)
-#' @param ylab Y-axis label (Default to second column name)
+#' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
+#' @param xlab X-axis label (default = first column name)
+#' @param ylab Y-axis label (default = second column name)
 #' @param title Plot title (Optional)
-#' @param pThreshold Used to color points (Default = 0.01)
-#' @param symbolSize Size of symbols; default = c(4, 4, 4, 2)
-#' @param symbolShape Shape of the symbols; Default = c(21, 21, 21, 20)  (20 = filled circle,
-#'        21 = fillable open circle) See \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
-#' @param symbolColor c(Common, xUnique, yUnique, NoChange);
-#'        default = c("black", "grey0", "grey1", "grey25")
-#' @param symbolFill Set the fill color for the symbols. Note only symbols 21-25 are fillable. This will
-#'        have no effect on other symbols. Default = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25")
-#' @param alpha Controls the transparency of the plotted points (0-1; Default = 0.5)
-#' @param crosshair Color for the crosshair; (Default = "grey50", NULL disables)
+#' @param pThreshold Used to color points (default = 0.01)
+#' @param symbolSize Size of symbols (default = c(7, 7, 7, 3))
+#' @param symbolShape Shape of the symbols (default = c("circle", "circle", "circle", "circle")).
+#'        For ggplot reference see \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
+#' @param symbolColor c(Common, xUnique, yUnique, NoChange) symbols colors (default = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"))
+#' @param transparency Controls the transparency of the plotted points (0-1; default = 0.5)
+#' @param crosshair Color for the crosshair (default = "grey50">, NULL disables)
 #'        See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
 #' @param referenceLine Color for a slope=1, intercept=0 reference line
-#'        (Default = "darkgoldenrod1"; NULL disables)
-#' @param refLineThickness Set thickness for crosshair and referenceLine (Default = 1)
+#'        (default = "darkgoldenrod1"; NULL disables)
+#' @param refLineThickness Set thickness for crosshair and referenceLine (default = 1)
 #' @param legendPosition One of "top", "bottom", "left", "right", "ne", "se", "nw", "sw", NULL.
 #'        top/bottom/left/right place the legend outside the figure.  ne/se/nw/sw place the figure
-#'        inside the figure. NULL disables the legend. Default = "right"
+#'        inside the figure. NULL disables the legend (default = "right")
 #' @param footnote Optional string placed right justified at bottom of plot.
-#' @param footnoteSize Applies to footnote. (Default = 3)
-#' @param footnoteColor Applies to footnote. (Default = "black")
+#' @param footnoteSize Applies to footnote (default = 3)
+#' @param footnoteColor Applies to footnote (default = "black")
 #'
-#' @return canvasxpress or ggplot object based on plotType selection
+#' @return canvasXpress or ggplot object based on plotType selection
 #'
 #' @examples
 #' \dontrun{
@@ -74,20 +71,21 @@
 #'   print(cPlot)
 #'
 #'   # Deluxe Plot with bells and whistles.
-#'   myPlot <- comparePlot(compareDF,
+#'   myPlot <- comparePlot(compareDat,
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
-#'                         ylab = "y Axis Label"
+#'                         ylab = "y Axis Label",
 #'                         title = "Plot Title",
 #'                         crosshair = "red",
 #'                         referenceLine = "blue",
 #'                         legendPosition = "right")
 #' }
 #'
-#' @import ggplot2 magrittr
-#' @importFrom dplyr left_join
+#' @import ggplot2
+#' @importFrom dplyr mutate arrange filter select rename_with summarise
 #' @importFrom assertthat assert_that
 #' @importFrom canvasXpress canvasXpress
+#' @importFrom magrittr set_rownames
 #'
 #' @export
 comparePlot <- function(compareDF,
@@ -96,35 +94,146 @@ comparePlot <- function(compareDF,
                         xlab = NULL,
                         ylab = NULL,
                         title = NULL,
-                        symbolSize = c(10, 10, 10, 4),
-                        symbolShape = c(21, 21, 21, 20),
-                        symbolColor = c("black", "grey0", "grey1", "grey25"),
-                        symbolFill = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
-                        alpha = 0.5,
+                        symbolSize = c(7, 7, 7, 3),
+                        symbolShape = c("circle", "circle", "circle", "circle"),
+                        symbolColor = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
+                        transparency = 0.5,
                         crosshair = "grey50",
                         referenceLine = "darkgoldenrod1",
                         refLineThickness = 1,
                         legendPosition = "right",
                         footnote,
                         footnoteSize = 3,
-                        footnoteColor = "black"
-) {
-    set.seed(1954)
-    assertthat::assert_that(sum(apply(compareDF, 2, FUN = is.numeric)) >= 2,
+                        footnoteColor = "black") {
+    assertthat::assert_that(!missing(compareDF),
+                            !is.null(compareDF),
+                            "data.frame" %in% class(compareDF),
+                            sum(apply(compareDF, 2, FUN = is.numeric)) >= 2,
                             msg = "Need at least two numeric columns in compareDF.")
-    assertthat::assert_that(plotType %in% c("canvasXpress", "ggplot"),
+    plotType <- tolower(plotType)
+    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
                             msg = "Plot type must be either canvasXpress or ggplot.")
-    assertthat::assert_that(length(symbolSize) == 4,
-                            length(symbolShape) == 4,
-                            length(symbolColor) == 4,
-                            length(symbolFill) == 4,
-                            msg = paste0("All specified symbol arguments must be of length 4, ",
-                                         "including symbolSize, symbolShape, symbolColor, and symbolFill."))
+    if (any(is.null(pThreshold),
+            !is.numeric(pThreshold),
+            length(pThreshold) != 1)) {
+        warning("pThreshold must be a singular value of class numeric. Assigning default value '0.01'.")
+        pThreshold <- 0.01
+    }
+
+    if (!is.null(title) &&
+        !all(is.character(title), length(title) == 1)) {
+        warning("title must be a singular value of class character. Assigning default value 'NULL'.")
+        title <- NULL
+    }
+
+    if (!is.null(xlab) &&
+        !all(is.character(xlab), length(xlab) == 1)) {
+        warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
+        xlab <- NULL
+    }
+
+    if (!is.null(ylab) &&
+        !all(is.character(ylab), length(ylab) == 1)) {
+        warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
+        ylab <- NULL
+    }
+
+    if (any(is.null(symbolColor),
+            !is.character(symbolColor),
+            length(symbolColor)  != 4,
+            length(.validate_colors(symbolColor)) != 4)) {
+        warning("symbolColor must be a vector of 4 character values. Assigning default values 'darkgoldenrod1', 'deepskyblue4', 'red3', 'grey25'.")
+        symbolColor <- c("darkgoldenrod1", "deepskyblue4", "red3", "grey25")
+    }
+
+    if (any(is.null(symbolSize),
+            !is.numeric(symbolSize),
+            length(symbolSize)  != 4)) {
+        warning("symbolSize must be a vector of 4 integer values. Assigning default values 7, 7, 7, 3.")
+        symbolSize  <-  c(7, 7, 7, 3)
+    }
+
+    if (any(is.null(symbolShape),
+            !is.character(symbolShape),
+            length(symbolShape)  != 4,
+            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 4,
+            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 4)) {
+        warning("symbolShape must be a vector of 4 charcter values. Assigning default values 'circle', 'circle', 'circle', 'circle'.")
+        symbolShape  <- c("circle", "circle", "circle", "circle")
+    }
+
+    if (any(is.null(transparency),
+            !is.numeric(transparency),
+            length(transparency) != 1,
+            transparency <= 0,
+            transparency > 1)) {
+        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
+        transparency <- 0.5
+    }
+
+    if (!is.null(crosshair) &&
+        !all(is.character(crosshair), length(crosshair) == 1)) {
+        warning("crosshair must be a singular value of class character or 'NULL' to disable. Assigning default value 'grey50'.")
+        crosshair <- "grey50"
+    } else if (.rgbaConversion(crosshair) == "invalid value") {
+        warning("Color specified is not valid. Assigning default value 'grey50'.")
+        crosshair <- "grey50"
+    }
+
+    if (!is.null(referenceLine) &&
+        !all(is.character(referenceLine), length(referenceLine) == 1)) {
+        warning("referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'darkgoldenrod1'.")
+        referenceLine <- "darkgoldenrod1"
+    } else if (.rgbaConversion(referenceLine) == "invalid value") {
+        warning("Color specified is not valid. Assigning default value 'darkgoldenrod1'.")
+        referenceLine <- "darkgoldenrod1"
+    }
+
+    if (any(is.null(refLineThickness),
+            !is.numeric(refLineThickness),
+            length(refLineThickness) != 1)) {
+        warning("refLineThickness must be a singular value of class numeric Assigning default value '1'.")
+        refLineThickness <- 1
+    }
+
+    if (!is.null(legendPosition) &&
+        !all(is.character(legendPosition),
+             length(legendPosition) == 1,
+             legendPosition %in% c("top", "bottom", "left", "right", "ne", "se", "nw", "sw"))) {
+        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'ne', 'se', 'nw', 'sw' or 'NULL' to disable. Assigning default value 'right'.")
+        legendPosition <- "right"
+    }
+
+    if (missing(footnote)) {
+        footnote <- NULL
+    } else if (!is.null(footnote) &&
+               !all(is.character(footnote), length(footnote) == 1)) {
+        warning("footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
+        footnote <- NULL
+    }
+
+    if (!is.null(footnote) &&
+        !is.null(footnoteSize) &&
+        any(!is.numeric(footnoteSize),
+            length(footnoteSize) != 1)) {
+        warning("footnoteSize must be a singular value of class numeric. Assigning default value '3'.")
+        footnoteSize <- 3
+    }
+
+    if (!is.null(footnote) &&
+        !is.null(footnoteColor) &&
+        any(!is.character(footnoteColor),
+            length(footnoteColor) != 1)) {
+        warning("footnoteColor must be a singular value of class character. Assigning default value 'black'.")
+        footnoteColor <- "black"
+    }
+
 
     sigMeasurePlot <- FALSE
-    levels <- c("Common", "X Unique", "Y Unique", "Not Significant")
-    xlabel <- make.names(colnames(compareDF)[1])
-    ylabel <- make.names(colnames(compareDF)[2])
+    levels         <- c("Common", "X Unique", "Y Unique", "Not Significant")
+    xlabel         <- make.names(colnames(compareDF)[1])
+    ylabel         <- make.names(colnames(compareDF)[2])
+    compPlot       <- NULL
     colnames(compareDF)[1:2] <- c(xlabel, ylabel)
 
     if (is.null(xlab)) {
@@ -141,133 +250,111 @@ comparePlot <- function(compareDF,
 
     if (all(c("xp","yp") %in% colnames(compareDF))) {
         sigMeasurePlot <- TRUE
-        compareDF$group <- NA
-        xp_boolean_vec <- subset(compareDF, select = xp, drop = TRUE) <= pThreshold
-        yp_boolean_vec <- subset(compareDF, select = yp, drop = TRUE) <= pThreshold
-        compareDF$group <- ifelse(xp_boolean_vec,
-                                  ifelse(yp_boolean_vec, "Common", "X Unique"),
-                                  ifelse(yp_boolean_vec, "Y Unique", "Not Significant"))
-
-        # Set an order field to control order of plotting for ggplot
-        # Plot order is 1) Not Significant plotted first, 2) randomly plot X and Y Unique
-        # then plot Common last
-        compareDF$order <- sample.int(nrow(compareDF)) + # Add random order (seeded for reproducibility)
-            nrow(compareDF) * (compareDF$group == "Common") +  # Assign common a high value to sort last
-            -1*nrow(compareDF) * (compareDF$group == "Not Significant") # Assign NotSig group neg values to sort first
-        compareDF <- compareDF %>% dplyr::arrange(order)
+        compareDF <- compareDF %>%
+            dplyr::mutate(group = ifelse(xp <= pThreshold,
+                                         ifelse(yp <= pThreshold, "Common", "X Unique"),
+                                         ifelse(yp <= pThreshold, "Y Unique", "Not Significant")),
+                          group = factor(group,
+                                         levels = c("Common", "X Unique", "Y Unique", "Not Significant")))
     }
 
-    # plotType
-    if (plotType == "canvasXpress") {
-        # adding alpha to colors
-        symbolFill <- sapply(symbolFill, rgbaConversion, alpha = alpha, USE.NAMES = FALSE)
+    y_range <- compareDF %>%
+        dplyr::select(ylabel) %>%
+        dplyr::summarise(across(everything(), list(min, max))) %>%
+        dplyr::rename_with(~ c("min", "max"))
+    if (plotType == "canvasxpress") {
+        # adding transparency to colors
+        symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
         decorations <- list()
-
         if (!is.null(crosshair)) {
-            crosshair <- rgbaConversion(crosshair, alpha = alpha)
-            decorations <- getCxPlotDecorations(decorations, color = crosshair, width = refLineThickness, x = 0)
-            decorations <- getCxPlotDecorations(decorations, color = crosshair, width = refLineThickness, y = 0)
+            decorations <- .getCxPlotDecorations(decorations,
+                                                 color = .rgbaConversion(crosshair, alpha = transparency),
+                                                 width = refLineThickness,
+                                                 x     = 0)
         }
-
         if (!is.null(referenceLine)) {
-            referenceLine <- rgbaConversion(referenceLine, alpha = alpha)
-            y_range <- range(subset(compareDF, select = c(ylabel), drop = TRUE), na.rm = TRUE)
-            decorations <- getCxPlotDecorations(decorations = decorations,
-                                                color       = referenceLine,
-                                                width       = refLineThickness,
-                                                x           = ceiling(y_range[1]),
-                                                y           = floor(y_range[2]))
+            decorations <- .getCxPlotDecorations(decorations = decorations,
+                                                 color       = .rgbaConversion(referenceLine, alpha = transparency),
+                                                 width       = refLineThickness,
+                                                 x           = ceiling(y_range$max),
+                                                 y           = floor(y_range$min))
         }
-
-        if (missing(footnote)) {
-            footnote <- NULL
-        }
-
-        cx.data <- subset(compareDF, select = c(xlabel, ylabel))
-        colnames(cx.data) <- c(xlab, ylab)
+        cx.data <- compareDF %>%
+            dplyr::select(c(xlabel, ylabel)) %>%
+            dplyr::rename_with(~ c(xlab, ylab))
         if (sigMeasurePlot) {
-            cx.data <- round(cx.data, digits = 2)
-
-            var.annot <- subset(compareDF, select = c(group), drop = FALSE)
-            colnames(var.annot) <- "Group"
+            cx.data   <- round(cx.data, digits = 2)
+            var.annot <- compareDF %>%
+                dplyr::select(group) %>%
+                dplyr::rename_with(~ c("Group"))
             colorBy <- "Group"
             sizeBy  <- "Group"
-            colors  <- symbolFill[c(1,4,2,3)]
-            sizes   <- as.numeric(symbolSize[c(1,4,2,3)])
+            colors  <- symbolColor[c(1,4,2,3)]
+            sizes   <- symbolSize[c(1,4,2,3)]
+            shapes  <- symbolShape[c(1,4,2,3)]
         } else {
-            cx.data   <- round(subset(compareDF, select = c(xlabel, ylabel)), digits = 2)
+            cx.data   <- round(compareDF %>% dplyr::select(c(xlabel, ylabel)), digits = 2)
             var.annot <- NULL
             colorBy   <- NULL
             sizeBy    <- NULL
-            colors    <- symbolFill[2]
-            sizes     <- as.numeric(symbolSize[2])
+            colors    <- symbolColor[2]
+            sizes     <- symbolSize[2]
+            shapes    <- symbolShape[2]
         }
-
-        CompPlot <- canvasXpress::canvasXpress(data                    = cx.data,
-                                               varAnnot                = var.annot,
-                                               decorations             = decorations,
-                                               graphType               = "Scatter2D",
-                                               colorBy                 = colorBy,
-                                               colors                  = colors,
-                                               legendPosition          = legendPosition,
-                                               scatterAxesEqual        = TRUE,
-                                               showDecorations         = TRUE,
-                                               sizeBy                  = sizeBy,
-                                               sizes                   = sizes,
-                                               sizeByShowLegend        = FALSE,
-                                               title                   = title,
-                                               xAxisTitle              = xlab,
-                                               yAxisTitle              = ylab,
-                                               citation                = footnote,
-                                               citationFontSize        = footnoteSize,
-                                               citationColor           = footnoteColor)
+        canvasXpress::canvasXpress(data             = cx.data,
+                                   varAnnot         = var.annot,
+                                   decorations      = decorations,
+                                   graphType        = "Scatter2D",
+                                   colorBy          = colorBy,
+                                   colors           = colors,
+                                   shapes           = shapes,
+                                   legendPosition   = legendPosition,
+                                   scatterAxesEqual = TRUE,
+                                   showDecorations  = TRUE,
+                                   sizeBy           = sizeBy,
+                                   sizes            = sizes,
+                                   sizeByShowLegend = FALSE,
+                                   title            = title,
+                                   xAxisTitle       = xlab,
+                                   yAxisTitle       = ylab,
+                                   citation         = footnote,
+                                   citationFontSize = footnoteSize,
+                                   citationColor    = footnoteColor
+        )
     } else {
         ssc <- data.frame(group = factor(x = levels, levels = levels),
                           symbolShape = symbolShape,
-                          symbolSize = symbolSize,
+                          symbolSize  = symbolSize,
                           symbolColor = symbolColor,
-                          symbolFill = symbolFill,
-                          stringsAsFactors = FALSE)
+                          symbolFill  = symbolColor)
         # Used to set uniform square scale
-        scalemax <- compareDF[, 1:2] %>% as.matrix %>% abs %>% max %>% multiply_by(1.05)
-
-        if (sigMeasurePlot) {
-            compareDF$group <- factor(x = compareDF$group, levels = levels)
-            CompPlot <- ggplot(compareDF, aes_string(x = xlabel, y = ylabel)) +
+        scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% multiply_by(1.05)
+        if (!sigMeasurePlot) {
+            compPlot <- compareDF %>%
+                ggplot(aes_string(x = xlabel, y = ylabel)) +
+                geom_point(shape = 21,
+                           size  = ssc$symbolSize[ssc$group == "X Unique"],
+                           color = ssc$symbolFill[ssc$group == "X Unique"],
+                           fill  = ssc$symbolFill[ssc$group == "X Unique"],
+                           alpha = transparency) +
+                coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
+        } else {
+            compPlot <- compareDF %>%
+                ggplot(aes_string(x = xlabel, y = ylabel)) +
                 aes(shape = group, size = group,
-                    color = group, fill = group,
-                    order = order) +
-                # Scale lines tell it to use the actual values, not treat them as factors
-                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                   values = ssc$symbolShape) +
-                scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = ssc$symbolSize) +
-                scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                   values = ssc$symbolColor) +
-                scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = ssc$symbolFill) +
-                geom_point(alpha = alpha) +
+                    color = group, fill = group) +
+                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolShape) +
+                scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
+                scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +
+                scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolFill) +
+                geom_point(alpha = transparency) +
                 # Make it square with same axis scales
                 coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax)) +
                 # Box around the legend
                 theme(legend.background = element_rect(fill = "gray95", size = .5, linetype = "dotted"))
-        } else {
-            CompPlot <- ggplot(compareDF, aes_string(x = xlabel, y = ylabel)) +
-                geom_point(shape = 1,
-                           size = ssc$symbolSize[ssc$group == "X Unique"],
-                           color = ssc$symbolFill[ssc$group == "X Unique"],
-                           fill = ssc$symbolFill[ssc$group == "X Unique"],
-                           alpha = alpha) +
-                coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
         }
-
-        CompPlot <- CompPlot +
-            xlab(xlab) +
-            ylab(ylab) +
-            ggtitle(title)
-
         if (!is.null(crosshair)) {
-            CompPlot <- CompPlot +
+            compPlot <- compPlot +
                 geom_hline(yintercept = 0,
                            color = crosshair,
                            size = refLineThickness,
@@ -277,28 +364,27 @@ comparePlot <- function(compareDF,
                            size = refLineThickness,
                            alpha = 0.5)
         }
-
         if (!is.null(referenceLine)) {
-            CompPlot <- CompPlot +
+            compPlot <- compPlot +
                 geom_abline(slope = 1,
                             intercept = 0,
                             color = referenceLine,
                             size = refLineThickness,
                             alpha = 0.5)
         }
-
-        # Set the legend postion
-        CompPlot <- setLegendPosition(CompPlot, legendPosition)
-
         if (!missing(footnote)) {
-            CompPlot <- addFootnote(CompPlot,
-                                    footnoteText = footnote,
-                                    footnoteSize = footnoteSize,
-                                    footnoteColor = footnoteColor,
-                                    yoffset = 0.05)
+            compPlot <- compPlot %>%
+                addFootnote(footnoteText = footnote,
+                            footnoteSize = footnoteSize,
+                            footnoteColor = "black",
+                            yoffset = 0.05)
         }
+        compPlot %>%
+            setLegendPosition(legendPosition) +
+            xlab(xlab) +
+            ylab(ylab) +
+            ggtitle(title)
     }
-    return(CompPlot)
 }
 
 
@@ -335,13 +421,13 @@ comparePlot <- function(compareDF,
 #' }
 #'
 #' @importFrom assertthat assert_that
-#' @import magrittr
+#' @importFrom dplyr filter arrange bind_cols rename_with
+#' @importFrom magrittr set_rownames
 #'
 #' @export
 comparePrep <- function(contrastList,
                         valueCol = "logFC",
                         significanceCol = "P.Value"){
-
     assertthat::assert_that(length(contrastList) == 2,
                             !is.null(names(contrastList)),
                             "data.frame" %in% class(contrastList[[1]]),
@@ -354,36 +440,30 @@ comparePrep <- function(contrastList,
                             significanceCol %in% colnames(contrastList[[2]]),
                             msg = "The significanceCol must be included in the colnames of both items of contrastList.")
 
-    ttNames <- names(contrastList)
-    tt1 <- contrastList[[1]]
-    tt2 <- contrastList[[2]]
-
-    commonIDs <- intersect(rownames(tt1), rownames(tt2))
-    assertthat::assert_that(!length(commonIDs) < 1,
+    commonIDs <- intersect(rownames(contrastList[[1]]), rownames(contrastList[[2]]))
+    assertthat::assert_that(length(commonIDs) > 0,
                             msg = "No common gene IDs were found between the two dataframes in contrastList.")
 
     # Filter both tables to the same set of genes in the same order
-    tt1 <- data.frame("geneid" = row.names(tt1), tt1, row.names = NULL)
-    tt2 <- data.frame("geneid" = row.names(tt2), tt2, row.names = NULL)
-    tt1 <- tt1 %>%
-        dplyr::filter(geneid %in% commonIDs) %>%
-        dplyr::arrange(geneid)
-    tt2 <- tt2 %>%
-        dplyr::filter(geneid %in% commonIDs) %>%
-        dplyr::arrange(geneid)
-
+    tt1 <- construct_comparator_data(contrastList[[1]], commonIDs)
+    tt2 <- construct_comparator_data(contrastList[[2]], commonIDs)
     assertthat::assert_that(all(tt1$geneid == tt2$geneid),
                             msg = "Gene IDs in the two topTable files in contrastList are not identical.")
 
-    # Assemble the return df
-    df <- dplyr::bind_cols(fc1 = tt1[[valueCol]],
-                           fc2 = tt2[[valueCol]],
-                           xp = tt1[[significanceCol]],
-                           yp = tt2[[significanceCol]]) %>%
-        as.matrix() %>%
+    ttNames <- names(contrastList)
+    # construct the final comparePlot data
+    dplyr::bind_cols(fc1 = tt1[[valueCol]],
+                     fc2 = tt2[[valueCol]],
+                     xp  = tt1[[significanceCol]],
+                     yp  = tt2[[significanceCol]]) %>%
+        dplyr::rename_with(~c(ttNames[1], ttNames[2], "xp", "yp")) %>%
         as.data.frame() %>%
-        set_colnames(c(ttNames[1], ttNames[2], "xp", "yp")) %>%
-        set_rownames(tt1$geneid)
+        magrittr::set_rownames(tt1$geneid)
+}
 
-    return(df)
+construct_comparator_data <- function(data, commonIDs) {
+    data %>%
+        dplyr::mutate(geneid = rownames(.)) %>%
+        dplyr::filter(geneid %in% commonIDs) %>%
+        dplyr::arrange(geneid)
 }
