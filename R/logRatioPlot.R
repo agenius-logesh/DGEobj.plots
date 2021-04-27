@@ -371,26 +371,30 @@ logRatioPlot <- function(contrastsDF,
                 dplyr::select(!!rlang::sym(facetColname),
                               !!rlang::sym(xColname))
             rownames(smp.data) <- colnames(cx.data)
-            canvasXpress::canvasXpress(data = cx.data,
-                                       smpAnnot         = smp.data,
-                                       groupingFactors  = xColname,
-                                       segregateSamplesBy = facetColname,
-                                       graphOrientation = "vertical",
-                                       colors           = barColor,
-                                       smpLabelRotate   = labelAngle,
-                                       graphType        = graphType,
-                                       title            = title,
-                                       smpTitle         = xlab,
-                                       smpLableFontStyle = "bold",
-                                       smpTitleScaleFontFactor = 1,
-                                       xAxisTitle       = ylab,
-                                       layoutTopology = paste0(numrow, 'X', facetCol),
-                                       layoutAdjust = axisFree,
-                                       showLegend = FALSE,
-                                       xAxis2Show = FALSE,
-                                       jitter=TRUE,
-                                       showBoxplotOriginalData=TRUE,
-                                       transparency = barTransparency)
+            cx_params <- list(data = cx.data,
+                              smpAnnot         = smp.data,
+                              groupingFactors  = xColname,
+                              segregateSamplesBy = facetColname,
+                              graphOrientation = "vertical",
+                              colors           = barColor,
+                              smpLabelRotate   = labelAngle,
+                              graphType        = graphType,
+                              title            = title,
+                              smpTitle         = xlab,
+                              smpLableFontStyle = "bold",
+                              smpTitleScaleFontFactor = 1,
+                              xAxisTitle       = ylab,
+                              layoutTopology = paste0(numrow, 'X', facetCol),
+                              layoutAdjust = axisFree,
+                              showLegend = FALSE,
+                              xAxis2Show = FALSE,
+                              jitter = TRUE,
+                              showBoxplotOriginalData = TRUE,
+                              transparency = barTransparency)
+            if (graphType == "Boxplot") {
+                cx_params <- c(cx_params, list(boxplotType = "range"))
+            }
+            do.call(canvasXpress::canvasXpress, cx_params)
         } else {
             plotby_vec <- unique(contrastsDF[[facetColname]])
             lapply(plotby_vec, function(x) {
@@ -405,7 +409,7 @@ logRatioPlot <- function(contrastsDF,
                                   !!rlang::sym(xColname))
                 rownames(smp.data) <- colnames(cx.data)
                 title <- x
-                canvasXpress::canvasXpress(data = cx.data,
+                cx_params <- list(data = cx.data,
                                            smpAnnot         = smp.data,
                                            groupingFactors  = xColname,
                                            segregateSamplesBy = facetColname,
@@ -421,6 +425,10 @@ logRatioPlot <- function(contrastsDF,
                                            showLegend = FALSE,
                                            xAxis2Show = FALSE,
                                            transparency = barTransparency)
+                if (graphType == "Boxplot") {
+                    cx_params <- c(cx_params, list(boxplotType = "range"))
+                }
+                do.call(canvasXpress::canvasXpress, cx_params)
             })
         }
     } else {
