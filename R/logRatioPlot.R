@@ -359,6 +359,22 @@ logRatioPlot <- function(contrastsDF,
         } else {
             tidy_data <- contrastsDF
         }
+        cx_params <- list(groupingFactors  = xColname,
+                          segregateSamplesBy = facetColname,
+                          graphOrientation = "vertical",
+                          colors           = barColor,
+                          smpLabelRotate   = labelAngle,
+                          graphType        = graphType,
+                          smpTitle         = xlab,
+                          smpLableFontStyle = "bold",
+                          smpTitleScaleFontFactor = 1,
+                          xAxisTitle       = ylab,
+                          showLegend = FALSE,
+                          xAxis2Show = FALSE,
+                          transparency = barTransparency)
+        if (graphType == "Boxplot") {
+            cx_params <- c(cx_params, list(boxplotType = "range"))
+        }
         if (facet) {
             numrow   <- (contrastsDF[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
             tidy_data <- tidy_data %>%
@@ -371,29 +387,12 @@ logRatioPlot <- function(contrastsDF,
                 dplyr::select(!!rlang::sym(facetColname),
                               !!rlang::sym(xColname))
             rownames(smp.data) <- colnames(cx.data)
-            cx_params <- list(data = cx.data,
-                              smpAnnot         = smp.data,
-                              groupingFactors  = xColname,
-                              segregateSamplesBy = facetColname,
-                              graphOrientation = "vertical",
-                              colors           = barColor,
-                              smpLabelRotate   = labelAngle,
-                              graphType        = graphType,
-                              title            = title,
-                              smpTitle         = xlab,
-                              smpLableFontStyle = "bold",
-                              smpTitleScaleFontFactor = 1,
-                              xAxisTitle       = ylab,
-                              layoutTopology = paste0(numrow, 'X', facetCol),
-                              layoutAdjust = axisFree,
-                              showLegend = FALSE,
-                              xAxis2Show = FALSE,
-                              jitter = TRUE,
-                              showBoxplotOriginalData = TRUE,
-                              transparency = barTransparency)
-            if (graphType == "Boxplot") {
-                cx_params <- c(cx_params, list(boxplotType = "range"))
-            }
+            cx_params <- c(list(data = cx.data,
+                                smpAnnot = smp.data,
+                                layoutTopology = paste0(numrow, 'X', facetCol),
+                                layoutAdjust = axisFree,
+                                title = title),
+                           cx_params)
             do.call(canvasXpress::canvasXpress, cx_params)
         } else {
             plotby_vec <- unique(contrastsDF[[facetColname]])
@@ -408,26 +407,10 @@ logRatioPlot <- function(contrastsDF,
                     dplyr::select(!!rlang::sym(facetColname),
                                   !!rlang::sym(xColname))
                 rownames(smp.data) <- colnames(cx.data)
-                title <- x
-                cx_params <- list(data = cx.data,
-                                           smpAnnot         = smp.data,
-                                           groupingFactors  = xColname,
-                                           segregateSamplesBy = facetColname,
-                                           graphOrientation = "vertical",
-                                           colors           = barColor,
-                                           smpLabelRotate   = labelAngle,
-                                           graphType        = graphType,
-                                           title            = title,
-                                           smpTitle         = xlab,
-                                           smpLableFontStyle = "bold",
-                                           smpTitleScaleFontFactor = 1,
-                                           xAxisTitle       = ylab,
-                                           showLegend = FALSE,
-                                           xAxis2Show = FALSE,
-                                           transparency = barTransparency)
-                if (graphType == "Boxplot") {
-                    cx_params <- c(cx_params, list(boxplotType = "range"))
-                }
+                cx_params <- c(list(data = cx.data,
+                                       smpAnnot = smp.data,
+                                       title = x),
+                                  cx_params)
                 do.call(canvasXpress::canvasXpress, cx_params)
             })
         }
