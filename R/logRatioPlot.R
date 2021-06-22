@@ -351,6 +351,10 @@ logRatioPlot <- function(contrastsDF,
         }
         if (is_confidence_used) {
             tidy_data <- contrastsDF %>%
+                dplyr::mutate(min = dplyr::case_when(!!rlang::sym(CI.L_colname) < 0 ~ !!rlang::sym(CI.L_colname),
+                                                     TRUE ~ 0),
+                              max = dplyr::case_when(!!rlang::sym(CI.R_colname) < 0 ~ 0,
+                                                     TRUE ~ !!rlang::sym(CI.R_colname))) %>%
                 tidyr::gather(key = "logType",
                               value = !!rlang::sym(yColname),
                               !!rlang::sym(yColname),
@@ -359,6 +363,7 @@ logRatioPlot <- function(contrastsDF,
         } else {
             tidy_data <- contrastsDF
         }
+
         cx_params <- list(groupingFactors  = xColname,
                           segregateSamplesBy = facetColname,
                           graphOrientation = "vertical",
@@ -376,7 +381,7 @@ logRatioPlot <- function(contrastsDF,
             cx_params <- c(cx_params, list(boxplotType = "range"))
         }
         if (facet) {
-            numrow   <- (contrastsDF[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
+            numrow   <- (tidy_data[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
             tidy_data <- tidy_data %>%
                 dplyr::arrange(!!rlang::sym(facetColname))
             cx.data <- tidy_data %>%
@@ -395,8 +400,9 @@ logRatioPlot <- function(contrastsDF,
                            cx_params)
             do.call(canvasXpress::canvasXpress, cx_params)
         } else {
+            plotlist <- list()
             plotby_vec <- unique(contrastsDF[[facetColname]])
-            lapply(plotby_vec, function(x) {
+            plotlist <- lapply(plotby_vec, function(x) {
                 tidy_data <- tidy_data %>%
                     dplyr::filter(!!rlang::sym(facetColname) == x)
                 cx.data <- tidy_data %>%
@@ -408,11 +414,15 @@ logRatioPlot <- function(contrastsDF,
                                   !!rlang::sym(xColname))
                 rownames(smp.data) <- colnames(cx.data)
                 cx_params <- c(list(data = cx.data,
-                                       smpAnnot = smp.data,
-                                       title = x),
-                                  cx_params)
+                                    smpAnnot = smp.data,
+                                    title = x,
+                                    setMinX = floor(min(tidy_data$min)),
+                                    setMaxX = ceiling(max(tidy_data$max))),
+                               cx_params)
                 do.call(canvasXpress::canvasXpress, cx_params)
             })
+            names(plotlist) <- plotby_vec
+            plotlist
         }
     } else {
         .addGeoms <- function(myPlot){
