@@ -2,9 +2,9 @@ context("DGEobj.plots - tests for volcanoPlot.R functions")
 
 
 test_that("volcanoPlot.R: volcanoPlot()", {
-    skip_if(is.null(t_obj1$RG_fit))
+    skip_if(is.null(t_obj1$ReplicateGroupDesign_fit))
 
-    contrastDF <- topTable(t_obj1$RG_fit, number = 100)
+    contrastDF <- topTable(t_obj1$ReplicateGroupDesign_fit, number = 100)
     volcano_plot <- volcanoPlot(contrastDF, logRatioCol = "adj.P.Val")
     expect_s3_class(volcano_plot, c("gg","ggplot"))
 
