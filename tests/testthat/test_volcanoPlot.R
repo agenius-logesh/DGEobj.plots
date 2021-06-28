@@ -1,8 +1,8 @@
 context("DGEobj.plots - tests for volcanoPlot.R functions")
 
 
-test_that("volcanoPlot.R: volcanoPlot()", {
-    skip_if(is.null(t_obj1$RG_fit))
+test_that("profilePlot.R: profilePlot()", {
+    skip_if(!("ReplicateGroupDesign_fit" %in% names(t_obj1)))
 
     contrastDF <- topTable(t_obj1$RG_fit, number = 100)
     volcano_plot <- volcanoPlot(contrastDF, logRatioCol = "adj.P.Val")
