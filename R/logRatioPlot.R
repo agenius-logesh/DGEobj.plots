@@ -81,8 +81,11 @@
 #' }
 #'
 #' @import ggplot2 magrittr
+#' @importFrom dplyr left_join filter arrange mutate case_when
 #' @importFrom assertthat assert_that
 #' @importFrom stringr str_c
+#' @importFrom canvasXpress canvasXpress
+#' @importFrom htmlwidgets JS
 #'
 #' @export
 logRatioPlot <- function(contrastsDF,
@@ -370,19 +373,29 @@ logRatioPlot <- function(contrastsDF,
             tidy_data <- contrastsDF
         }
 
-        cx_params <- list(groupingFactors  = xColname,
-                          segregateSamplesBy = facetColname,
-                          graphOrientation = "vertical",
-                          colors           = barColor,
-                          smpLabelRotate   = labelAngle,
-                          graphType        = graphType,
-                          smpTitle         = xlab,
-                          smpLableFontStyle = "bold",
+        events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
+                                                if (o != null && o != false &&
+                                                    o.x != null && o.w != null) {
+                                                  info = '<b>Gene Symbol</b>: ' + o.x.GeneSymbol[0] + '<br/>' +
+                                                         '<b>Contrast:</b>: ' + o.x.Contrast[0] + '<br/>' +
+                                                         '<b>Log FC Mean:</b>: ' + o.w.mean + '<br/>';
+                                                         t.showInfoSpan(e, info);
+                                                }; }}")
+
+        cx_params <- list(groupingFactors         = xColname,
+                          segregateSamplesBy      = facetColname,
+                          graphOrientation        = "vertical",
+                          colors                  = barColor,
+                          smpLabelRotate          = labelAngle,
+                          graphType               = graphType,
+                          smpTitle                = xlab,
+                          smpLableFontStyle       = "bold",
                           smpTitleScaleFontFactor = 1,
-                          xAxisTitle       = ylab,
-                          showLegend = FALSE,
-                          xAxis2Show = FALSE,
-                          transparency = barTransparency)
+                          xAxisTitle              = ylab,
+                          showLegend              = FALSE,
+                          xAxis2Show              = FALSE,
+                          transparency            = barTransparency,
+                          events                  = events)
 
         if (!axisFree && !is.null(minX) && !is.null(maxX)) {
             cx_params <- c(cx_params, list(setMinX = minX, setMaxX = maxX))
