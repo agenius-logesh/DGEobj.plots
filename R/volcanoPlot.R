@@ -114,244 +114,345 @@ volcanoPlot <- function(contrastDF,
                         xlab = NULL,
                         ylab = NULL,
                         title = NULL,
-                        symbolSize = c(4, 4, 2),
-                        symbolShape = c(21, 21, 1),
-                        symbolColor = c("black", "grey0", "grey25"),
-                        symbolFill = c("red3", "deepskyblue4", "grey25"),
-                        alpha = 0.5,
-                        sizeByIntensity = TRUE,
-                        pthresholdLine = NULL,
+                        symbolSize = c(10, 4, 10),
+                        symbolShape = c("circle", "circle", "circle"),
+                        symbolColor = c("red3", "grey25", "deepskyblue4"),
+                        transparency = 0.5,
+                        sizeBySignificance = TRUE,
+                        referenceLine = NULL,
                         foldChangeLines = log2(1.5),
-                        refLineThickness = 1,
+                        refLineThickness = 2,
                         legendPosition = "right",
-                        footnote,
-                        footnoteSize = 3,
-                        footnoteColor = "black",
-                        footnoteJust = 1) {
+                        footnote) {
 
-    # Assert the parameter and column exists
-    assertthat::assert_that(logRatioCol %in% colnames(contrastDF),
+    ##### Asserts
+    assertthat::assert_that(!missing(contrastDF),
+                            !is.null(contrastDF),
+                            "data.frame" %in% class(contrastDF),
+                            nrow(contrastDF) > 0,
+                            msg = "contrastDF must be specified as dataframe with LogIntensity and LogRatio columns and optionally a p-value")
+    plotType <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
+    }
+    # Make sure specified columns exist
+    assertthat::assert_that(!is.null(logRatioCol),
+                            logRatioCol %in% colnames(contrastDF),
                             msg = "logRatioCol column not found in contrastDF.")
-    assertthat::assert_that(logIntCol %in% colnames(contrastDF),
+    assertthat::assert_that(!is.null(logIntCol),
+                            logIntCol %in% colnames(contrastDF),
                             msg = "logIntCol column not found in contrastDF.")
-    assertthat::assert_that(pvalCol %in% colnames(contrastDF),
+    assertthat::assert_that(!is.null(pvalCol),
+                            pvalCol %in% colnames(contrastDF),
                             msg = "pvalCol column not found in contrastDF.")
-    assertthat::assert_that(plotType %in% c("canvasXpress", "ggplot"),
-                            msg = "Plot type must be either canvasXpress or ggplot.")
     if (!missing(geneSymCol)) {
-        assertthat::assert_that(geneSymCol %in% colnames(contrastDF),
-                                msg = "geneSymol column not found in contrastDF.")
-    }
-    if (!missing(symbolSize) || !missing(symbolShape) || !missing(symbolColor) || !missing(symbolFill)) {
-        assertthat::assert_that(!length(symbolSize) == 3,
-                                !length(symbolShape) == 3,
-                                !length(symbolColor) == 3,
-                                !length(symbolFill) == 3,
-                                msg = "All specified symbol arguments must be of length 3, including symbolSize, symbolShape, symbolColor, and symbolFill.")
+        assertthat::assert_that(!is.null(geneSymCol),
+                                geneSymCol %in% colnames(contrastDF),
+                                msg = "geneSymCol column not found in contrastDF.")
     }
 
-    if (sizeByIntensity) {
-        # Create a column to support sizeByIntensity
+    if (any(is.null(pthreshold),
+            !is.numeric(pthreshold),
+            length(pthreshold) != 1)) {
+        warning("pthreshold must be a singular numeric value. Assigning default value 0.01")
+        pthreshold <- 0.01
+    }
+
+    if (any(is.null(foldChangeLines),
+            !is.numeric(foldChangeLines),
+            length(foldChangeLines) != 1)) {
+        warning("foldChangeLines must be a singular numeric value. Assigning default value log2(1.5)")
+        foldChangeLines <- log2(1.5)
+    }
+
+    if (!is.null(title) &&
+        !all(is.character(title), length(title) == 1)) {
+        warning("title must be a singular value of class character. Assigning default value 'NULL'.")
+        title <- NULL
+    }
+
+    if (!is.null(xlab) &&
+        !all(is.character(xlab), length(xlab) == 1)) {
+        warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
+        xlab <- NULL
+    }
+
+    if (!is.null(ylab) &&
+        !all(is.character(ylab), length(ylab) == 1)) {
+        warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
+        ylab <- NULL
+    }
+
+    if (any(is.null(symbolSize),
+            !is.numeric(symbolSize),
+            length(symbolSize)  != 3,
+            length(unique(symbolSize)) < 2,
+            !all(symbolSize >= 0))) {
+        warning("symbolSize must be a vector of 3 integer values, at least 2 of them are different. Assigning default values 10, 4, 10.")
+        symbolSize  <-  c(10, 4, 10)
+
+    }
+
+    if (any(is.null(symbolShape),
+            !is.character(symbolShape),
+            length(symbolShape)  != 3,
+            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 3,
+            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 3)) {
+        warning("symbolShape must be a vector of 3 charcter values. Assigning default values 'circle', 'circle', 'circle'.")
+        symbolShape  <- c("circle", "circle", "circle")
+
+    }
+
+    if (any(is.null(symbolColor),
+            !is.character(symbolColor),
+            length(symbolColor)  != 3,
+            length(.validate_colors(symbolColor)) != 3)) {
+        warning("symbolColor must be a vector of 3 character values. Assigning default values 'red3', 'grey25', 'deepskyblue4'.")
+        symbolColor <- c("red3", "grey25", "deepskyblue4")
+    }
+
+    if (any(is.null(transparency),
+            !is.numeric(transparency),
+            length(transparency) != 1,
+            transparency <= 0,
+            transparency > 1)) {
+        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
+        transparency <- 0.5
+    }
+
+    if (!is.null(referenceLine) &&
+        !all(is.character(referenceLine), length(referenceLine) == 1)) {
+        warning("referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'darkgoldenrod1'.")
+        referenceLine <- "darkgoldenrod1"
+    } else if (.rgbaConversion(referenceLine) == "invalid value") {
+        warning("Color specified is not valid. Assigning default value 'darkgoldenrod1'.")
+        referenceLine <- "darkgoldenrod1"
+    }
+
+    if (any(is.null(refLineThickness),
+            !is.numeric(refLineThickness),
+            length(refLineThickness) != 1,
+            refLineThickness < 0)) {
+        warning("refLineThickness must be a singular value of class numeric Assigning default value '1'.")
+        refLineThickness <- 1
+    }
+
+    if (!is.null(legendPosition) &&
+        !all(is.character(legendPosition),
+             length(legendPosition) == 1,
+             legendPosition %in% c("top", "bottom", "left", "right", "ne", "se", "nw", "sw"))) {
+        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'ne', 'se', 'nw', 'sw' or 'NULL' to disable. Assigning default value 'right'.")
+        legendPosition <- "right"
+    }
+
+    if (missing(footnote)) {
+        footnote <- NULL
+    } else if (!is.null(footnote) &&
+               !all(is.character(footnote), length(footnote) == 1)) {
+        warning("footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
+        footnote <- NULL
+    }
+
+    if (any(is.null(sizeBySignificance),
+            !is.logical(sizeBySignificance),
+            length(sizeBySignificance) != 1)) {
+        warning("sizeBySignificance must be a singular logical value. Assigning default value TRUE")
+        sizeBySignificance = TRUE
+    }
+
+    if (sizeBySignificance) {
         contrastDF$LogInt <- contrastDF[[logIntCol]]
-        # Set a floor and a ceiling
-        contrastDF$LogInt[contrastDF$LogInt < 0] <- 0
-        contrastDF$LogInt[contrastDF$LogInt > 10] <- 10
+        contrastDF <- contrastDF %>%
+            dplyr::mutate(negLog10P = -log10(!!sym(pvalCol)),
+                          "LogInt" = dplyr::case_when(
+                              LogInt < 0 ~ 0,
+                              LogInt > 10 ~ 10,
+                              TRUE ~ floor(LogInt)),
+                          "Group" = dplyr::case_when(
+                              (!!rlang::sym(pvalCol) <= pthreshold) & (logFC < -foldChangeLines) ~ "Decreased",
+                              (!!rlang::sym(pvalCol) <= pthreshold) & (logFC > foldChangeLines) ~ "Increased",
+                              TRUE ~  "No Change")) %>%
+            dplyr::arrange(Group)
     }
 
-    groupNames <- c("Increased", "Decreased", "No Change")
+    if (plotType == "canvasxpress") {
+        symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
 
-    # Capture the labels from the columns
-    if (is.null(xlab)) {
-        xlab <- logRatioCol
-    }
+        cx.data <- contrastDF %>%
+            dplyr::select(c(logRatioCol, negLog10P))
 
-    if (is.null(ylab)) {
-        ylab <- paste("-log10(", pvalCol, ")", sep = "")
-    }
-
-    if (is.null(title)) {
-        title <- ""
-    }
-
-    x <- make.names(colnames(contrastDF)[colnames(contrastDF) == logRatioCol])
-    colnames(contrastDF)[colnames(contrastDF) == logRatioCol] <- make.names(colnames(contrastDF)[colnames(contrastDF) == logRatioCol])
-    # Add NegativeLogP column
-    contrastDF$NegativeLogP <- -1*log10(contrastDF[,pvalCol])
-    y <- "NegativeLogP"
-
-    contrastDF$group <- NA
-    contrastDF$group <- ifelse(contrastDF[[pvalCol]] <= pthreshold,
-                               ifelse(contrastDF[[logRatioCol]] >= 0, "Increased", "Decreased"),
-                               "No Change")
-    contrastDF$group <- contrastDF$group %>%
-        factor(levels = c("Increased", "Decreased", "No Change"))
-
-    # plotType
-    if (plotType == "canvasXpress") {
-        symbolFill <- sapply(symbolFill, rgbaConversion, alpha = alpha, USE.NAMES = FALSE)
-
-        ## Create the canvasXpress cx.data and var.annot
-        cx.data <- data.frame(a = contrastDF[colnames(contrastDF) == x],
-                              b = contrastDF[colnames(contrastDF) == y])
-        colnames(cx.data) <- c(x, y)
-        var.annot <- data.frame(Group = contrastDF$group, LogInt = contrastDF$LogInt)
-        rownames(var.annot) <- rownames(cx.data)
-        events <- NULL
-
-        # Add geneSym labels in tooltips
-        if (!missing(geneSymCol)) {
-            var.annot <- cbind(var.annot, GeneLabel = contrastDF[[geneSymCol]])
-            events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
-                                                if (o != null && o != false) {
-                                                    if (o.objectType == null) {
-                                                        t.showInfoSpan(e, '<b>' + o.y.vars + '</b> <br/>' +
-                                                        '<b>' + 'GeneLabel'  + '</b>' + ': ' + o.z.GeneLabel[0] + '<br/>' +
-                                                        '<b>' + o.y.smps[0]  + '</b>' + ': ' + o.y.data[0][0] + '<br/>' +
-                                                        '<b>' + o.y.smps[1]  + '</b>' + ': ' + o.y.data[0][1]);
-                                                    } else {
-                                                        t.showInfoSpan(e, o.display);
-                                                    };
-                                                }; }}")
-        }
-
-        # Optional Decorations
-        sizeBy <- NULL
-        sizeByShowLegend <- FALSE
+        sizes   <- symbolSize[c(3,1,2)]
+        colors  <- symbolColor[c(3,1,2)]
+        shapes  <- symbolShape[c(3,1,2)]
         decorations <- list()
 
-        if (sizeByIntensity) {
-            sizeBy <- "LogInt"
-            sizeByShowLegend <- TRUE
+        if (!is.null(referenceLine)) {
+            referenceLine <- .rgbaConversion(referenceLine, alpha = transparency)
+            decorations   <- .getCxPlotDecorations(decorations = decorations,
+                                                   color = referenceLine,
+                                                   width = refLineThickness,
+                                                   x     = 0)
         }
-        if (!is.null(pthresholdLine)) {
-            pthresholdLine <- rgbaConversion(pthresholdLine, alpha = alpha)
-            decorations <- getCxPlotDecorations(decorations = decorations,
-                                                color = pthresholdLine,
-                                                width = refLineThickness,
-                                                x     = -log10(pthreshold))
-        }
-
         if (!is.null(foldChangeLines)) {
-            decorations <- getCxPlotDecorations(decorations = decorations,
-                                                color = symbolFill[which(groupNames == "Increased")],
-                                                width = refLineThickness,
-                                                x     = foldChangeLines)
-            decorations <- getCxPlotDecorations(decorations = decorations,
-                                                color = symbolFill[which(groupNames == "Decreased")],
-                                                width = refLineThickness,
-                                                x     = -1*foldChangeLines)
+            decorations <- .getCxPlotDecorations(decorations = decorations,
+                                                 color       = colors[2],
+                                                 width       = refLineThickness,
+                                                 x           = foldChangeLines)
+            decorations <- .getCxPlotDecorations(decorations = decorations,
+                                                 color       = colors[1],
+                                                 width       = refLineThickness,
+                                                 x           = -1 * foldChangeLines)
+        }
+        events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
+                                                if (o != null && o != false) {
+                                                  if (o.y != null &&
+                                                      o.y.data != null &&
+                                                      o.y.smps != null) {
+                                                      info = '<b>' + o.y.vars[0]  + '</b>' + '<br/>' +
+                                                             '<i>' + o.z.Group  + '</i><br/>' +
+                                                             '<b>' + o.y.smps[0]  + '</b>' + ': ' + o.y.data[0][0] + '<br/>' +
+                                                             '<b>' + o.y.smps[1]  + '</b>' + ': ' + o.y.data[0][1] ;
+                                                      if (o.z != null && o.z['rgd_symbol'] != null) {
+                                                        info  = info + '<br/>' +
+                                                              '<b> Symbol</b>' + ': ' + o.z['rgd_symbol'] ;
+                                                      }
+                                                    t.showInfoSpan(e, info);
+                                                  }
+                                                }; }}")
+        if (missing(geneSymCol) && sizeBySignificance) {
+            var.annot <- contrastDF %>%
+                dplyr::select(Group, LogInt)
+            sizeBy <- "LogInt"
+            showSizeLegend <- TRUE
+        } else if (!missing(geneSymCol) && !sizeBySignificance) {
+            var.annot <- contrastDF %>%
+                dplyr::select(c(Group,geneSymCol))
+            sizeBy <- "Group"
+            showSizeLegend <- FALSE
+        } else if (!missing(geneSymCol) && sizeBySignificance) {
+            var.annot <- contrastDF %>%
+                dplyr::select(Group, geneSymCol, LogInt)
+            sizeBy <- "LogInt"
+            showSizeLegend <- TRUE
+        } else {
+            var.annot <- contrastDF %>%
+                dplyr::select(Group)
+            sizeBy  <- "Group"
+            showSizeLegend <- FALSE
         }
 
-        # Assign null if footnote is missing
-        if (missing(footnote)) {
-            footnote <- NULL
+        cx_params <- list(data             = cx.data,
+                          varAnnot         = var.annot,
+                          decorations      = decorations,
+                          graphType        = "Scatter2D",
+                          colorBy          = "Group",
+                          colors           = colors,
+                          shapes           = shapes,
+                          legendPosition   = legendPosition,
+                          showDecorations  = TRUE,
+                          sizeByShowLegend = showSizeLegend,
+                          title            = title,
+                          xAxisTitle       = xlab,
+                          yAxisTitle       = ylab,
+                          sizeBy           = sizeBy,
+                          sizes            = list(4, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
+                          citation         = footnote,
+                          events           = events)
+        if (sizeBy == "Group") {
+            cx_params <- c(cx_params, list(sizes = sizes))
         }
-
-        foldChangeMargin <- (foldChangeLines + (foldChangeLines * 0.2))
-        volcanoPlot <- canvasXpress::canvasXpress(data                    = cx.data,
-                                                  varAnnot                = var.annot,
-                                                  decorations             = decorations,
-                                                  graphType               = "Scatter2D",
-                                                  colorBy                 = "Group",
-                                                  colors                  = symbolFill,
-                                                  legendPosition          = legendPosition,
-                                                  showDecorations         = TRUE,
-                                                  sizes                   = c(4, 10, 12, 14, 16, 18, 20, 22, 24, 26),
-                                                  sizeByShowLegend        = sizeByShowLegend,
-                                                  title                   = title,
-                                                  xAxisTitle              = xlab,
-                                                  yAxisTitle              = ylab,
-                                                  sizeBy                  = sizeBy,
-                                                  setMaxX                 = foldChangeMargin,
-                                                  setMinX                 = -1*foldChangeMargin,
-                                                  citation                = footnote,
-                                                  citationFontSize        = footnoteSize,
-                                                  citationColor           = footnoteColor,
-                                                  events                  = events)
+        do.call(canvasXpress::canvasXpress, cx_params)
     } else {
-        names(symbolShape) <- groupNames
-        names(symbolSize)  <- groupNames
-        names(symbolColor) <- groupNames
-        names(symbolFill)  <- groupNames
+        groupNames <- c("Increased", "No Change", "Decreased")
+        names(symbolShape) <-  groupNames
+        names(symbolSize)  <-  groupNames
+        names(symbolColor) <-  groupNames
 
-        ssc <- data.frame(group = groupNames,
-                          symbolShape = symbolShape,
-                          symbolSize = symbolSize,
-                          symbolColor = symbolColor,
-                          symbolFill = symbolFill,
-                          stringsAsFactors = FALSE)
+        ssc  <-  data.frame(group = factor(groupNames, levels = groupNames),
+                            symbolShape = symbolShape,
+                            symbolSize = symbolSize,
+                            symbolColor = symbolColor,
+                            stringsAsFactors = FALSE)
 
-        # Set an order field to force plotting of 'No Change' first
-        contrastDF$order <- 0
-        contrastDF$order[contrastDF$group %in% c("Increased", "Decreased")] <- 1
-
-        contrastDF <- contrastDF %>%
-            dplyr::left_join(ssc)
-
-        volcanoPlot <- ggplot(contrastDF, aes_string(x = x, y = y)) +
-            aes(shape = group, size = group,
-                color = group, fill = group,
-                order = order) +
+        volcanoPlot <- ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
+            aes(shape = Group,
+                color = Group,
+                fill = Group) +
             # Scale lines tell it to use the actual values, not treat them as factors
             scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
                                values = ssc$symbolShape) +
-            scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                              values = ssc$symbolSize) +
             scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
                                values = ssc$symbolColor) +
             scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
-                              values = ssc$symbolFill) +
-            geom_point(alpha = alpha) +
-            # Box around the legend
-            theme(legend.background = element_rect(fill = "gray95", size = .5, linetype = "dotted"))
-
+                              values = ssc$symbolColor) +
+            geom_point(alpha = transparency)
         # Optional Decorations
-        if (sizeByIntensity) {
+        if (sizeBySignificance) {
             volcanoPlot <- volcanoPlot + aes(size = LogInt) +
                 scale_size_continuous()
+        } else {
+            volcanoPlot <- volcanoPlot + aes(size = Group) +
+                scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
+                                  values = ssc$symbolSize)
         }
 
-        if (!is.null(pthresholdLine)) {
+        if (!is.null(referenceLine)) {
             volcanoPlot <- volcanoPlot +
-                geom_hline(yintercept = -log10(pthreshold), color = pthresholdLine,
-                           alpha = 0.5, size = refLineThickness)
+                geom_vline(xintercept = 0,
+                           color = referenceLine,
+                           size = refLineThickness,
+                           alpha = 0.5)
         }
 
         if (!is.null(foldChangeLines)) {
             volcanoPlot <- volcanoPlot +
-                geom_vline(xintercept = foldChangeLines, color = symbolFill["Increased"],
-                           alpha = 0.5, size = refLineThickness) +
-                geom_vline(xintercept = -foldChangeLines, color = symbolFill["Decreased"],
-                           alpha = 0.5, size = refLineThickness)
+                geom_vline(xintercept = foldChangeLines,
+                           color = symbolColor["Increased"],
+                           size = refLineThickness,
+                           alpha = 0.5) +
+                geom_vline(xintercept = -foldChangeLines,
+                           color = symbolColor["Decreased"],
+                           size = refLineThickness,
+                           alpha = 0.5)
         }
 
-        # Add geneSym labels to increased & decreased genes
+        # Add genesym labels to increased, decreased genes
         if (!missing(geneSymLabels) && !missing(geneSymCol)) {
-            # Filter contrastDF to changed genes
             idx <- contrastDF[[geneSymCol]] %in% geneSymLabels
             contrastDFsubset <- contrastDF[idx,]
             volcanoPlot <- volcanoPlot +
-                geom_text_repel(data = contrastDFsubset, aes_string(x = x, y = y, label = geneSymCol),
-                                show.legend = FALSE)
+                ggrepel::geom_text_repel(data = contrastDFsubset,
+                                aes_string(x = logRatioCol, y = "negLog10P", label = geneSymCol),
+                                show.legend = TRUE)
         }
 
-        # Add Labels
-        volcanoPlot <- volcanoPlot +
-            xlab(xlab) +
-            ylab(ylab) +
-            ggtitle(title)
-
-        volcanoPlot <- setLegendPosition(volcanoPlot, legendPosition)
+        # Add axis Labels
+        if (is.null(xlab)) {
+            volcanoPlot <- volcanoPlot + xlab(logRatioCol)
+        } else {
+            volcanoPlot <- volcanoPlot + xlab(xlab)
+        }
+        if (is.null(ylab)) {
+            volcanoPlot <- volcanoPlot + ylab("negLog10P")
+        } else {
+            volcanoPlot <- volcanoPlot + ylab(ylab)
+        }
+        if (!is.null(title)) {
+            volcanoPlot <- volcanoPlot +
+                ggtitle(title)
+        }
 
         # Footnote
         if (!missing(footnote)) {
             volcanoPlot <- addFootnote(volcanoPlot,
                                        footnoteText = footnote,
-                                       footnoteSize = footnoteSize,
-                                       footnoteColor = footnoteColor,
-                                       footnoteJust = footnoteJust)
+                                       footnoteSize = 3,
+                                       footnoteColor = "black")
         }
+        setLegendPosition(volcanoPlot, legendPosition)
     }
-
-    return(volcanoPlot)
 }
