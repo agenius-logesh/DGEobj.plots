@@ -377,9 +377,21 @@ logRatioPlot <- function(contrastsDF,
                           showLegend = FALSE,
                           xAxis2Show = FALSE,
                           transparency = barTransparency)
+
         if (graphType == "Boxplot") {
             cx_params <- c(cx_params, list(boxplotType = "range"))
         }
+
+        if (refLine) {
+            decorations <- list()
+            referenceLine <- .rgbaConversion(refLineColor)
+            decorations   <- .getCxPlotDecorations(decorations = decorations,
+                                                   color       = referenceLine,
+                                                   width       = 1,
+                                                   y           = 0)
+            cx_params <- c(cx_params, list(decorations = decorations))
+        }
+
         if (facet) {
             numrow   <- (tidy_data[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
             tidy_data <- tidy_data %>%
