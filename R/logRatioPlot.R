@@ -349,17 +349,23 @@ logRatioPlot <- function(contrastsDF,
         } else {
             graphType <- "Boxplot"
         }
+
+        minX <- NULL
+        maxX <- NULL
         if (is_confidence_used) {
             tidy_data <- contrastsDF %>%
                 dplyr::mutate(min = dplyr::case_when(!!rlang::sym(CI.L_colname) < 0 ~ !!rlang::sym(CI.L_colname),
-                                                     TRUE ~ 0),
+                                                     TRUE ~ 0) - 1,
                               max = dplyr::case_when(!!rlang::sym(CI.R_colname) < 0 ~ 0,
-                                                     TRUE ~ !!rlang::sym(CI.R_colname))) %>%
+                                                     TRUE ~ !!rlang::sym(CI.R_colname)) + 1) %>%
                 tidyr::gather(key = "logType",
                               value = !!rlang::sym(yColname),
                               !!rlang::sym(yColname),
                               !!rlang::sym(CI.L_colname),
                               !!rlang::sym(CI.R_colname))
+            minX <- floor(min(tidy_data$min)) - 1
+            maxX <- ceiling(max(tidy_data$max)) + 1
+
         } else {
             tidy_data <- contrastsDF
         }
@@ -377,6 +383,10 @@ logRatioPlot <- function(contrastsDF,
                           showLegend = FALSE,
                           xAxis2Show = FALSE,
                           transparency = barTransparency)
+
+        if (!axisFree && !is.null(minX) && !is.null(maxX)) {
+            cx_params <- c(cx_params, list(setMinX = minX, setMaxX = maxX))
+        }
 
         if (graphType == "Boxplot") {
             cx_params <- c(cx_params, list(boxplotType = "range"))
@@ -428,8 +438,8 @@ logRatioPlot <- function(contrastsDF,
                 cx_params <- c(list(data = cx.data,
                                     smpAnnot = smp.data,
                                     title = x,
-                                    setMinX = floor(min(tidy_data$min)),
-                                    setMaxX = ceiling(max(tidy_data$max))),
+                                    setMinX = floor(min(tidy_data$min)) - 1,
+                                    setMaxX = ceiling(max(tidy_data$max)) + 1),
                                cx_params)
                 do.call(canvasXpress::canvasXpress, cx_params)
             })
