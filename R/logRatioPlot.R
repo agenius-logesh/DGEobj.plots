@@ -312,8 +312,10 @@ logRatioPlot <- function(contrastsDF,
     if (plotType == "canvasxpress") {
         if (plotCategory == "bar") {
             graphType <- "Bar"
+            transparency <- barTransparency
         } else {
             graphType <- "Boxplot"
+            transparency <- pointTransparency
         }
 
         minX <- NULL
@@ -359,7 +361,7 @@ logRatioPlot <- function(contrastsDF,
                           xAxisTitle              = ylab,
                           showLegend              = FALSE,
                           xAxis2Show              = FALSE,
-                          transparency            = barTransparency,
+                          transparency            = transparency,
                           events                  = events)
 
         if (!axisFree && !is.null(minX) && !is.null(maxX)) {
