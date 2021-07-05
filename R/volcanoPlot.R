@@ -117,8 +117,8 @@ volcanoPlot <- function(contrastDF,
                         symbolSize = c(10, 4, 10),
                         symbolShape = c("circle", "circle", "circle"),
                         symbolColor = c("red3", "grey25", "deepskyblue4"),
+                        sizeByIntensity = FALSE,
                         transparency = 0.5,
-                        sizeBySignificance = TRUE,
                         referenceLine = NULL,
                         foldChangeLines = log2(1.5),
                         refLineThickness = 2,
@@ -131,6 +131,7 @@ volcanoPlot <- function(contrastDF,
                             "data.frame" %in% class(contrastDF),
                             nrow(contrastDF) > 0,
                             msg = "contrastDF must be specified as dataframe with LogIntensity and LogRatio columns and optionally a p-value")
+
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
             !is.character(plotType),
@@ -139,16 +140,20 @@ volcanoPlot <- function(contrastDF,
         warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
         plotType <- "canvasxpress"
     }
+
     # Make sure specified columns exist
     assertthat::assert_that(!is.null(logRatioCol),
                             logRatioCol %in% colnames(contrastDF),
                             msg = "logRatioCol column not found in contrastDF.")
+
     assertthat::assert_that(!is.null(logIntCol),
                             logIntCol %in% colnames(contrastDF),
                             msg = "logIntCol column not found in contrastDF.")
+
     assertthat::assert_that(!is.null(pvalCol),
                             pvalCol %in% colnames(contrastDF),
                             msg = "pvalCol column not found in contrastDF.")
+
     if (!missing(geneSymCol)) {
         assertthat::assert_that(!is.null(geneSymCol),
                                 geneSymCol %in% colnames(contrastDF),
@@ -170,19 +175,22 @@ volcanoPlot <- function(contrastDF,
     }
 
     if (!is.null(title) &&
-        !all(is.character(title), length(title) == 1)) {
+        !all(is.character(title),
+        length(title) == 1)) {
         warning("title must be a singular value of class character. Assigning default value 'NULL'.")
         title <- NULL
     }
 
     if (!is.null(xlab) &&
-        !all(is.character(xlab), length(xlab) == 1)) {
+        !all(is.character(xlab),
+        length(xlab) == 1)) {
         warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
         xlab <- NULL
     }
 
     if (!is.null(ylab) &&
-        !all(is.character(ylab), length(ylab) == 1)) {
+        !all(is.character(ylab),
+        length(ylab) == 1)) {
         warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
         ylab <- NULL
     }
@@ -252,38 +260,49 @@ volcanoPlot <- function(contrastDF,
     if (missing(footnote)) {
         footnote <- NULL
     } else if (!is.null(footnote) &&
-               !all(is.character(footnote), length(footnote) == 1)) {
+               !all(is.character(footnote),
+               length(footnote) == 1)) {
         warning("footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
         footnote <- NULL
     }
 
-    if (any(is.null(sizeBySignificance),
-            !is.logical(sizeBySignificance),
-            length(sizeBySignificance) != 1)) {
-        warning("sizeBySignificance must be a singular logical value. Assigning default value TRUE")
-        sizeBySignificance = TRUE
+    if (any(is.null(sizeByIntensity),
+            !is.logical(sizeByIntensity),
+            length(sizeByIntensity) != 1)) {
+        warning("sizeByIntensity must be a singular logical value. Assigning default value FALSE")
+        sizeByIntensity = FALSE
     }
 
-    if (sizeBySignificance) {
-        contrastDF$LogInt <- contrastDF[[logIntCol]]
+    # # # Columns to plot
+    # # # Capture the labels from the colname
+    # xlabel <- make.names(logIntCol)
+    # ylabel <- make.names(logRatioCol)
+    # Group <- NULL
+    # negLog10P <- NULL
+    # # Now make the columnames suitable for use with aes_string
+    # colnames(contrastDF)[colnames(contrastDF) %in% logIntCol] <- xlabel
+    # colnames(contrastDF)[colnames(contrastDF) %in% logRatioCol] <- ylabel
+
+
+    if (sizeByIntensity) {
         contrastDF <- contrastDF %>%
-            dplyr::mutate(negLog10P = -log10(!!sym(pvalCol)),
-                          "LogInt" = dplyr::case_when(
-                              LogInt < 0 ~ 0,
-                              LogInt > 10 ~ 10,
-                              TRUE ~ floor(LogInt)),
-                          "Group" = dplyr::case_when(
-                              (!!rlang::sym(pvalCol) <= pthreshold) & (logFC < -foldChangeLines) ~ "Decreased",
-                              (!!rlang::sym(pvalCol) <= pthreshold) & (logFC > foldChangeLines) ~ "Increased",
-                              TRUE ~  "No Change")) %>%
-            dplyr::arrange(Group)
+            dplyr::mutate("LogInt"    = dplyr::case_when(
+                              AveExpr < 0 ~ 0,
+                              AveExpr > 10 ~ 10,
+                              TRUE ~ floor(AveExpr)))
     }
+
+    contrastDF <- contrastDF %>%
+        dplyr::mutate(negLog10P = -log10(!!sym(pvalCol)),
+                          "Group" = dplyr::case_when(
+                                (!!rlang::sym(pvalCol) <= pthreshold) & (logFC < -foldChangeLines) ~ "Decreased",
+                                (!!rlang::sym(pvalCol) <= pthreshold) & (logFC > foldChangeLines) ~ "Increased",
+                                 TRUE ~  "No Change")) %>%
+            dplyr::arrange(Group)
+
 
     if (plotType == "canvasxpress") {
         symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
-
-        cx.data <- contrastDF %>%
-            dplyr::select(c(logRatioCol, negLog10P))
 
         sizes   <- symbolSize[c(3,1,2)]
         colors  <- symbolColor[c(3,1,2)]
@@ -316,33 +335,34 @@ volcanoPlot <- function(contrastDF,
                                                              '<i>' + o.z.Group  + '</i><br/>' +
                                                              '<b>' + o.y.smps[0]  + '</b>' + ': ' + o.y.data[0][0] + '<br/>' +
                                                              '<b>' + o.y.smps[1]  + '</b>' + ': ' + o.y.data[0][1] ;
-                                                      if (o.z != null && o.z['rgd_symbol'] != null) {
+                                                      if (o.z != null && o.z['geneSym'] != null) {
                                                         info  = info + '<br/>' +
-                                                              '<b> Symbol</b>' + ': ' + o.z['rgd_symbol'] ;
+                                                              '<b> Symbol</b>' + ': ' + o.z['geneSym'] ;
                                                       }
                                                     t.showInfoSpan(e, info);
                                                   }
                                                 }; }}")
-        if (missing(geneSymCol) && sizeBySignificance) {
-            var.annot <- contrastDF %>%
-                dplyr::select(Group, LogInt)
+
+        cx.data <- contrastDF %>% dplyr::select(c(logRatioCol, negLog10P))
+
+        if (missing(geneSymCol) && sizeByIntensity) {
+            var.annot <- contrastDF %>% dplyr::select(Group, LogInt)
             sizeBy <- "LogInt"
             showSizeLegend <- TRUE
-        } else if (!missing(geneSymCol) && !sizeBySignificance) {
-            var.annot <- contrastDF %>%
-                dplyr::select(c(Group,geneSymCol))
+        } else if (!missing(geneSymCol) && !sizeByIntensity) {
+            var.annot <- contrastDF %>% dplyr::select(c(Group,geneSymCol))
+            colnames(var.annot)[colnames(var.annot) %in% geneSymCol] <- "geneSym"
             sizeBy <- "Group"
-            showSizeLegend <- FALSE
-        } else if (!missing(geneSymCol) && sizeBySignificance) {
-            var.annot <- contrastDF %>%
-                dplyr::select(Group, geneSymCol, LogInt)
+            showSizeLegend <- TRUE
+        } else if (!missing(geneSymCol) && sizeByIntensity) {
+            var.annot <- contrastDF %>% dplyr::select(Group, geneSymCol, LogInt)
+            colnames(var.annot)[colnames(var.annot) %in% geneSymCol] <- "geneSym"
             sizeBy <- "LogInt"
             showSizeLegend <- TRUE
         } else {
-            var.annot <- contrastDF %>%
-                dplyr::select(Group)
+            var.annot <- contrastDF %>% dplyr::select(Group)
             sizeBy  <- "Group"
-            showSizeLegend <- FALSE
+            showSizeLegend <- TRUE
         }
 
         cx_params <- list(data             = cx.data,
@@ -359,7 +379,6 @@ volcanoPlot <- function(contrastDF,
                           xAxisTitle       = xlab,
                           yAxisTitle       = ylab,
                           sizeBy           = sizeBy,
-                          sizes            = list(4, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
                           citation         = footnote,
                           events           = events)
         if (sizeBy == "Group") {
@@ -390,8 +409,10 @@ volcanoPlot <- function(contrastDF,
             scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
                               values = ssc$symbolColor) +
             geom_point(alpha = transparency)
+
+
         # Optional Decorations
-        if (sizeBySignificance) {
+        if (sizeByIntensity) {
             volcanoPlot <- volcanoPlot + aes(size = LogInt) +
                 scale_size_continuous()
         } else {
@@ -403,9 +424,9 @@ volcanoPlot <- function(contrastDF,
         if (!is.null(referenceLine)) {
             volcanoPlot <- volcanoPlot +
                 geom_vline(xintercept = 0,
-                           color = referenceLine,
+                           color = "green",
                            size = refLineThickness,
-                           alpha = 0.5)
+                           alpha = transparency)
         }
 
         if (!is.null(foldChangeLines)) {
@@ -413,11 +434,11 @@ volcanoPlot <- function(contrastDF,
                 geom_vline(xintercept = foldChangeLines,
                            color = symbolColor["Increased"],
                            size = refLineThickness,
-                           alpha = 0.5) +
+                           alpha = transparency) +
                 geom_vline(xintercept = -foldChangeLines,
                            color = symbolColor["Decreased"],
                            size = refLineThickness,
-                           alpha = 0.5)
+                           alpha = transparency)
         }
 
         # Add genesym labels to increased, decreased genes
@@ -451,7 +472,8 @@ volcanoPlot <- function(contrastDF,
             volcanoPlot <- addFootnote(volcanoPlot,
                                        footnoteText = footnote,
                                        footnoteSize = 3,
-                                       footnoteColor = "black")
+                                       footnoteColor = "black",
+                                       footnoteJust = 1)
         }
         setLegendPosition(volcanoPlot, legendPosition)
     }
