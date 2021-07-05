@@ -389,7 +389,6 @@ logRatioPlot <- function(contrastsDF,
         cx_params <- list(groupingFactors         = xColname,
                           graphOrientation        = "vertical",
                           colors                  = barColor,
-                          smpLabelRotate          = labelAngle,
                           graphType               = graphType,
                           smpTitle                = xlab,
                           smpLableFontStyle       = "bold",
@@ -435,7 +434,8 @@ logRatioPlot <- function(contrastsDF,
                                 segregateSamplesBy = facetColname,
                                 layoutTopology = paste0(numrow, 'X', facetCol),
                                 layoutAdjust = axisFree,
-                                title = title),
+                                title = title,
+                                smpLabelRotate = labelAngle),
                            cx_params)
             do.call(canvasXpress::canvasXpress, cx_params)
         } else {
@@ -456,7 +456,8 @@ logRatioPlot <- function(contrastsDF,
                                     smpAnnot = smp.data,
                                     title = x,
                                     setMinX = floor(min(tidy_data$min)) - 0.1,
-                                    setMaxX = ceiling(max(tidy_data$max)) + 0.1),
+                                    setMaxX = ceiling(max(tidy_data$max)) + 0.1,
+                                    smpLabelRotate = 90),
                                cx_params)
                 do.call(canvasXpress::canvasXpress, cx_params)
             })
@@ -535,9 +536,9 @@ logRatioPlot <- function(contrastsDF,
                     aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
                 }
 
-                if (labelAngle > 0) {
-                    aplot <- aplot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
-                }
+                # if (labelAngle > 0) {
+                #     aplot <- aplot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
+                # }
 
                 if (refLine) {
                     aplot <- aplot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
