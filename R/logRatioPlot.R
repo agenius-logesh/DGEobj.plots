@@ -336,6 +336,18 @@ logRatioPlot <- function(contrastsDF,
 
         } else {
             tidy_data <- contrastsDF
+            if (plotCategory == "point") {
+                graphType <- "Dotplot"
+            }
+            minX <- floor(min(tidy_data[[yColname]])) - 0.1
+            maxX <- ceiling(max(tidy_data[[yColname]])) + 0.1
+            if (minX > 0) {
+                minX <-  0
+            }
+
+            if (maxX < 0) {
+                maxX <- 0
+            }
         }
 
         events <- htmlwidgets::JS(
@@ -424,11 +436,25 @@ logRatioPlot <- function(contrastsDF,
                     dplyr::select(!!rlang::sym(facetColname),
                                   !!rlang::sym(xColname))
                 rownames(smp.data) <- colnames(cx.data)
+                if (is_confidence_used) {
+                    minX <- floor(min(tidy_data$min)) - 0.1
+                    maxX <- ceiling(max(tidy_data$max)) + 0.1
+                } else {
+                    minX <- floor(min(tidy_data[[yColname]])) - 0.1
+                    maxX <- ceiling(max(tidy_data[[yColname]])) + 0.1
+                    if (minX > 0) {
+                        minX <-  0
+                    }
+
+                    if (maxX < 0) {
+                        maxX <- 0
+                    }
+                }
                 cx_params <- c(list(data = cx.data,
                                     smpAnnot = smp.data,
                                     title = x,
-                                    setMinX = floor(min(tidy_data$min)) - 0.1,
-                                    setMaxX = ceiling(max(tidy_data$max)) + 0.1,
+                                    setMinX = minX,
+                                    setMaxX = maxX,
                                     smpLabelRotate = 90),
                                cx_params)
                 do.call(canvasXpress::canvasXpress, cx_params)
