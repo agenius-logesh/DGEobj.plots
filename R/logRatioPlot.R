@@ -354,6 +354,8 @@ logRatioPlot <- function(contrastsDF,
         }
     }
 
+    #input validations
+    facet_chart_limit <- 40
 
     if (plotType == "canvasxpress") {
         if (plotCategory == "bar") {
@@ -427,7 +429,14 @@ logRatioPlot <- function(contrastsDF,
         }
 
         if (facet) {
-            numrow   <- (tidy_data[[facetColname]] %>% unique %>% length / facetCol) %>% ceiling
+            plots_num <- tidy_data[[facetColname]] %>% unique %>% length
+            numrow   <- (plots_num / facetCol) %>% ceiling
+            if (plots_num > facet_chart_limit) {
+                warning(paste("A large number of charts/facets has/have been requested",
+                              "and may take significant time to generate. It is suggested that less than",
+                              facet_chart_limit,
+                              "charts/facets are requested at a time."))
+            }
             tidy_data <- tidy_data %>%
                 dplyr::arrange(!!rlang::sym(facetColname))
             cx.data <- tidy_data %>%

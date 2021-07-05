@@ -13,7 +13,9 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
     colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
 
-    tidyDat <- dplyr::left_join(tidyDat, ens2genesym) %>% dplyr::sample_n(10)
+    tidyDat <- dplyr::left_join(tidyDat, ens2genesym)
+    full_tidyDat <- tidyDat
+    tidyDat <- tidyDat %>% dplyr::sample_n(10)
 
     # Simple barplot
     plot <- logRatioPlot(contrastsDF  = tidyDat,
@@ -47,6 +49,12 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(log_ratio_plot[[1]], c("gg", "ggplot"))
 
     # Testing asserts
+    expect_warning(plot <- logRatioPlot(full_tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast"),
+                   regexp = "A large number of charts/facets has/have been requested and may take significant time to generate. It is suggested that less than 40 charts/facets are requested at a time.")
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     ## contrastsDF
     msg <- "contrastsDF must be specified and should be of class 'data.frame'."
     expect_error(logRatioPlot(),
