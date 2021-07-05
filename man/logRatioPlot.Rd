@@ -107,7 +107,7 @@ Input is a tidy dataframe constructed from topTable output and
 requires \strong{logFC}, \strong{CI.L}, and \strong{CI.R} columns as well as a gene identifier of choice.
 
 Outputs a canvasXpress \emph{(the default)} or ggplot2 object faceted by the facetColname when
- \code{facet} parameter is set to \strong{TRUE} (the default).
+ \code{facet} parameter is set to \strong{TRUE} \emph{(the default)}.
 
 If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
 ggplots, one for each facetColname value \emph{(typically gene)}.
@@ -121,20 +121,18 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
                            includeColumns = c("logFC", "CI.R", "CI.L"))
 
   # Add gene symbols from geneData
-  ens2genesym <- DGEobj$geneData \%>\%
-                 rownames_to_column(var = "EnsgID") \%>\%
-                 select(EnsgID, GeneSymbol = GeneName)
-  tidyDat <- left_join(tidyDat, ens2genesym)
+  # select small sample set
+  ens2genesym <- data.frame("EnsgID" = row.names(DGEobj$geneData), DGEobj$geneData, row.names = NULL)
+  ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
+  colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
+  tidyDat <- dplyr::left_join(tidyDat, ens2genesym) \%>\% dplyr::sample_n(10)
 
-  # Filter for a small set of genes of interest
-  idx <- stringr::str_detect(tidyDat$GeneSymbol, "^PPAR")
-  tidyDat <- tidyDat[idx,]
 
   # Simple barplot
-  logRatioPlot(tidyDat,
-               facetColname = "GeneSymbol",
-               xColname = "Contrast",
-               facetCol = 2)
+ logRatioPlot(tidyDat,
+             facetColname = "GeneSymbol",
+              xColname = "Contrast",
+              facetCol = 4)
 
   # Lineplot with some options
   logRatioPlot(tidyDat,
