@@ -28,9 +28,9 @@
 #' @param barColor Color for the bar outline (default = "dodgerblue4")
 #' @param barTransparency Transparency for the bar layer (default = 1)
 #' @param pointColor Color for the point layer (default = "grey30")
-#' @param pointShape Shape for the point layer (default = "circle")
+#' @param pointShape Shape for the point layer, for ggplot plotType (default = "circle")
 #' @param pointTransparency Transparency for the box layer (default = 1)
-#' @param pointSize Size of the points (default = 4)
+#' @param pointSize Size of the points, for ggplot plotType (default = 4)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
 #' @param facetCol Explicitly set the number of rows for the facet plot. default
