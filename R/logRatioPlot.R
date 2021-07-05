@@ -29,13 +29,8 @@
 #' @param barTransparency Transparency for the bar layer (default = 1)
 #' @param pointColor Color for the point layer (default = "grey30")
 #' @param pointShape Shape for the point layer (default = "circle")
-#' @param barTransparency Transparency for the box layer (default = 1)
+#' @param pointTransparency Transparency for the box layer (default = 1)
 #' @param pointSize Size of the points (default = 4)
-#' @param lineLayer Add a fitted line layer (default = FALSE)
-#' @param lineColor Color of the line fit (default = "dodgerblue4")
-#' @param lineSize Size of the line fit (default = 1)
-#' @param lineFit Type of fit to use.  One of c("auto", "lm", "glm", "gam",
-#'   "loess"). (default = "loess")
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
 #' @param facetCol Explicitly set the number of rows for the facet plot. default
@@ -82,8 +77,6 @@
 #'                facet = TRUE,
 #'                title = "Test",
 #'                pointSize = 4,
-#'                lineLayer = TRUE,
-#'                lineSize = 0.1,
 #'                labelAngle = 60)
 #' }
 #'
@@ -114,10 +107,6 @@ logRatioPlot <- function(contrastsDF,
                          pointShape = "circle",
                          pointTransparency = 1,
                          pointSize = 2,
-                         lineLayer = FALSE,
-                         lineColor = "dodgerblue4",
-                         lineSize = 1,
-                         lineFit = "loess",
                          facet = TRUE,
                          facetCol,
                          labelAngle = 45,
@@ -279,41 +268,6 @@ logRatioPlot <- function(contrastsDF,
             pointSize < 0)) {
         warning("pointSize must be a singular value of class numeric. Assigning default value '2'.")
         pointSize <- 2
-    }
-
-    if (any(is.null(lineLayer),
-            !is.logical(lineLayer),
-            length(lineLayer) != 1)) {
-        warning("lineLayer must be a singular value of class logical. Assigning default value 'FALSE'.")
-        lineLayer <- FALSE
-    }
-
-    if (!is.null(lineFit)) {
-        if (any(is.null(lineColor),
-                !is.character(lineColor),
-                length(lineColor) != 1)) {
-            warning("lineColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
-            lineColor <- "dodgerblue4"
-        } else if (.rgbaConversion(lineColor) == "invalid value") {
-            warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
-            lineColor <- "dodgerblue4"
-        }
-    }
-
-    if (!is.null(lineFit) &&
-        any(is.null(lineSize),
-            !is.numeric(lineSize),
-            length(lineSize) != 1,
-            lineSize < 0)) {
-        warning("lineSize must be a singular value of class numeric. Assigning default value '1'.")
-        lineSize <- 1
-    }
-
-    if (!is.null(lineFit) &&
-        any(length(lineFit) != 1,
-            !tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam'))) {
-        warning("lineFit must be one of 'glm', 'lm', 'loess', 'gam' or NULL to disable. Assigning default value 'loess'.")
-        lineFit <- "loess"
     }
 
     if (any(is.null(labelAngle),
@@ -500,14 +454,6 @@ logRatioPlot <- function(contrastsDF,
                 myPlot <- myPlot + geom_errorbar(aes_string(ymin = CI.L_colname, ymax = CI.R_colname), width = .2)
             }
 
-            if (lineLayer) {
-                myPlot <- myPlot + geom_smooth(aes_string(group = facetColname),
-                                               method = lineFit,
-                                               formula = y ~ x,
-                                               color = lineColor,
-                                               size = lineSize,
-                                               se = FALSE)
-            }
             myPlot
         }
 

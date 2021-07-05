@@ -24,10 +24,6 @@ logRatioPlot(
   pointShape = "circle",
   pointTransparency = 1,
   pointSize = 2,
-  lineLayer = FALSE,
-  lineColor = "dodgerblue4",
-  lineSize = 1,
-  lineFit = "loess",
   facet = TRUE,
   facetCol,
   labelAngle = 45,
@@ -63,22 +59,15 @@ logRatioPlot(
 
 \item{barColor}{Color for the bar outline (default = "dodgerblue4")}
 
-\item{barTransparency}{Transparency for the box layer (default = 1)}
+\item{barTransparency}{Transparency for the bar layer (default = 1)}
 
 \item{pointColor}{Color for the point layer (default = "grey30")}
 
 \item{pointShape}{Shape for the point layer (default = "circle")}
 
+\item{pointTransparency}{Transparency for the box layer (default = 1)}
+
 \item{pointSize}{Size of the points (default = 4)}
-
-\item{lineLayer}{Add a fitted line layer (default = FALSE)}
-
-\item{lineColor}{Color of the line fit (default = "dodgerblue4")}
-
-\item{lineSize}{Size of the line fit (default = 1)}
-
-\item{lineFit}{Type of fit to use.  One of c("auto", "lm", "glm", "gam",
-"loess"). (default = "loess")}
 
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
@@ -144,8 +133,6 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
                facet = TRUE,
                title = "Test",
                pointSize = 4,
-               lineLayer = TRUE,
-               lineSize = 0.1,
                labelAngle = 60)
 }
 
