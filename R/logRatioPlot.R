@@ -366,24 +366,27 @@ logRatioPlot <- function(contrastsDF,
                               !!rlang::sym(yColname),
                               !!rlang::sym(CI.L_colname),
                               !!rlang::sym(CI.R_colname))
-            minX <- floor(min(tidy_data$min)) - 1
-            maxX <- ceiling(max(tidy_data$max)) + 1
+            minX <- floor(min(tidy_data$min)) - 0.1
+            maxX <- ceiling(max(tidy_data$max)) + 0.1
 
         } else {
             tidy_data <- contrastsDF
         }
 
-        events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
-                                                if (o != null && o != false &&
-                                                    o.x != null && o.w != null) {
-                                                  info = '<b>Gene Symbol</b>: ' + o.x.GeneSymbol[0] + '<br/>' +
-                                                         '<b>Contrast:</b>: ' + o.x.Contrast[0] + '<br/>' +
-                                                         '<b>Log FC Mean:</b>: ' + o.w.mean + '<br/>';
-                                                         t.showInfoSpan(e, info);
-                                                }; }}")
+        events <- htmlwidgets::JS(
+        "{ 'mousemove' : function(o, e, t) {
+               if (o != null && o != false &&
+                   o.x != null && o.w != null) {
+                   var num = o.w.mean;
+                   mean = parseFloat(num).toFixed(4);
+                   info = '<b>Gene Symbol</b>: ' + o.x.GeneSymbol[0] + '<br/>' +
+                          '<b>Contrast:</b>: ' + o.x.Contrast[0] + '<br/>' +
+                          '<b>Log FC Mean:</b>: ' + mean + '<br/>';
+                          t.showInfoSpan(e, info);
+                };
+        }}")
 
         cx_params <- list(groupingFactors         = xColname,
-                          segregateSamplesBy      = facetColname,
                           graphOrientation        = "vertical",
                           colors                  = barColor,
                           smpLabelRotate          = labelAngle,
@@ -429,6 +432,7 @@ logRatioPlot <- function(contrastsDF,
             rownames(smp.data) <- colnames(cx.data)
             cx_params <- c(list(data = cx.data,
                                 smpAnnot = smp.data,
+                                segregateSamplesBy = facetColname,
                                 layoutTopology = paste0(numrow, 'X', facetCol),
                                 layoutAdjust = axisFree,
                                 title = title),
@@ -451,8 +455,8 @@ logRatioPlot <- function(contrastsDF,
                 cx_params <- c(list(data = cx.data,
                                     smpAnnot = smp.data,
                                     title = x,
-                                    setMinX = floor(min(tidy_data$min)) - 1,
-                                    setMaxX = ceiling(max(tidy_data$max)) + 1),
+                                    setMinX = floor(min(tidy_data$min)) - 0.1,
+                                    setMaxX = ceiling(max(tidy_data$max)) + 0.1),
                                cx_params)
                 do.call(canvasXpress::canvasXpress, cx_params)
             })
