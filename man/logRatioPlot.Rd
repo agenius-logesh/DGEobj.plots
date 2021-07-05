@@ -37,6 +37,8 @@ logRatioPlot(
 \arguments{
 \item{contrastsDF}{A tidy dataframe of data to plot (Required) (see ?tidyContrasts).}
 
+\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+
 \item{facetColname}{Define the column name to separate plots (Required) (e.g. GeneID).}
 
 \item{xColname}{Define the column name to group boxplots by (Required) (e.g. Contrast).}
@@ -57,7 +59,7 @@ logRatioPlot(
 
 \item{ylab}{Y axis label (defaults to yColname)}
 
-\item{title}{Plot title (Optional)}
+\item{title}{Plot title, set to NULL to disable (Optional, default is NULL)}
 
 \item{barColor}{Color for the bar outline (default = "dodgerblue4")}
 
@@ -90,16 +92,25 @@ behavior will automatically set the columns. (default = ceiling(sqrt(length(uniq
 Allowed values: TRUE and FALSE)}
 }
 \value{
-ggplot object. If facet = TRUE (default), returns a faceted ggplot object. If
-  facet = FALSE, returns a list of ggplot objects indexed
-  by observation (gene) names.
+canvasXpress (the default) or a ggplot object:
+#' \itemize{
+  \item If \code{facet = TRUE} \emph{(default)}, returns a faceted canvasXpress or ggplot object.
+  \item If \code{facet = FALSE}, returns a list of canvasXpress or ggplot objects indexed by observation (gene) names.
+}
 }
 \description{
 Intended to plot a set of contrast results, one plot for each gene of
-interest. Input is a tidy datafile constructed from topTable output and
-requires logFC, CI.L, and CI.R columns as well as a gene identifier of choice.
-Outputs a ggplot2 object faceted by the facetColname or a list of individual
-ggplots, one for each facetColname value (typically gene).
+interest.
+}
+\details{
+Input is a tidy dataframe constructed from topTable output and
+requires \strong{logFC}, \strong{CI.L}, and \strong{CI.R} columns as well as a gene identifier of choice.
+
+Outputs a canvasXpress \emph{(the default)} or ggplot2 object faceted by the facetColname when
+ \code{facet} parameter is set to \strong{TRUE} (the default).
+
+If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
+ggplots, one for each facetColname value \emph{(typically gene)}.
 }
 \examples{
 \dontrun{

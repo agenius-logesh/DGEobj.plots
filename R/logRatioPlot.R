@@ -1,12 +1,19 @@
 #' Plot logRatio contrasts
 #'
 #' Intended to plot a set of contrast results, one plot for each gene of
-#' interest. Input is a tidy datafile constructed from topTable output and
-#' requires logFC, CI.L, and CI.R columns as well as a gene identifier of choice.
-#' Outputs a ggplot2 object faceted by the facetColname or a list of individual
-#' ggplots, one for each facetColname value (typically gene).
+#' interest.
+#'
+#' Input is a tidy dataframe constructed from topTable output and
+#' requires \strong{logFC}, \strong{CI.L}, and \strong{CI.R} columns as well as a gene identifier of choice.
+#'
+#' Outputs a canvasXpress \emph{(the default)} or ggplot2 object faceted by the facetColname when
+#'  \code{facet} parameter is set to \strong{TRUE} \emph{(the default)}.
+#'
+#' If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
+#' ggplots, one for each facetColname value \emph{(typically gene)}.
 #'
 #' @param contrastsDF A tidy dataframe of data to plot (Required) (see ?tidyContrasts).
+#' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param facetColname Define the column name to separate plots (Required) (e.g. GeneID).
 #' @param xColname Define the column name to group boxplots by (Required) (e.g. Contrast).
 #' @param yColname Define the column name for the output of the boxplots (default = "logFC")
@@ -17,7 +24,7 @@
 #' @param refLineColor Color for the reference line (default = "red")
 #' @param xlab X axis label (defaults to xColname)
 #' @param ylab Y axis label (defaults to yColname)
-#' @param title Plot title (Optional)
+#' @param title Plot title, set to NULL to disable (Optional, default is NULL)
 #' @param barColor Color for the bar outline (default = "dodgerblue4")
 #' @param barTransparency Transparency for the bar layer (default = 1)
 #' @param pointColor Color for the point layer (default = "grey30")
@@ -37,9 +44,11 @@
 #' @param axisFree Specify same scale or independent scales for each subplot (Default = TRUE;
 #'   Allowed values: TRUE and FALSE)
 #'
-#' @return ggplot object. If facet = TRUE (default), returns a faceted ggplot object. If
-#'   facet = FALSE, returns a list of ggplot objects indexed
-#'   by observation (gene) names.
+#' @return canvasXpress (the default) or a ggplot object:
+#' #' \itemize{
+#'   \item If \code{facet = TRUE} \emph{(default)}, returns a faceted canvasXpress or ggplot object.
+#'   \item If \code{facet = FALSE}, returns a list of canvasXpress or ggplot objects indexed by observation (gene) names.
+#' }
 #'
 #' @examples
 #' \dontrun{
