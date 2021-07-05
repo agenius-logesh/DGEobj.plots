@@ -22,6 +22,8 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                          plotType     = "canvasXpress",
                          facetColname = "GeneSymbol",
                          xColname     = "Contrast",
+                         barColor     = "blue",
+                         barTransparency = 0.5,
                          facetCol     = 3)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     plot <- logRatioPlot(contrastsDF  = tidyDat,
@@ -31,7 +33,23 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                          facetCol     = 3)
     expect_s3_class(plot, c("gg", "ggplot"))
 
-    # Lineplot with some options
+    # point plot with some options
+    log_ratio_plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                   plotType     = "canvasXpress",
+                                   plotCategory = "point",
+                                   facetColname = "GeneSymbol",
+                                   xColname     = "Contrast",
+                                   facetCol     = 4,
+                                   axisFree     = FALSE,
+                                   facet        = FALSE,
+                                   title        = "Test",
+                                   pointSize    = 4,
+                                   pointColor = "red",
+                                   pointTransparency = 0.4,
+                                   labelAngle   =  60)
+    expect_type(log_ratio_plot, "list")
+    expect_s3_class(log_ratio_plot[[1]], c("canvasXpress", "htmlwidget"))
+
     log_ratio_plot <- logRatioPlot(contrastsDF  = tidyDat,
                                    plotType     = "ggplot",
                                    plotCategory = "point",
@@ -53,6 +71,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         xColname     = "Contrast"),
                    regexp = "A large number of charts/facets has/have been requested and may take significant time to generate. It is suggested that less than 40 charts/facets are requested at a time.")
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+
     ## contrastsDF
     msg <- "contrastsDF must be specified and should be of class 'data.frame'."
     expect_error(logRatioPlot(),
@@ -63,6 +82,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                  regexp = msg)
     expect_error(logRatioPlot(tidyDat %>% as.matrix()),
                  regexp = msg)
+
     ## facetColname
     msg <- "facetColname must be one of contrastsDF columns."
     expect_error(logRatioPlot(contrastsDF  = tidyDat,
@@ -76,6 +96,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                  regexp = msg)
     expect_error(logRatioPlot(contrastsDF  = tidyDat),
                  regexp = msg)
+
     ## xColname
     msg <- "xColname must be one of contrastsDF columns."
     expect_error(logRatioPlot(contrastsDF  = tidyDat,
@@ -93,8 +114,40 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_error(logRatioPlot(contrastsDF = tidyDat,
                               facetColname = "GeneSymbol"),
                  regexp = msg)
+
     ## yColname
     msg <- "yColname must be one of contrastsDF columns. Setting default value 'logFC'"
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = c("Contrast", "Contrast")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plott <- logRatioPlot(contrastsDF  = tidyDat,
+                                         plotType     = "canvasXpress",
+                                         facetColname = "GeneSymbol",
+                                         xColname     = "Contrast",
+                                         yColname     = "abc"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    tidyDat2 <- tidyDat %>% dplyr::rename(MyLog = logFC)
+    expect_error(plot <- logRatioPlot(contrastsDF  = tidyDat2,
+                                      plotType     = "canvasXpress",
+                                      facetColname = "GeneSymbol",
+                                      xColname     = "Contrast"),
+                 regexp = "yColname must be one of contrastsDF columns.")
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -123,8 +176,47 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                       xColname     = "Contrast"),
                  regexp = "yColname must be one of contrastsDF columns.")
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## CI.R_colname
     msg <- "CI.R_colname must be one of contrastsDF columns. Setting default value 'CI.R'"
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname = c("CI.R", "CI.R")),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname =  "abc"),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname = NULL),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    tidyDat2 <- tidyDat %>% dplyr::rename(MyCI.R = CI.R)
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat2,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC"),
+                   regexp = "CI.R_colname must be one of contrastsDF columns. Disabling confidenece limits",
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -158,11 +250,55 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
                                         yColname     = "logFC"),
-                 regexp = "CI.R_colname must be one of contrastsDF columns. Disabling confidenece limits.",
-                 fixed = TRUE)
+                   regexp = "CI.R_colname must be one of contrastsDF columns. Disabling confidenece limits",
+                   fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## CI.L_colname
     msg <- "CI.L_colname must be one of contrastsDF columns. Setting default value 'CI.L'"
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname = "CI.R",
+                                        CI.L_colname = c("CI.L", "CI.L")),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname = "CI.R",
+                                        CI.L_colname =  "abc"),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname = "CI.R",
+                                        CI.L_colname = NULL),
+                   regexp = msg,
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    tidyDat2 <- tidyDat %>% dplyr::rename(MyCI.L = CI.L)
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat2,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        yColname     = "logFC",
+                                        CI.R_colname = "CI.R"),
+                   regexp = "CI.L_colname must be one of contrastsDF columns. Disabling confidenece limits.",
+                   fixed = TRUE)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+
+    ## ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -239,6 +375,37 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("gg", "ggplot"))
     ## refLine
     msg <- "refLine must be singular logical value. Setting default value 'TRUE'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLine      = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLine      = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLine      = "FALSE"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLine      = c("TRUE", "FALSE")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -267,8 +434,41 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         refLine      = c("TRUE", "FALSE")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## refLineColor
     msg <- "refLineColor must be a singular value of class character. Assigning default value 'red'."
+
+    # cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLineColor = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLineColor = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLineColor = "FALSE"),
+                   regexp = "Color specified is not valid. Assigning default value 'red'.")
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        refLineColor = c("red", "red")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -297,8 +497,32 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         refLineColor = c("red", "red")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## title
     msg <- "title must be a singular value of class character. Assigning default value 'NULL'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        title        = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        title        = c(123, 345)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        title        = c("title1", "title2")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -322,6 +546,29 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("gg", "ggplot"))
     ## xlab
     msg <- "xlab must be a singular value of class character. Assigning default value 'NULL'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        xlab         = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        xlab         = c(123, 345)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        xlab         = c("title1", "title2")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -345,6 +592,29 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("gg", "ggplot"))
     ## ylab
     msg <- "ylab must be a singular value of class character. Assigning default value 'NULL'."
+    ### cxolot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        ylab         = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        ylab         = c(123, 345)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        ylab         = c("title1", "title2")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggolot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -366,8 +636,39 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         ylab         = c("title1", "title2")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## barColor
     msg <- "barColor must be a singular value of class character. Assigning default value 'dodgerblue4'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barColor     = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barColor     = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barColor     = "abc"),
+                   regexp = "Color specified is not valid. Assigning default value 'dodgerblue4'.")
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barColor    = c("dodgerblue4", "dodgerblue4")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -396,8 +697,46 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         barColor    = c("dodgerblue4", "dodgerblue4")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## barTransparency
     msg <- "barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF     = tidyDat,
+                                        plotType        = "canvasXpress",
+                                        facetColname    = "GeneSymbol",
+                                        xColname        = "Contrast",
+                                        barTransparency = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barTransparency     = "0.9"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barTransparency     = c(0.9, 0.9)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barTransparency     = 0),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        barTransparency     = 9),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF     = tidyDat,
                                         plotType        = "ggplot",
                                         facetColname    = "GeneSymbol",
@@ -433,12 +772,48 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         barTransparency     = 9),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## pointColor
     msg <- "pointColor must be a singular value of class character. Assigning default value 'dodgerblue4'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        plotCategory = "point",
+                                        pointColor   = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        plotCategory = "point",
+                                        pointColor   = 123),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        plotCategory = "point",
+                                        pointColor   = "abc"),
+                   regexp = "Color specified is not valid. Assigning default value 'dodgerblue4'.")
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        plotCategory = "point",
+                                        pointColor   = c("dodgerblue4", "dodgerblue4")),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointColor   = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -446,6 +821,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointColor   = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -453,6 +829,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointColor   = "abc"),
                    regexp = "Color specified is not valid. Assigning default value 'dodgerblue4'.")
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -460,15 +837,18 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointColor   = c("dodgerblue4", "dodgerblue4")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
+
     ## pointShape
     msg <- "pointShape must be a singular charcter values. Assigning default values 'circle'."
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointShape   = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -476,6 +856,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointShape   = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -483,6 +864,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointShape   = "abc"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -490,15 +872,59 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointShape   = c("circle", "circle")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
     ## pointTransparency
     msg <- "pointTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF       = tidyDat,
+                                        plotType          = "canvasXpress",
+                                        facetColname      = "GeneSymbol",
+                                        xColname          = "Contrast",
+                                        plotCategory = "point",
+                                        pointTransparency = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF       = tidyDat,
+                                        plotType          = "canvasXpress",
+                                        facetColname      = "GeneSymbol",
+                                        xColname          = "Contrast",
+                                        plotCategory = "point",
+                                        pointTransparency = "0.9"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF       = tidyDat,
+                                        plotType          = "canvasXpress",
+                                        facetColname      = "GeneSymbol",
+                                        xColname          = "Contrast",
+                                        plotCategory = "point",
+                                        pointTransparency = c(0.9, 0.9)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF       = tidyDat,
+                                        plotType          = "canvasXpress",
+                                        facetColname      = "GeneSymbol",
+                                        xColname          = "Contrast",
+                                        plotCategory = "point",
+                                        pointTransparency = 0),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF       = tidyDat,
+                                        plotType          = "canvasXpress",
+                                        facetColname      = "GeneSymbol",
+                                        xColname          = "Contrast",
+                                        plotCategory = "point",
+                                        pointTransparency = 9),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF       = tidyDat,
                                         plotType          = "ggplot",
                                         facetColname      = "GeneSymbol",
                                         xColname          = "Contrast",
+                                        plotCategory = "point",
                                         pointTransparency = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -506,6 +932,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType          = "ggplot",
                                         facetColname      = "GeneSymbol",
                                         xColname          = "Contrast",
+                                        plotCategory = "point",
                                         pointTransparency = "0.9"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -513,6 +940,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType          = "ggplot",
                                         facetColname      = "GeneSymbol",
                                         xColname          = "Contrast",
+                                        plotCategory = "point",
                                         pointTransparency = c(0.9, 0.9)),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -520,6 +948,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType          = "ggplot",
                                         facetColname      = "GeneSymbol",
                                         xColname          = "Contrast",
+                                        plotCategory = "point",
                                         pointTransparency = 0),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -527,6 +956,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType          = "ggplot",
                                         facetColname      = "GeneSymbol",
                                         xColname          = "Contrast",
+                                        plotCategory = "point",
                                         pointTransparency = 9),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -536,6 +966,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointSize    = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -543,6 +974,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointSize    = "0.1"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -550,6 +982,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointSize    = -0.1),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -557,11 +990,49 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
                                         xColname     = "Contrast",
+                                        plotCategory = "point",
                                         pointSize    = c(0.1, 0.1)),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
     ## labelAngle
     msg <- "labelAngle must be a singular value of class numeric between 0 and 90. Assigning default value '45'."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        labelAngle   = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        labelAngle   = "0.1"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        labelAngle   = -45),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        labelAngle   = 145),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        labelAngle   = c(45, 90)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",
@@ -599,6 +1070,40 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("gg", "ggplot"))
     ## facetCol
     msg <- "facetCol must be a singular value of class numeric. Assigning default value."
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        facet        = TRUE,
+                                        facetCol     = NULL),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        facet        = TRUE,
+                                        facetCol     = "4"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        facet        = TRUE,
+                                        facetCol     = -4),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(contrastsDF = tidyDat,
+                                        plotType     = "canvasXpress",
+                                        facetColname = "GeneSymbol",
+                                        xColname     = "Contrast",
+                                        facet        = TRUE,
+                                        facetCol     = c(4, 5)),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    ### ggplot
     expect_warning(plot <- logRatioPlot(contrastsDF  = tidyDat,
                                         plotType     = "ggplot",
                                         facetColname = "GeneSymbol",

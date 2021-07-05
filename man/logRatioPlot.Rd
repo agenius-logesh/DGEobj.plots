@@ -63,11 +63,11 @@ logRatioPlot(
 
 \item{pointColor}{Color for the point layer (default = "grey30")}
 
-\item{pointShape}{Shape for the point layer (default = "circle")}
+\item{pointShape}{Shape for the point layer, for ggplot plotType (default = "circle")}
 
 \item{pointTransparency}{Transparency for the box layer (default = 1)}
 
-\item{pointSize}{Size of the points (default = 4)}
+\item{pointSize}{Size of the points, for ggplot plotType (default = 4)}
 
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
