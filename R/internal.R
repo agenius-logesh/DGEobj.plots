@@ -34,6 +34,7 @@
     } else if (!missing(y)) {
         line <- append(line, list(y = y))
     }
+  
     list(line = append(decorations$line, list(line)))
 }
 

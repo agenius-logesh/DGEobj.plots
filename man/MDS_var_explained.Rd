@@ -10,31 +10,25 @@ MDS_var_explained(
   topN = 10,
   cumVarLimit = 0.9,
   barColor = "dodgerblue4",
-  barFill = "dodgerblue3",
-  barWidth = 0.65,
-  barSize = 0.1
+  barWidth = 0.65
 )
 }
 \arguments{
 \item{mds}{A class MDS object from limma::plotMDS() or a data matrix to analyze
 (typically log2) (required)}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{topN}{The number of dimensions to plot (Default = 10)}
+\item{topN}{The number of dimensions to plot (default = 10)}
 
-\item{cumVarLimit}{The maximum cumulative variance to plot. Range 0-1. (Default = 0.9)}
+\item{cumVarLimit}{The maximum cumulative variance to plot. Range 0-1. (default = 0.9)}
 
-\item{barColor}{Default = "dodgerblue4"}
+\item{barColor}{Fill and outline color default = "dodgerblue4"}
 
-\item{barFill}{Default = "dodgerblue3"}
-
-\item{barWidth}{Range 0-1. (Default = 0.65)}
-
-\item{barSize}{Thickness of the fill border (Default = 0.1)}
+\item{barWidth.}{Range 0-1. Applicable only for ggplot. (default = 0.65)}
 }
 \value{
-A list with two ggplots and the variance explained data.frame.
+A list with two plots(ggplot or canvasXpress plots) and the variance explained data.frame.
 }
 \description{
 Takes a class MDS object from limma::plotMDS() and generates two plots: 1)
@@ -44,7 +38,7 @@ it plots the first 10 dimensions or the first N dimensions totaling 90%.
 \examples{
 \dontrun{
      # Plot the first two dimensions
-     MyMDS <- ggplotMDS(MyDGEList)
+     MyMDS <- ggplotMDS(MyDGEobj)
      MyMDS[[1]]  #the MDS plot
 
      # Then apply MDS_var_explained (the MDS object is MyMDS[[2]])
@@ -52,6 +46,12 @@ it plots the first 10 dimensions or the first N dimensions totaling 90%.
      varResults[[1]] # The Variance per dimension plot
      varResults[[2]] # The cumulative variance plot
      var_explained <- varResults[[3]]  # Data used for plotting (unfiltered)
+
+     # MDS_var_explained - ggplot
+     varResults_ggplot <- MDS_var_explained(MyMDS[[2]], plotType = "ggplot")
+     varResults_ggplot[[1]] # The Variance per dimension plot
+     varResults_ggplot[[2]] # The cumulative variance plot
+     var_explained <- varResults_ggplot[[3]]  # Data used for plotting (unfiltered)
 }
 
 }

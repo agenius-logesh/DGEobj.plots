@@ -7,40 +7,40 @@
 ggplotMDS(
   DGEdata,
   plotType = "canvasXpress",
-  colorBy,
-  shapeBy,
-  sizeBy,
+  designTable = "design",
+  colorBy = "ReplicateGroup",
+  shapeBy = NULL,
+  sizeBy = NULL,
   top = Inf,
-  labels,
-  labelSize,
+  labels = "ReplicateGroup",
+  labelSize = 3,
   title,
   hlineIntercept,
   vlineIntercept,
-  reflineColor = "darkgoldenrod1",
+  reflineColor = "red",
   reflineSize = 0.5,
-  symShape = 16,
-  symSize = 5,
-  alpha = 0.7,
-  shapes,
-  colors,
+  symShape = "circle",
+  symSize = 10,
+  transparency = 0.7,
   dim.plot = c(1, 2)
 )
 }
 \arguments{
-\item{DGEdata}{A DGEList object taken after normalization
-OR a DGEobj that contains a DGEList OR a log2cpm matrix. (Required)}
+\item{DGEdata}{A DGEobj that contains a DGEList OR a log2cpm matrix. (Required)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
-\item{colorBy}{A grouping vector to color by (e.g. ReplicateGroup) (Required)}
+\item{designTable}{Name of the design table object}
 
-\item{shapeBy}{A grouping vector to map to shape (Optional)}
+\item{colorBy}{A column name in the design table.Points are colored by the values in that column (Required)}
 
-\item{sizeBy}{A numeric vector to define point size (Optional)}
+\item{shapeBy}{A column name in the design table.Points are shaped by the values in that column (Optional)}
+
+\item{sizeBy}{A column name in the design table.Points are sized by the values in that column (Optional)}
 
 \item{top}{Number of most variant genes to include (Default = Inf)}
 
-\item{labels}{Text labels for the samples. These should be short
+\item{labels}{A column name in the design table. Text labels for the samples. These should be short
 abbreviations of the sample identifiers.
 Default = ReplicateGroup or rownames of DGEdata. Set to NULL to disable
 text labels.}
@@ -54,22 +54,19 @@ text labels.}
 \item{vlineIntercept}{X intercept of vertical line (Optional)}
 
 \item{reflineColor}{Color for the horizontal and vertical reference lines
-(Default = "darkgoldenrod1")}
+(default = "darkgoldenrod1")}
 
-\item{reflineSize}{Thickness of the reference lines (Default = 0.5)}
+\item{reflineSize}{Thickness of the reference lines (default = 0.5)}
 
-\item{symShape}{Set the default shape of the symbols if not mapped to a column (Default = 19, solid circle)}
+\item{symShape}{Set the default shape of the symbols if not mapped to a column (default = circle)}
 
 \item{symSize}{Set the default size of the symbols if not mapped to a column
-(Default = 5)}
+(default = 10)}
 
-\item{alpha}{Set transparency (Default = 0.7)}
+\item{transparency}{Set transparency (default = 0.7)}
 
-\item{shapes}{A vector of shapes to override the default 8 shapes used in shapeBy (optional)}
-
-\item{colors}{A color pallet to substitute for the default 8 color pallet used by colorBy (optional)}
-
-\item{dim.plot}{Define which dimension to plot (Default = c(1,2))}
+\item{dim.plot}{Define which dimension to plot. dim.plot should a numeric vector of
+length 2 and should be lesser than the number of columns in DGEobj. (default = c(1,2))}
 }
 \value{
 A list with two elements, the ggplot object and the MDS object returned
@@ -81,10 +78,7 @@ canvasXpress or ggplot2 instead of base graphics.
 }
 \details{
 colorBy, shapeBy, and sizeBy are grouping variables that encode group info by
-color, shape, or size.  These are vectors that must be the same length as
-ncol(DGEdata). colorBy and sizeBy will plot as continuous color or size
-changes if a numeric vector is used. Convert the vector to a factor to
-treat as groups instead of continuous.
+color, shape, or size.  These are input as column names in the designTable.
 
 The underlying limma::plotMDS() function uses a default of top = 500 to use the top 500
 highest fold change genes for the analysis. Based on observed speed tests,
@@ -96,11 +90,16 @@ input data.
 \examples{
 \dontrun{
      # Plot the first two dimensions using all genes
-     myMDS <- ggplotMDS(MyDGEList)
+     myMDS_cxplot <- ggplotMDS(MyDGEobj)
 
      # Plot the 2nd and 3rd dimensions using the top 1000 genes
-     myMDS <- ggplotMDS(myDGEList, dim.plot = c(2, 3) ndim = 3)
-     myMDS[[1]]
+     myMDS_cxplot <- ggplotMDS(MyDGEobj, dim.plot = c(2, 3))
+     myMDS_cxplot[[1]]
+
+     # MDSplot - ggplot
+     myMDS_ggplot <- ggplotMDS(MyDGEobj, plotType = "ggplot")
+     myMDS_ggplot <- ggplotMDS(MyDGEobj, plotType = "ggplot", dim.plot = c(2, 3))
+     myMDS_ggplot[[1]]
 }
 
 }

@@ -9,96 +9,68 @@ cdfPlot(
   plotType = "canvasXpress",
   pvalCol = "P.Value",
   pThreshold = 0.01,
-  xlab = NULL,
-  ylab = NULL,
+  xlab,
+  ylab,
   title = NULL,
   insetTitle = NULL,
-  symbolSize = c(2, 1),
-  symbolShape = c(20, 20),
+  symbolSize = c(4, 3),
+  symbolShape = c("circle", "circle"),
   symbolColor = c("red3", "deepskyblue4"),
-  symbolFill = c("red3", "deepskyblue4"),
-  alpha = 1,
+  transparency = 0.7,
   referenceLine = NULL,
   refLineThickness = 3,
-  legendPosition = "right",
   viewportX = 0.15,
   viewportY = 0.85,
   viewportWidth = 0.35,
   pvalMax = 0.1,
-  printPlot = TRUE,
-  footnote,
-  footnoteSize = 3,
-  footnoteColor = "black",
-  footnoteJust = 1
+  footnote
 )
 }
 \arguments{
 \item{contrastDF}{A dataframe with LogRatio and LogIntensity columns and optionally a p-value or FDR column.}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{pvalCol}{Name of the p-value or FDR column (Default = "P.Value")}
+\item{pvalCol}{Name of the p-value or FDR column (default = "P.Value")}
 
 \item{pThreshold}{Used to color points (default = 0.01)}
 
-\item{xlab}{X axis label (default is "LogIntensity column name "Rank")}
+\item{xlab}{X axis label (default = "Rank")}
 
-\item{ylab}{Y axis label (default is p-value column name)}
+\item{ylab}{Y axis label (default = p-value column name)}
 
 \item{title}{Plot title (Optional)}
 
 \item{insetTitle}{Title for the inset plot (Optional)}
 
-\item{symbolSize}{Size of symbols for up, no change, and down. Default = c(4, 1, 4);
-Note: All three cannot be the same size. Decimal values are acceptable to help offset that
-(e.g. 4, 4.1, 4.2).}
+\item{symbolSize}{Size of symbols for Not Significant and  Significant points (default = c(2,1);}
 
-\item{symbolShape}{Shape of the symbols for up, no change, and down; Default = c(21, 20, 21)
-(20 = filled circle, 21 = fillable open circle); Note: The same symbol shape cannot
-be selected for all three symbols.
+\item{symbolShape}{Shape of the symbols for Not Significant and Significant points (default = c("circle", "circle")
 See \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}}
 
-\item{symbolColor}{c(Up, NoChange, Down); default = c("black", "grey25", "grey0")
-See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
-Note: Colors cannot be duplicated.}
+\item{symbolColor}{Color of symbols for Not Significant and Significant points (default = c("red3", "deepskyblue4"))
+See \url{http://research.stowers-institute.org/efg/R/Color/Chart}}
 
-\item{symbolFill}{Set the fill color for the symbols. Note only symbols 21-25 are fillable.
-This will have no effect on other symbols.
-Default = c("red3", "grey25", "deepskyblue4")
-Note: Colors cannot be duplicated.}
-
-\item{alpha}{Controls the transparency of the plotted points (0-1; Default =
-0.5)}
+\item{transparency}{Controls the transparency of the plotted points. Value ranges between 0 -1 (default = 0.5)}
 
 \item{referenceLine}{Color for an horizontal line drawn at the p-threshold
-(Default = NULL; NULL disables, set to desired color to enable)}
+(default = NULL; NULL disables, set to desired color to enable)}
 
-\item{refLineThickness}{Set thickness of the reference line (Default = 1)}
+\item{refLineThickness}{Set thickness of the reference line (default = 1)}
 
-\item{legendPosition}{(Default = "right")}
+\item{viewportX}{x-location for the inset plot(default = 0.15)}
 
-\item{viewportX}{(Default = 0.15)}
+\item{viewportY}{y-location for the inset plot(default = 0.85)}
 
-\item{viewportY}{(Default = 0.85)}
+\item{viewportWidth}{width of the inset plot (default = 0.35)}
 
-\item{viewportWidth}{(Default = 0.35)}
-
-\item{pvalMax}{Limit the range of the main plot (Default = 0.10)}
-
-\item{printPlot}{Specify printing the combined plot to the console/knitr
-(Default = TRUE)}
+\item{pvalMax}{Limit the range of the main plot (default = 0.10)}
 
 \item{footnote}{Optional string placed right justified at bottom of plot.}
-
-\item{footnoteSize}{Applies to footnote. (Default = 3)}
-
-\item{footnoteColor}{Applies to footnote. (Default = "black")}
-
-\item{footnoteJust}{Value 0 - 1. 0 is left justified, 1 is right justified, 0.5 is centered. (Default = 1)}
 }
 \value{
-A list containing main plot, inset plot for both plotType. For plotType ='ggplot' list contains viewport, The plot can be
-   reconstructed with print(cdfPlot$main); print(inset, vp = cdfPlot$viewport)
+A list containing main plot, inset plot for both plotType. For plotType ="ggplot" list contains a combined plot which
+displays the inset plot in a viewport
 }
 \description{
 CDF plots are a good complement to p-value histograms as a way to evaluate
@@ -111,13 +83,10 @@ appear as a break in the line at the low end of the curve.
 \details{
 This function is designed to take topTable dataframes and display the
 corresponding CDF plot. Data for the p-values below 0.1 (configurable via
-pvalMax argument) are show in a full size plot. An inset figure shows the
-whole p-value scale and highlights the portion shown in the full plot. Points
-below 0.01 are a different color by default (threshold set by pThreshold
-argument; shape/color attributes customizable through other arguments).
-
-The output can be controlled using printPlot = TRUE, which outputs the compound plot
-to the console/knitr.
+pvalMax argument) are shown in a full size plot. An inset figure shows the
+whole p-value scale. Points below 0.01 are a different color by default
+(threshold set by pThreshold argument; shape/color attributes customizable
+through other arguments).
 
 \strong{Data Structure for the input dataframe:}
 
@@ -126,7 +95,7 @@ The defaults are set for dataframes produced by topTable.  The column
 dataframes.  Any other dataframe can be used with by explicitly defining the
 p-value column name with the appropriate argument.
 
-Sensible defaults are chosen for symbols (Size, Shape, Color, and Fill).
+Sensible defaults are chosen for symbols (Size, Shape and Color).
 There are optional arguments that allow these to be adjusted. A length of 2
 is required for these arguments which applies the attributes in
 this order: Significant, Not Significant.
