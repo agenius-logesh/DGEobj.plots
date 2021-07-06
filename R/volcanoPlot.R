@@ -234,11 +234,11 @@ volcanoPlot <- function(contrastDF,
 
     if (!is.null(referenceLine) &&
         !all(is.character(referenceLine), length(referenceLine) == 1)) {
-        warning("referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'darkgoldenrod1'.")
-        referenceLine <- "darkgoldenrod1"
+        warning("referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
+        referenceLine <- NULL
     } else if (.rgbaConversion(referenceLine) == "invalid value") {
-        warning("Color specified is not valid. Assigning default value 'darkgoldenrod1'.")
-        referenceLine <- "darkgoldenrod1"
+        warning("Color specified is not valid. Assigning default value 'NULL'.")
+        referenceLine <- NULL
     }
 
     if (any(is.null(refLineThickness),

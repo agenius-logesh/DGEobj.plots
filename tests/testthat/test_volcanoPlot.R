@@ -2,70 +2,69 @@ context("DGEobj.plots - tests for volcanoPlot.R functions")
 
 
 test_that("volcanoPlot.R: volcanoPlot()", {
-    # testing contrast objects defualts (no sizeByIntensity and no geneSymCol)
-    ## BMTL
-    t_obj <- readRDS("/efs/bms_shared/data/cdb/APJ_RHR_RatHeart_29Nov2016.RDS")
-    contrastDF <- t_obj$BMTL
-    volcanoPlot <- volcanoPlot(contrastDF, title = "BMTL")
+    # testing contrast objects defualts (sizeByIntensity=TRUE and no geneSymCol)
+    ## BDL_vs_Sham
+    contrastDF <- t_obj1$BDL_vs_Sham
+    volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
-    volcanoPlot <- volcanoPlot(contrastDF, title = "BMTL", plotType = "ggplot", symbolSize = c(4, 1, 4))
+    volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham", plotType = "ggplot")
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
-    ### contrast objects defualts (with sizeByIntensity=False and no geneSymCol)-
-    volcanoPlot <- volcanoPlot(contrastDF, title = "BMTL", sizeByIntensity = FALSE)
+    ### contrast objects defualts (with sizeByIntensity=False with symbolSize and no geneSymCol)-
+    volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham", sizeByIntensity = FALSE, symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
-    volcanoPlot <- volcanoPlot(contrastDF, title = "BMTL", plotType = "ggplot",
-                               sizeByIntensity = FALSE)
+    volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham", plotType = "ggplot",
+                               sizeByIntensity = FALSE, symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     ### contrast objects defualts (without sizeByIntensity=False and with geneSymCol)-
-    gene_data <- t_obj$geneData %>%
-        dplyr::select(GeneName)
+    gene_data <- t_obj1$geneData %>%
+        dplyr::select(rgd_symbol)
     contrastDF <- merge(contrastDF, gene_data, by = 0, all = TRUE)
     rownames(contrastDF) <- contrastDF$Row.names
     contrastDF$Row.names <- NULL
-    volcanoPlot <- volcanoPlot(contrastDF, title = "BMTL", geneSymCol = "GeneName")
+    volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham", geneSymCol = "rgd_symbol")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
-    volcanoPlot <- volcanoPlot(contrastDF, title = "BMTL", plotType = "ggplot",
-                               geneSymCol = "GeneName", symbolSize = c(4, 1, 4))
+    volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham", plotType = "ggplot",
+                               geneSymCol = "rgd_symbol")
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
-
-    ## sham
-    contrastDF <- t_obj$sham
-    volcanoPlot <- volcanoPlot(contrastDF, title = "sham")
+    ## EXT1024_vs_BDL
+    contrastDF <- t_obj1$EXT1024_vs_BDL
+    volcanoPlot <- volcanoPlot(contrastDF, title = "EXT1024_vs_BDL")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
-    volcanoPlot <- volcanoPlot(contrastDF, title = "sham", plotType = "ggplot", symbolSize = c(4, 1, 4))
+    volcanoPlot <- volcanoPlot(contrastDF, title = "EXT1024_vs_BDL", plotType = "ggplot",
+                                    sizeByIntensity = FALSE, symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
-    ## ena
-    contrastDF <- t_obj$ena
-    volcanoPlot <- volcanoPlot(contrastDF, title = "ena")
+    ## Nint_vs_BDL
+    contrastDF <- t_obj1$Nint_vs_BDL
+    volcanoPlot <- volcanoPlot(contrastDF, title = "Nint_vs_BDL")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
-    volcanoPlot <- volcanoPlot(contrastDF, title = "ena", plotType = "ggplot", symbolSize = c(4, 1, 4))
+    volcanoPlot <- volcanoPlot(contrastDF, title = "Nint_vs_BDL", plotType = "ggplot",
+                                    sizeByIntensity = FALSE,symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     ## Sora_vs_BDL
-    t_obj11 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
-    contrastDF <- t_obj11$Sora_vs_BDL
-    volcanoPlot <- volcanoPlot(contrastDF, title = "Sora_vs_BDL")
+    contrastDF <- t_obj1$Sora_vs_BDL
+    volcanoPlot <- volcanoPlot(contrastDF, title = "Sora_vs_BDL",
+                               sizeByIntensity = FALSE,symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
-    volcanoPlot <- volcanoPlot(contrastDF, title = "Sora_vs_BDL", plotType = "ggplot", symbolSize = c(4, 1, 4))
+    volcanoPlot <- volcanoPlot(contrastDF, title = "Sora_vs_BDL", plotType = "ggplot",
+                                    sizeByIntensity = FALSE,symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     # testing gene symbols
-    contrastDF <- t_obj11$BDL_vs_Sham
-    gene_data <- t_obj11$geneData %>%
+    contrastDF <- t_obj1$BDL_vs_Sham
+    gene_data <- t_obj1$geneData %>%
         dplyr::select(rgd_symbol)
     contrastDF <- merge(contrastDF, gene_data, by = 0, all = TRUE)
     rownames(contrastDF) <- contrastDF$Row.names
     contrastDF$Row.names <- NULL
     sym_labels <- contrastDF[sample(nrow(contrastDF), 10), ]$rgd_symbol
     volcanoPlot <- volcanoPlot(contrastDF         = contrastDF,
-                               title              = "BMTL with Symbols",
-                               sizeByIntensity = TRUE,
+                               title              = "BDL_vs_Sham with Symbols",
                                geneSymCol         = "rgd_symbol",
                                geneSymLabels      = sym_labels,
                                footnote           = "This is footnote")
     expect_s3_class(volcanoPlot, c("canvasXpress","htmlwidget"))
     volcanoPlot <- volcanoPlot(contrastDF         = contrastDF,
-                               title              = "BMTL with Symbols",
+                               title              = "BDL_vs_Sham with Symbols",
                                plotType           = "ggplot",
-                               sizeByIntensity = TRUE,
                                geneSymCol         = "rgd_symbol",
                                geneSymLabels      = sym_labels,
                                footnote           = "This is footnote")
@@ -99,39 +98,39 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                  regexp =  msg)
     ## logIntCol
     msg <- "logIntCol column not found in contrastDF."
-    expect_error(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", logIntCol = "xyz"),
+    expect_error(volcanoPlot(contrastDF, logIntCol = "xyz"),
                  regexp =  msg)
-    expect_error(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", logIntCol = NULL),
+    expect_error(volcanoPlot(contrastDF, logIntCol = NULL),
                  regexp =  msg)
     ## pvalCol
     msg <- "pvalCol column not found in contrastDF."
-    expect_error(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", pvalCol = "xyz"),
+    expect_error(volcanoPlot(contrastDF, pvalCol = "xyz"),
                  regexp = msg)
-    expect_error(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", pvalCol = NULL),
+    expect_error(volcanoPlot(contrastDF, pvalCol = NULL),
                  regexp = msg)
     ## geneSymCol
     msg <- "geneSymCol column not found in contrastDF."
-    expect_error(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", geneSymCol = NULL),
+    expect_error(volcanoPlot(contrastDF, geneSymCol = NULL),
                  regexp = msg)
-    expect_error(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", geneSymCol = "xyz"),
+    expect_error(volcanoPlot(contrastDF, geneSymCol = "xyz"),
                  regexp = msg)
     ## pthreshold
     msg <- "pthreshold must be a singular numeric value. Assigning default value 0.01"
-    expect_warning(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", pthreshold = NULL),
+    expect_warning(volcanoPlot(contrastDF, pthreshold = NULL),
                    regexp = msg)
-    expect_warning(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", pthreshold = "0.1"),
+    expect_warning(volcanoPlot(contrastDF, pthreshold = "0.1"),
                    regexp = msg)
-    expect_warning(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", pthreshold = c(0.1, 0.1)),
+    expect_warning(volcanoPlot(contrastDF, pthreshold = c(0.1, 0.1)),
                    regexp = msg)
     ## foldChangeLines
     msg <- "foldChangeLines must be a singular numeric value. Assigning default value log2(1.5)"
-    expect_warning(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", foldChangeLines = NULL),
+    expect_warning(volcanoPlot(contrastDF, foldChangeLines = NULL),
                    regexp = msg,
                    fixed = TRUE)
-    expect_warning(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", foldChangeLines = "0.1"),
+    expect_warning(volcanoPlot(contrastDF, foldChangeLines = "0.1"),
                    regexp = msg,
                    fixed = TRUE)
-    expect_warning(volcanoPlot(contrastDF, logRatioCol = "adj.P.Val", foldChangeLines = c(0.1, 0.1)),
+    expect_warning(volcanoPlot(contrastDF, foldChangeLines = c(0.1, 0.1)),
                    regexp = msg,
                    fixed = TRUE)
     ## title
@@ -299,7 +298,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
     ## referenceLine
-    msg <- "referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'darkgoldenrod1'."
+    msg <- "referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
     expect_warning(volcanoPlot <- volcanoPlot(contrastDF, referenceLine = 123),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
@@ -318,7 +317,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", referenceLine = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
-    msg <- "Color specified is not valid. Assigning default value 'darkgoldenrod1'."
+    msg <- "Color specified is not valid. Assigning default value 'NULL'."
     expect_warning(volcanoPlot <- volcanoPlot(contrastDF, referenceLine = "abc"),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
