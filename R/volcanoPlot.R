@@ -25,7 +25,7 @@
 #' threshold are used to color code genes that are significantly increased or decreased.
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
-#' Sensible defaults are chosen for symbols (Size, Shape, Color, and Fill), but they can be
+#' Sensible defaults are chosen for symbols (Size, Shape,  and Color), but they can be
 #' adjusted through the use of optional arguments. A length of 3 is
 #' required for these arguments which applies the attributes in this order:
 #' Increased, NoChange, Decreased.
@@ -46,23 +46,21 @@
 #'    not in topTable output by default so the user has to bind this column
 #'    to the dataframe in advance.  This column will be used to label
 #'    significantly changed points.
-#' @param pthresholdLine Color for a horizontal line at the p-threshold (Default
-#'   = NULL (disabled))
-#' @param symbolSize Size of symbols for Up, no change, and Down. default = c(4,
-#'        3.99, 4); Note: All three cannot be the same size. Decimal values are acceptable to help offset that
+#' @param symbolSize Size of symbols for Up, no change, and Down. default = c(10, 4, 10);
+#'  Note: All three cannot be the same size. Decimal values are acceptable to help offset that
 #'        (e.g. 4, 4.1, 4.2).
 #' @param symbolShape Shape of the symbols for Up, no change, and Down; Default =
-#'        c(21, 1, 21) (1 = open circle, 21 = fillable open circle); Note: The same symbol shape cannot
+#'        c("circle", "circle", "circle"); Note: The same symbol shape cannot
 #'        be selected for all three symbols. See
 #'        \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
-#' @param symbolColor c(Up, NoChange, Down); default = c("black", "grey25",
-#'   "grey0") See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
+#' @param symbolColor c(Up, NoChange, Down); default = c("red3", "grey25", "deepskyblue4")
+#'  See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
 #'   Note: Colors cannot be duplicated.
-#' @param symbolFill Set the fill color for the symbols. Note only symbols 21-25
+#' @param symbolColor Set the fill color for the symbols. Note only symbols 21-25
 #'   are fillable. This will have no effect on other symbols. Default =
 #'   c("red3", "grey25", "deepskyblue4") Note: Colors cannot be duplicated.
-#' @param alpha Controls the transparency of the plotted points (range: 0-1;
-#'   default = 0.7)
+#' @param transparency Controls the transparency of the plotted points (range: 0-1;
+#'   default = 0.5)
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (Default = TRUE)
 #' @param foldChangeLines Position of reference vertical lines for fold change
 #'   (Default = log2(1.5); NULL disables)
@@ -70,12 +68,8 @@
 #'   "nw", "sw", NULL. top/bottom/left/right place the legend outside the
 #'   figure.  ne/se/nw/sw place the figure inside the figure. NULL disables the
 #'   legend. Default = "right"
-#' @param refLineThickness Set the thickness for all reference lines (Default =
-#'   1)
+#' @param refLineThickness Set the thickness for all reference lines (Default = 2).
 #' @param footnote Optional string placed right justified at bottom of plot.
-#' @param footnoteSize Applies to footnote. (Default = 3)
-#' @param footnoteColor Applies to footnote. (Default = "black")
-#' @param footnoteJust Value 0 - 1. 0 is left justified, 1 is right justified, 0.5 is centered. (Default = 1)
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
 #'
@@ -87,11 +81,11 @@
 #'    # Some options with a custom datafile
 #'    myPlot <- volcanoPlot(contrastDF,
 #'                          pthreshold = 0.1,
-#'                          logRatioCol = "Log2ratio",
-#'                          logIntCol = "AverageIntensity",
-#'                          pvalCol = "BHFDR",
-#'                          xlab = "Log2 Ratio", ylab = "Log10 BHFDR",
-#'                          title = "Profile Plot Title",
+#'                          logRatioCol = "logFC",
+#'                          logIntCol = "AveExpr",
+#'                          pvalCol = "P.Value",
+#'                          xlab = "Log2 Ratio", ylab = "negLog10p",
+#'                          title = "Volcano Plot Title",
 #'                          referenceLine = "blue",
 #'                          legendPosition = "right")
 #' }
