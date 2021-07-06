@@ -243,11 +243,11 @@ volcanoPlot <- function(contrastDF,
         refLineThickness <- 2
     }
 
-    if (!is.null(legendPosition) &&
-        !all(is.character(legendPosition),
-             length(legendPosition) == 1,
-             legendPosition %in% c("top", "bottom", "left", "right", "ne", "se", "nw", "sw"))) {
-        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'ne', 'se', 'nw', 'sw' or 'NULL' to disable. Assigning default value 'right'.")
+    if (any(is.null(legendPosition),
+        !is.character(legendPosition),
+        !length(legendPosition) == 1,
+        !legendPosition %in% c("top", "bottom", "left", "right", "topRight", "bottomRight", "topLeft", "bottomLeft"))) {
+        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'topRight', 'bottomRight', 'topLeft', 'bottomLeft'. Assigning default value 'right'.")
         legendPosition <- "right"
     }
 
@@ -355,6 +355,7 @@ volcanoPlot <- function(contrastDF,
             showSizeLegend <- FALSE
         }
 
+        inside_legend_only_positions <- c("topRight", "bottomRight", "topLeft", "bottomLeft")
         canvasXpress::canvasXpress(data            = cx.data,
                                   varAnnot         = var.annot,
                                   decorations      = decorations,
@@ -363,6 +364,7 @@ volcanoPlot <- function(contrastDF,
                                   colors           = colors,
                                   shapes           = shapes,
                                   legendPosition   = legendPosition,
+                                  legendInside     = ifelse(legendPosition %in% inside_legend_only_positions, TRUE, FALSE),
                                   showDecorations  = TRUE,
                                   sizeByShowLegend = showSizeLegend,
                                   title            = title,
@@ -468,6 +470,19 @@ volcanoPlot <- function(contrastDF,
                                        footnoteColor = "black",
                                        footnoteJust = 1)
         }
+
+        if (legendPosition == "topRight") {
+            legendPosition <- "ne"
+        } else if (legendPosition == "bottomRight") {
+            legendPosition <- "se"
+        } else if (legendPosition == "topLeft") {
+            legendPosition <- "nw"
+        } else if (legendPosition == "bottomLeft"){
+            legendPosition <- "sw"
+        } else{
+            legendPosition <- legendPosition
+        }
+
         setLegendPosition(volcanoPlot, legendPosition)
     }
 }
