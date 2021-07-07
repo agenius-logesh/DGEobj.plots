@@ -297,31 +297,31 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", transparency = NULL),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
-    ## referenceLine
-    msg <- "referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, referenceLine = 123),
+    ## pthresholdLine
+    msg <- "pthresholdLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, pthresholdLine = 123),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", referenceLine = 123),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", pthresholdLine = 123),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, referenceLine = c("123", "456")),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, pthresholdLine = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", referenceLine = c("123", "456")),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", pthresholdLine = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, referenceLine = c(123, 456)),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, pthresholdLine = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", referenceLine = c(123, 456)),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", pthresholdLine = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
     msg <- "Color specified is not valid. Assigning default value 'NULL'."
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, referenceLine = "abc"),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, pthresholdLine = "abc"),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", referenceLine = "abc"),
+    expect_warning(volcanoPlot <- volcanoPlot(contrastDF, plotType = "ggplot", pthresholdLine = "abc"),
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
     ## refLineThickness

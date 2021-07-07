@@ -46,19 +46,20 @@
 #'    not in topTable output by default so the user has to bind this column
 #'    to the dataframe in advance.  This column will be used to label
 #'    significantly changed points.
-#' @param symbolSize Size of symbols for Up, no change, and Down. default = c(10, 4, 10);
+#' @param pthresholdLine Color for a horizontal line at the p-threshold (Default
+#'   = NULL (disabled))
+#' @param symbolSize Size of symbols for Up, no change, and Down. Ignored if sizeByIntensity is TRUE.
+#'        default = c(10,4,10);
 #'  Note: All three cannot be the same size. Decimal values are acceptable to help offset that
 #'        (e.g. 4, 4.1, 4.2).
 #' @param symbolShape Shape of the symbols for Up, no change, and Down; Default =
-#'        c("circle", "circle", "circle"); Note: The same symbol shape cannot
+#'        c("circle", "circle", "circle"); Ignored if sizeByIntensity is TRUE and default shape circle.
+#'        Note: The same symbol shape cannot
 #'        be selected for all three symbols. See
 #'        \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
 #' @param symbolColor c(Up, NoChange, Down); default = c("red3", "grey25", "deepskyblue4")
-#'  See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
+#'   Note that for PlotType ggplot, only symbols 21- 25 are fillable.This will have no effect on other symbols.
 #'   Note: Colors cannot be duplicated.
-#' @param symbolColor Set the fill color for the symbols. Note only symbols 21-25
-#'   are fillable. This will have no effect on other symbols. Default =
-#'   c("red3", "grey25", "deepskyblue4") Note: Colors cannot be duplicated.
 #' @param transparency Controls the transparency of the plotted points (range: 0-1;
 #'   default = 0.5)
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (Default = TRUE)
@@ -84,9 +85,9 @@
 #'                          logRatioCol = "logFC",
 #'                          logIntCol = "AveExpr",
 #'                          pvalCol = "P.Value",
-#'                          xlab = "Log2 Ratio", ylab = "negLog10p",
+#'                          xlab = "logFC", ylab = "negLog10p",
 #'                          title = "Volcano Plot Title",
-#'                          referenceLine = "blue",
+#'                          pthresholdLine = "blue",
 #'                          legendPosition = "right")
 #' }
 #'
@@ -113,7 +114,7 @@ volcanoPlot <- function(contrastDF,
                         symbolColor = c("red3", "grey25", "deepskyblue4"),
                         sizeByIntensity = TRUE,
                         transparency = 0.5,
-                        referenceLine = NULL,
+                        pthresholdLine = NULL,
                         foldChangeLines = log2(1.5),
                         refLineThickness = 2,
                         legendPosition = "right",
@@ -226,13 +227,13 @@ volcanoPlot <- function(contrastDF,
         transparency <- 0.5
     }
 
-    if (!is.null(referenceLine) &&
-        !all(is.character(referenceLine), length(referenceLine) == 1)) {
-        warning("referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
-        referenceLine <- NULL
-    } else if (.rgbaConversion(referenceLine) == "invalid value") {
+    if (!is.null(pthresholdLine) &&
+        !all(is.character(pthresholdLine), length(pthresholdLine) == 1)) {
+        warning("pthresholdLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
+        pthresholdLine <- NULL
+    } else if (.rgbaConversion(pthresholdLine) == "invalid value") {
         warning("Color specified is not valid. Assigning default value 'NULL'.")
-        referenceLine <- NULL
+        pthresholdLine <- NULL
     }
 
     if (any(is.null(refLineThickness),
@@ -269,18 +270,18 @@ volcanoPlot <- function(contrastDF,
 
     if (sizeByIntensity) {
         contrastDF <- contrastDF %>%
-            dplyr::mutate("LogInt"    = dplyr::case_when(
-                              AveExpr < 0 ~ 0,
-                              AveExpr > 10 ~ 10,
-                              TRUE ~ floor(AveExpr)))
+            dplyr::mutate(LogInt = dplyr::case_when(
+                !!rlang::sym(logIntCol) < 0 ~ 0,
+                !!rlang::sym(logIntCol) > 10 ~ 10,
+                TRUE ~ floor(!!rlang::sym(logIntCol))))
     }
 
     contrastDF <- contrastDF %>%
-        dplyr::mutate(negLog10P = -log10(!!sym(pvalCol)),
-                          "Group" = dplyr::case_when(
-                                (!!rlang::sym(pvalCol) <= pthreshold) & (logFC < -foldChangeLines) ~ "Decreased",
-                                (!!rlang::sym(pvalCol) <= pthreshold) & (logFC > foldChangeLines) ~ "Increased",
-                                 TRUE ~  "No Change")) %>%
+        dplyr::mutate(negLog10P = -log10(!!rlang::sym(pvalCol)),
+                      Group = dplyr::case_when(
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (logFC < -foldChangeLines) ~ "Decreased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (logFC > foldChangeLines) ~ "Increased",
+                          TRUE ~  "No Change")) %>%
             dplyr::arrange(Group)
 
     if (plotType == "canvasxpress") {
@@ -293,12 +294,12 @@ volcanoPlot <- function(contrastDF,
 
         decorations <- list()
 
-        if (!is.null(referenceLine)) {
-            referenceLine <- .rgbaConversion(referenceLine, alpha = transparency)
+        if (!is.null(pthresholdLine)) {
+            pthresholdLine <- .rgbaConversion(pthresholdLine, alpha = transparency)
             decorations   <- .getCxPlotDecorations(decorations = decorations,
-                                                   color = referenceLine,
+                                                   color = pthresholdLine,
                                                    width = refLineThickness,
-                                                   x     = 0)
+                                                   y     = -log10(pthreshold))
         }
 
         if (!is.null(foldChangeLines)) {
@@ -329,51 +330,45 @@ volcanoPlot <- function(contrastDF,
                                                   }
                                                 }; }}")
 
-        cx.data <- contrastDF %>% dplyr::select(c(logRatioCol, negLog10P))
+        cx.data <- contrastDF %>% dplyr::select(logRatioCol, negLog10P)
 
-        if (missing(geneSymCol) && sizeByIntensity) {
-            var.annot <- contrastDF %>% dplyr::select(Group, LogInt)
+        if (sizeByIntensity) {
+            var.annot <- contrastDF %>% dplyr::select(Group,LogInt)
             sizeBy <- "LogInt"
-            sizes <- c(4, 8, 10, 11, 12)
-            showSizeLegend <- TRUE
-        } else if (!missing(geneSymCol) && !sizeByIntensity) {
-            var.annot <- contrastDF %>% dplyr::select(c(Group,geneSymCol))
-            colnames(var.annot)[colnames(var.annot) %in% geneSymCol] <- "GeneName"
-            sizeBy <- "Group"
-            sizes <- sizes
-            showSizeLegend <- FALSE
-        } else if (!missing(geneSymCol) && sizeByIntensity) {
-            var.annot <- contrastDF %>% dplyr::select(Group, geneSymCol, LogInt)
-            colnames(var.annot)[colnames(var.annot) %in% geneSymCol] <- "GeneName"
-            sizeBy <- "LogInt"
-            sizes <- c(4, 8, 10, 11, 12)
             showSizeLegend <- TRUE
         } else {
-            var.annot <- contrastDF %>% dplyr::select(Group)
-            sizeBy  <- "Group"
-            sizes <- sizes
+            contrastDF %>%
+                dplyr::select(Group)
+            sizeBy <- "Group"
             showSizeLegend <- FALSE
         }
 
-        inside_legend_only_positions <- c("topRight", "bottomRight", "topLeft", "bottomLeft")
-        canvasXpress::canvasXpress(data            = cx.data,
-                                  varAnnot         = var.annot,
-                                  decorations      = decorations,
-                                  graphType        = "Scatter2D",
-                                  colorBy          = "Group",
-                                  colors           = colors,
-                                  shapes           = shapes,
-                                  legendPosition   = legendPosition,
-                                  legendInside     = ifelse(legendPosition %in% inside_legend_only_positions, TRUE, FALSE),
-                                  showDecorations  = TRUE,
-                                  sizeByShowLegend = showSizeLegend,
-                                  title            = title,
-                                  xAxisTitle       = xlab,
-                                  yAxisTitle       = ylab,
-                                  sizeBy           = sizeBy,
-                                  sizes            = sizes,
-                                  citation         = footnote,
-                                  events           = events)
+        if (!missing(geneSymCol)) {
+            var.annot <- cbind(var.annot, GeneName = contrastDF[, geneSymCol][match(rownames(var.annot), rownames(contrastDF))])
+        }
+
+        cx_params <- list(data            = cx.data,
+                          varAnnot         = var.annot,
+                          decorations      = decorations,
+                          graphType        = "Scatter2D",
+                          colorBy          = "Group",
+                          colors           = colors,
+                          legendPosition   = legendPosition,
+                          legendInside     = ifelse(legendPosition %in% c("topRight", "bottomRight", "topLeft", "bottomLeft"), TRUE, FALSE),
+                          showDecorations  = TRUE,
+                          sizeByShowLegend = showSizeLegend,
+                          title            = title,
+                          xAxisTitle       = xlab,
+                          yAxisTitle       = ylab,
+                          sizeBy           = sizeBy,
+                          citation         = footnote,
+                          events           = events)
+        if (sizeBy == "Group") {
+            cx_params <- c(cx_params, list(sizes = sizes, shapes = shapes, shapeBy = "Group"))
+        } else{
+            cx_params <- c(cx_params, list(shapes = "circle"))
+        }
+        do.call(canvasXpress::canvasXpress, cx_params)
     } else {
 
         groupNames <- c("Decreased", "Increased", "No Change")
@@ -397,8 +392,6 @@ volcanoPlot <- function(contrastDF,
                 color = Group,
                 fill = Group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                               values = ssc$symbolShape) +
             scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
                                values = ssc$symbolColor) +
             scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
@@ -409,17 +402,22 @@ volcanoPlot <- function(contrastDF,
         # Optional Decorations
         if (sizeByIntensity) {
             volcanoPlot <- volcanoPlot + aes(size = LogInt) +
-                scale_size_continuous()
+                scale_size_continuous() +
+                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
+                                   values = rep("circle",3))
+
         } else {
             volcanoPlot <- volcanoPlot + aes(size = Group) +
                 scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = ssc$symbolSize)
+                                  values = ssc$symbolSize) +
+                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
+                                   values = ssc$symbolShape)
         }
 
-        if (!is.null(referenceLine)) {
+        if (!is.null(pthresholdLine)) {
             volcanoPlot <- volcanoPlot +
-                geom_vline(xintercept = 0,
-                           color = referenceLine,
+                geom_hline(yintercept = -log10(pthreshold),
+                           color = pthresholdLine,
                            size = refLineThickness,
                            alpha = transparency)
         }
