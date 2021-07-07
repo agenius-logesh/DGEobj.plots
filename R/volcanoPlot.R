@@ -65,9 +65,9 @@
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (Default = TRUE)
 #' @param foldChangeLines Position of reference vertical lines for fold change
 #'   (Default = log2(1.5); NULL disables)
-#' @param legendPosition One of "top", "bottom", "left", "right", "ne", "se",
-#'   "nw", "sw", NULL. top/bottom/left/right place the legend outside the
-#'   figure.  ne/se/nw/sw place the figure inside the figure. NULL disables the
+#' @param legendPosition One of "top", "bottom", "left", "right", "topRight",
+#'   "bottomRight", "topLeft", "bottomLeft", NULL. top/bottom/left/right place the legend outside the
+#'   figure. topRight/bottomRight/topLeft/bottomLeft place the figure inside the figure. NULL disables the
 #'   legend. Default = "right"
 #' @param refLineThickness Set the thickness for all reference lines (Default = 2).
 #' @param footnote Optional string placed right justified at bottom of plot.
@@ -244,11 +244,11 @@ volcanoPlot <- function(contrastDF,
         refLineThickness <- 2
     }
 
-    if (any(is.null(legendPosition),
-        !is.character(legendPosition),
-        !length(legendPosition) == 1,
-        !legendPosition %in% c("top", "bottom", "left", "right", "topRight", "bottomRight", "topLeft", "bottomLeft"))) {
-        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'topRight', 'bottomRight', 'topLeft', 'bottomLeft'. Assigning default value 'right'.")
+    if (!is.null(legendPosition) &&
+        !all(is.character(legendPosition),
+         length(legendPosition) == 1,
+         legendPosition %in% c("top", "bottom", "left", "right", "topRight", "bottomRight", "topLeft", "bottomLeft"))) {
+        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'topRight', 'bottomRight', 'topLeft', 'bottomLeft' or 'NULL' to disable. Assigning default value 'right'.")
         legendPosition <- "right"
     }
 
@@ -365,7 +365,7 @@ volcanoPlot <- function(contrastDF,
                           sizeByShowLegend  = showSizeLegend,
                           shapeByShowLegend = TRUE,
                           title             = title,
-                          showLegend        = TRUE,
+                          showLegend        = ifelse(is.null(legendPosition), FALSE, TRUE),
                           xAxisTitle        = xlab,
                           yAxisTitle        = ylab,
                           sizeBy            = sizeBy,
@@ -405,7 +405,6 @@ volcanoPlot <- function(contrastDF,
             scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
                               values = ssc$symbolColor) +
             geom_point(alpha = transparency)
-
 
         # Optional Decorations
         if (sizeByIntensity) {
@@ -477,18 +476,24 @@ volcanoPlot <- function(contrastDF,
                                        footnoteJust = 1)
         }
 
-        if (legendPosition == "topRight") {
+        if (is.null(legendPosition)) {
+            legendPosition <- "none"
+        } else if (legendPosition == "topRight") {
             legendPosition <- "ne"
         } else if (legendPosition == "bottomRight") {
             legendPosition <- "se"
         } else if (legendPosition == "topLeft") {
             legendPosition <- "nw"
-        } else if (legendPosition == "bottomLeft"){
+        } else if (legendPosition == "bottomLeft") {
             legendPosition <- "sw"
         } else{
             legendPosition <- legendPosition
         }
 
-        setLegendPosition(volcanoPlot, legendPosition)
+        if (legendPosition == "none") {
+            volcanoPlot + theme(legend.position = legendPosition)
+        } else{
+            setLegendPosition(volcanoPlot, legendPosition)
+        }
     }
 }

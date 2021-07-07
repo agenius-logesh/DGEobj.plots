@@ -351,7 +351,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                    regexp = msg)
     expect_s3_class(volcanoPlot , c("gg", "ggplot"))
     ## legendPosition
-    msg <- "legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'topRight', 'bottomRight', 'topLeft', 'bottomLeft'. Assigning default value 'right'."
+    msg <- "legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'topRight', 'bottomRight', 'topLeft', 'bottomLeft' or 'NULL' to disable. Assigning default value 'right'."
     expect_warning(volcanoPlot <- volcanoPlot(contrastDF, legendPosition = 123),
                    regexp = msg)
     #expect_s3_class(volcanoPlot , c("canvasXpress", "htmlwidget"))
