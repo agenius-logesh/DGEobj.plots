@@ -330,39 +330,47 @@ volcanoPlot <- function(contrastDF,
                                                   }
                                                 }; }}")
 
-        cx.data <- contrastDF %>% dplyr::select(logRatioCol, negLog10P)
+        cx.data <- contrastDF %>% dplyr::select(all_of(logRatioCol), negLog10P)
 
         if (sizeByIntensity) {
             var.annot <- contrastDF %>% dplyr::select(Group,LogInt)
             sizeBy <- "LogInt"
             showSizeLegend <- TRUE
         } else {
-            contrastDF %>%
+            var.annot <- contrastDF %>%
                 dplyr::select(Group)
             sizeBy <- "Group"
             showSizeLegend <- FALSE
         }
 
         if (!missing(geneSymCol)) {
-            var.annot <- cbind(var.annot, GeneName = contrastDF[, geneSymCol][match(rownames(var.annot), rownames(contrastDF))])
+            contrastDF <- contrastDF %>%
+                tibble::rownames_to_column(var = "GeneID") %>%
+                dplyr::select(GeneID, all_of(geneSymCol))
+            var.annot <- var.annot %>% tibble::rownames_to_column(var = "GeneID")
+            var.annot <-  dplyr::left_join(contrastDF, var.annot, by = "GeneID") %>%
+                tibble::column_to_rownames(var = "GeneID") %>%
+                dplyr::rename(GeneName =  geneSymCol)
         }
 
-        cx_params <- list(data            = cx.data,
-                          varAnnot         = var.annot,
-                          decorations      = decorations,
-                          graphType        = "Scatter2D",
-                          colorBy          = "Group",
-                          colors           = colors,
-                          legendPosition   = legendPosition,
-                          legendInside     = ifelse(legendPosition %in% c("topRight", "bottomRight", "topLeft", "bottomLeft"), TRUE, FALSE),
-                          showDecorations  = TRUE,
-                          sizeByShowLegend = showSizeLegend,
-                          title            = title,
-                          xAxisTitle       = xlab,
-                          yAxisTitle       = ylab,
-                          sizeBy           = sizeBy,
-                          citation         = footnote,
-                          events           = events)
+        cx_params <- list(data              = cx.data,
+                          varAnnot          = var.annot,
+                          decorations       = decorations,
+                          graphType         = "Scatter2D",
+                          colorBy           = "Group",
+                          colors            = colors,
+                          legendPosition    = legendPosition,
+                          legendInside      = ifelse(legendPosition %in% c("topRight", "bottomRight", "topLeft", "bottomLeft"), TRUE, FALSE),
+                          showDecorations   = TRUE,
+                          sizeByShowLegend  = showSizeLegend,
+                          shapeByShowLegend = TRUE,
+                          title             = title,
+                          showLegend        = TRUE,
+                          xAxisTitle        = xlab,
+                          yAxisTitle        = ylab,
+                          sizeBy            = sizeBy,
+                          citation          = footnote,
+                          events            = events)
         if (sizeBy == "Group") {
             cx_params <- c(cx_params, list(sizes = sizes, shapes = shapes, shapeBy = "Group"))
         } else{
@@ -387,7 +395,7 @@ volcanoPlot <- function(contrastDF,
                             symbolColor = colors,
                             stringsAsFactors = FALSE)
 
-        volcanoPlot <- ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
+        volcanoPlot <- ggplot2::ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
             aes(shape = Group,
                 color = Group,
                 fill = Group) +
