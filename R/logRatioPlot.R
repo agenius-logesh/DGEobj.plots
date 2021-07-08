@@ -3,8 +3,9 @@
 #' Intended to plot a set of contrast results, one plot for each gene of
 #' interest.
 #'
-#' Input is a tidy dataframe constructed from topTable output and
-#' requires \strong{logFC}, \strong{CI.L}, and \strong{CI.R} columns as well as a gene identifier of choice.
+#' Input is a DGEobj object that must contain  topTable object with at least one contrast dataframe.
+#' Also, it requires \strong{logFC}, \strong{CI.L},
+#' and \strong{CI.R} columns as well as a gene identifier of choice.
 #'
 #' Outputs a canvasXpress \emph{(the default)} or ggplot2 object faceted by the facetColname when
 #'  \code{facet} parameter is set to \strong{TRUE} \emph{(the default)}.
@@ -12,7 +13,7 @@
 #' If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
 #' ggplots, one for each facetColname value \emph{(typically gene)}.
 #'
-#' @param contrastsDF A tidy dataframe of data to plot (Required) (see ?tidyContrasts).
+#' @param dgeObj A DGEobj that contains a contrast or more dataframe.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param facetColname Define the column name to separate plots (Required) (e.g. GeneID).
 #' @param xColname Define the column name to group boxplots by (Required) (e.g. Contrast).
@@ -47,37 +48,27 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # DGEobj example
-#'   # Put contrasts in tidy format keeping logFC, and confidence limits contrastsDF
-#'   tidyDat <- tidyContrasts(DGEobj,
-#'                            rownameColumn = "EnsgID",
-#'                            includeColumns = c("logFC", "CI.R", "CI.L"))
-#'
-#'   # Add gene symbols from geneData
-#'   # select small sample set
-#'   ens2genesym <- data.frame("EnsgID" = row.names(DGEobj$geneData), DGEobj$geneData, row.names = NULL)
-#'   ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
-#'   colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
-#'   tidyDat <- dplyr::left_join(tidyDat, ens2genesym) %>% dplyr::sample_n(10)
+#'   # DGEobj example, subset DGEobj
+#'   t_obj1_subset <- subset(t_obj1, row = c(1:6))
 #'
 #'
 #'   # Simple barplot
-#'  logRatioPlot(tidyDat,
-#'              facetColname = "GeneSymbol",
+#'  logRatioPlot(t_obj1_subset,
+#'               facetColname = "GeneSymbol",
 #'               xColname = "Contrast",
 #'               facetCol = 4)
 #'
 #'   # Lineplot with some options
-#'   logRatioPlot(tidyDat,
-#'                plotCategory = "point",
-#'                facetColname = "GeneSymbol",
-#'                xColname = "Contrast",
-#'                facetCol = 4,
-#'                axisFree = FALSE,
-#'                facet = TRUE,
-#'                title = "Test",
-#'                pointSize = 4,
-#'                labelAngle = 60)
+#'  logRatioPlot(t_obj1_subset,
+#'               plotCategory = "point",
+#'               facetColname = "GeneSymbol",
+#'               xColname = "Contrast",
+#'               facetCol = 4,
+#'               axisFree = FALSE,
+#'               facet = TRUE,
+#'               title = "Test",
+#'               pointSize = 4,
+#'               labelAngle = 60)
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -88,7 +79,7 @@
 #' @importFrom htmlwidgets JS
 #'
 #' @export
-logRatioPlot <- function(contrastsDF,
+logRatioPlot <- function(dgeObj,
                          plotType = "canvasXpress",
                          facetColname,
                          xColname,
@@ -111,35 +102,67 @@ logRatioPlot <- function(contrastsDF,
                          facetCol,
                          labelAngle = 45,
                          axisFree = TRUE) {
-    assertthat::assert_that(!missing(contrastsDF),
-                            !is.null(contrastsDF),
-                            nrow(contrastsDF) > 0,
-                            "data.frame" %in% class(contrastsDF),
-                            msg = "contrastsDF must be specified and should be of class 'data.frame'.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and should be of class DGEobj")
+
+    topTables <- DGEobj::getType(dgeObj, "topTable")
+    assertthat::assert_that(length(topTables) > 0,
+                            msg = "No topTable dataframes found in dgeObj. Please specify a dgeObj that contains topTable dataframes.")
+
+    assertthat::assert_that(all(sapply(topTables, class) == "data.frame"),
+                            msg = "topTables list must only contain dataframes.")
+
+    minNameLen <- min(sapply(names(topTables), nchar))
+    assertthat::assert_that(minNameLen > 0,
+                            msg = "All dataframes in topTable list must be named (it must be a named list.)")
+
+    geneData <- DGEobj::getItem(dgeObj, "geneData")
+    assertthat::assert_that(!is.null(geneData),
+                            nrow(geneData) > 0,
+                            msg = "No geneData is found in dgeObj. Please specify a dgeObj that contains geneData.")
+
     plotType <- tolower(plotType)
     if (any(length(plotType) != 1,
             !plotType %in% c("canvasxpress", "ggplot"))) {
         warning("plotType must be either canvasXpress or ggplot. Setting default value 'canvasXpress'")
         plotType <- "canvasxpress"
     }
+
+    topTables <- lapply(topTables, function(x) {
+        x$EnsgID <- rownames(x)
+        rownames(x) <- NULL
+        x})
+
+    for (name in names(topTables)) {
+        topTables[[name]]["Contrast"] <- name
+    }
+
+    contrastsDF <- do.call(rbind, topTables)
+
+    # Add gene symbols from geneData
+    genesSymbols <- data.frame("EnsgID" = row.names(geneData), GeneSymbol = geneData$rgd_symbol)
+    contrastsDF <-  dplyr::left_join(contrastsDF, genesSymbols, by = "EnsgID")
+
     assertthat::assert_that(!missing(facetColname),
                             !is.null(facetColname),
                             length(facetColname) == 1,
                             facetColname %in% colnames(contrastsDF),
-                            msg = "facetColname must be one of contrastsDF columns.")
+                            msg = "facetColname must be one of toptables data columns.")
     assertthat::assert_that(!missing(xColname),
                             !is.null(xColname),
                             length(xColname) == 1,
                             xColname %in% colnames(contrastsDF),
-                            msg = "xColname must be one of contrastsDF columns.")
+                            msg = "xColname must be one of toptables columns.")
     if (any(is.null(yColname),
             length(yColname) != 1,
             !yColname %in% colnames(contrastsDF))) {
         if ("logFC" %in% colnames(contrastsDF)) {
-            warning("yColname must be one of contrastsDF columns. Setting default value 'logFC'")
+            warning("yColname must be one of toptables data columns. Setting default value 'logFC'")
             yColname <- "logFC"
         } else{
-            assertthat::assert_that(FALSE, msg = "yColname must be one of contrastsDF columns.")
+            assertthat::assert_that(FALSE, msg = "yColname must be one of toptables data columns.")
         }
     }
 
@@ -158,10 +181,10 @@ logRatioPlot <- function(contrastsDF,
             length(CI.R_colname) != 1,
             !CI.R_colname %in% colnames(contrastsDF))) {
         if ("CI.R" %in% colnames(contrastsDF)) {
-            warning("CI.R_colname must be one of contrastsDF columns. Setting default value 'CI.R'")
+            warning("CI.R_colname must be one of toptables data columns. Setting default value 'CI.R'")
             CI.R_colname <- "CI.R"
         } else{
-            warning("CI.R_colname must be one of contrastsDF columns. Disabling confidenece limits.")
+            warning("CI.R_colname must be one of toptables data columns. Disabling confidenece limits.")
             is_confidence_used <- FALSE
         }
     }
@@ -171,10 +194,10 @@ logRatioPlot <- function(contrastsDF,
             length(CI.L_colname) != 1,
             !CI.L_colname %in% colnames(contrastsDF))) {
         if ("CI.L" %in% colnames(contrastsDF)) {
-            warning("CI.L_colname must be one of contrastsDF columns. Setting default value 'CI.L'")
+            warning("CI.L_colname must be one of toptables data columns. Setting default value 'CI.L'")
             CI.L_colname <- "CI.L"
         } else{
-            warning("CI.L_colname must be one of contrastsDF columns. Disabling confidenece limits.")
+            warning("CI.L_colname must be one of toptables data columns. Disabling confidenece limits.")
             is_confidence_used <- FALSE
         }
     }

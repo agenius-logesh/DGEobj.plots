@@ -5,7 +5,7 @@
 \title{Plot logRatio contrasts}
 \usage{
 logRatioPlot(
-  contrastsDF,
+  dgeObj,
   plotType = "canvasXpress",
   facetColname,
   xColname,
@@ -31,7 +31,7 @@ logRatioPlot(
 )
 }
 \arguments{
-\item{contrastsDF}{A tidy dataframe of data to plot (Required) (see ?tidyContrasts).}
+\item{dgeObj}{A DGEobj that contains a contrast or more dataframe.}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
@@ -92,8 +92,9 @@ Intended to plot a set of contrast results, one plot for each gene of
 interest.
 }
 \details{
-Input is a tidy dataframe constructed from topTable output and
-requires \strong{logFC}, \strong{CI.L}, and \strong{CI.R} columns as well as a gene identifier of choice.
+Input is a DGEobj object that must contain  topTable object with at least one contrast dataframe.
+Also, it requires \strong{logFC}, \strong{CI.L},
+and \strong{CI.R} columns as well as a gene identifier of choice.
 
 Outputs a canvasXpress \emph{(the default)} or ggplot2 object faceted by the facetColname when
  \code{facet} parameter is set to \strong{TRUE} \emph{(the default)}.
@@ -103,37 +104,27 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
 }
 \examples{
 \dontrun{
-  # DGEobj example
-  # Put contrasts in tidy format keeping logFC, and confidence limits contrastsDF
-  tidyDat <- tidyContrasts(DGEobj,
-                           rownameColumn = "EnsgID",
-                           includeColumns = c("logFC", "CI.R", "CI.L"))
-
-  # Add gene symbols from geneData
-  # select small sample set
-  ens2genesym <- data.frame("EnsgID" = row.names(DGEobj$geneData), DGEobj$geneData, row.names = NULL)
-  ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
-  colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
-  tidyDat <- dplyr::left_join(tidyDat, ens2genesym) \%>\% dplyr::sample_n(10)
+  # DGEobj example, subset DGEobj
+  t_obj1_subset <- subset(t_obj1, row = c(1:6))
 
 
   # Simple barplot
- logRatioPlot(tidyDat,
-             facetColname = "GeneSymbol",
+ logRatioPlot(t_obj1_subset,
+              facetColname = "GeneSymbol",
               xColname = "Contrast",
               facetCol = 4)
 
   # Lineplot with some options
-  logRatioPlot(tidyDat,
-               plotCategory = "point",
-               facetColname = "GeneSymbol",
-               xColname = "Contrast",
-               facetCol = 4,
-               axisFree = FALSE,
-               facet = TRUE,
-               title = "Test",
-               pointSize = 4,
-               labelAngle = 60)
+ logRatioPlot(t_obj1_subset,
+              plotCategory = "point",
+              facetColname = "GeneSymbol",
+              xColname = "Contrast",
+              facetCol = 4,
+              axisFree = FALSE,
+              facet = TRUE,
+              title = "Test",
+              pointSize = 4,
+              labelAngle = 60)
 }
 
 }
