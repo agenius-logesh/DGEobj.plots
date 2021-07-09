@@ -15,7 +15,7 @@
 #'
 #' @param dgeObj A DGEobj that contains a contrast or more dataframe.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
-#' @param facetColname Define the column name to separate plots (Required) (e.g. GeneID).
+#' @param facetColname Define the column name to separate plots from geneData (Required) (e.g. rgd_symbol).
 #' @param xColname Define the column name to group boxplots by (Required) (e.g. Contrast).
 #' @param yColname Define the column name for the output of the boxplots (default = "logFC")
 #' @param CI.R_colname Define name of the CI high value (default = "CI.R")
@@ -54,14 +54,14 @@
 #'
 #'   # Simple barplot
 #'  logRatioPlot(t_obj1_subset,
-#'               facetColname = "GeneSymbol",
+#'               facetColname = "rgd_symbol",
 #'               xColname = "Contrast",
 #'               facetCol = 4)
 #'
 #'   # Lineplot with some options
 #'  logRatioPlot(t_obj1_subset,
 #'               plotCategory = "point",
-#'               facetColname = "GeneSymbol",
+#'               facetColname = "rgd_symbol",
 #'               xColname = "Contrast",
 #'               facetCol = 4,
 #'               axisFree = FALSE,
@@ -145,15 +145,17 @@ logRatioPlot <- function(dgeObj,
 
     contrastsDF <- do.call(rbind, topTables)
 
-    # Add gene symbols from geneData
-    genesSymbols <- data.frame("EnsgID" = row.names(geneData), GeneSymbol = geneData$rgd_symbol)
-    contrastsDF <-  dplyr::left_join(contrastsDF, genesSymbols, by = "EnsgID")
-
     assertthat::assert_that(!missing(facetColname),
                             !is.null(facetColname),
                             length(facetColname) == 1,
-                            facetColname %in% colnames(contrastsDF),
-                            msg = "facetColname must be one of toptables data columns.")
+                            facetColname %in% colnames(geneData),
+                            msg = "facetColname must be one of geneData data columns.")
+    # Add gene symbols from geneData
+    genesSymbols <- data.frame("EnsgID" = row.names(geneData), GeneSymbol = geneData[[facetColname]])
+    contrastsDF <-  dplyr::left_join(contrastsDF, genesSymbols, by = "EnsgID")
+    symCol <- "GeneSymbol"
+
+
     assertthat::assert_that(!missing(xColname),
                             !is.null(xColname),
                             length(xColname) == 1,
@@ -323,13 +325,13 @@ logRatioPlot <- function(dgeObj,
 
     if (facet && !missing(facetColname)) {
         if (missing(facetCol)) {
-            facetCol <- contrastsDF[[facetColname]] %>% unique %>% length %>% sqrt %>% ceiling
+            facetCol <- contrastsDF[[symCol]] %>% unique %>% length %>% sqrt %>% ceiling
         } else if (any(is.null(facetCol),
                        !is.numeric(facetCol),
                        length(facetCol) != 1,
                        facetCol < 0)) {
             warning("facetCol must be a singular value of class numeric. Assigning default value.")
-            facetCol <- contrastsDF[[facetColname]] %>% unique %>% length %>% sqrt %>% ceiling
+            facetCol <- contrastsDF[[symCol]] %>% unique %>% length %>% sqrt %>% ceiling
         }
     }
 
@@ -422,7 +424,7 @@ logRatioPlot <- function(dgeObj,
         }
 
         if (facet) {
-            plots_num <- tidy_data[[facetColname]] %>% unique %>% length
+            plots_num <- tidy_data[[symCol]] %>% unique %>% length
             numrow   <- (plots_num / facetCol) %>% ceiling
             if (plots_num > facet_chart_limit) {
                 warning(paste("A large number of charts/facets has/have been requested",
@@ -431,18 +433,18 @@ logRatioPlot <- function(dgeObj,
                               "charts/facets are requested at a time."))
             }
             tidy_data <- tidy_data %>%
-                dplyr::arrange(!!rlang::sym(facetColname))
+                dplyr::arrange(!!rlang::sym(symCol))
             cx.data <- tidy_data %>%
                 dplyr::select(!!rlang::sym(yColname)) %>%
                 t() %>%
                 as.data.frame()
             smp.data <- tidy_data %>%
-                dplyr::select(!!rlang::sym(facetColname),
+                dplyr::select(!!rlang::sym(symCol),
                               !!rlang::sym(xColname))
             rownames(smp.data) <- colnames(cx.data)
             cx_params <- c(list(data = cx.data,
                                 smpAnnot = smp.data,
-                                segregateSamplesBy = facetColname,
+                                segregateSamplesBy = symCol,
                                 layoutTopology = paste0(numrow, 'X', facetCol),
                                 layoutAdjust = axisFree,
                                 title = title,
@@ -451,16 +453,16 @@ logRatioPlot <- function(dgeObj,
             do.call(canvasXpress::canvasXpress, cx_params)
         } else {
             plotlist <- list()
-            plotby_vec <- unique(contrastsDF[[facetColname]])
+            plotby_vec <- unique(contrastsDF[[symCol]])
             plotlist <- lapply(plotby_vec, function(x) {
                 tidy_data <- tidy_data %>%
-                    dplyr::filter(!!rlang::sym(facetColname) == x)
+                    dplyr::filter(!!rlang::sym(symCol) == x)
                 cx.data <- tidy_data %>%
                     dplyr::select(!!rlang::sym(yColname)) %>%
                     t() %>%
                     as.data.frame()
                 smp.data <- tidy_data %>%
-                    dplyr::select(!!rlang::sym(facetColname),
+                    dplyr::select(!!rlang::sym(symCol),
                                   !!rlang::sym(xColname))
                 rownames(smp.data) <- colnames(cx.data)
                 if (is_confidence_used) {
@@ -520,7 +522,7 @@ logRatioPlot <- function(dgeObj,
             }
             myPlot <- ggplot2::ggplot(contrastsDF, aes_string(x = xColname, y = yColname))
             myPlot <- .addGeoms(myPlot)
-            facetFormula <- stringr::str_c("~", facetColname, sep = " ")
+            facetFormula <- stringr::str_c("~", symCol, sep = " ")
             myPlot <- myPlot + ggplot2::facet_wrap(facetFormula, ncol = facetCol, scales = axisFree)
 
             myPlot <- myPlot + ggplot2::xlab(xlab)
@@ -540,8 +542,8 @@ logRatioPlot <- function(dgeObj,
 
         } else {# Individual plots for each Gene returned in a list
             plotlist <- list()
-            for (obs in unique(contrastsDF[[facetColname]])) { # For each gene
-                dat <- contrastsDF[contrastsDF[[facetColname]] == obs, ] # Pull data for one gene
+            for (obs in unique(contrastsDF[[symCol]])) { # For each gene
+                dat <- contrastsDF[contrastsDF[[symCol]] == obs, ] # Pull data for one gene
                 aplot <- ggplot(dat, aes_string(x = xColname, y = yColname)) + # Samples vs Log2CPM
                     xlab(xlab) +
                     ylab(ylab) +

@@ -35,7 +35,7 @@ logRatioPlot(
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
-\item{facetColname}{Define the column name to separate plots (Required) (e.g. GeneID).}
+\item{facetColname}{Define the column name to separate plots from geneData (Required) (e.g. rgd_symbol).}
 
 \item{xColname}{Define the column name to group boxplots by (Required) (e.g. Contrast).}
 
@@ -110,14 +110,14 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
 
   # Simple barplot
  logRatioPlot(t_obj1_subset,
-              facetColname = "GeneSymbol",
+              facetColname = "rgd_symbol",
               xColname = "Contrast",
               facetCol = 4)
 
   # Lineplot with some options
  logRatioPlot(t_obj1_subset,
               plotCategory = "point",
-              facetColname = "GeneSymbol",
+              facetColname = "rgd_symbol",
               xColname = "Contrast",
               facetCol = 4,
               axisFree = FALSE,
