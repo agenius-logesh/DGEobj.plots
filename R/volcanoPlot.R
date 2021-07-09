@@ -350,7 +350,7 @@ volcanoPlot <- function(contrastDF,
             var.annot <- var.annot %>% tibble::rownames_to_column(var = "GeneID")
             var.annot <-  dplyr::left_join(contrastDF, var.annot, by = "GeneID") %>%
                 tibble::column_to_rownames(var = "GeneID") %>%
-                dplyr::rename(GeneName =  geneSymCol)
+                dplyr::rename(GeneName = all_of(geneSymCol))
         }
 
         cx_params <- list(data              = cx.data,

@@ -16,7 +16,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                                sizeByIntensity = FALSE, symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     ### contrast objects defualts (without sizeByIntensity=False and with geneSymCol)-
-    gene_data <- t_obj1$geneData %>%
+    gene_data <- DGEobj::getItem(t_obj1,"geneData") %>%
         dplyr::select(rgd_symbol)
     contrastDF <- merge(contrastDF, gene_data, by = 0, all = TRUE)
     rownames(contrastDF) <- contrastDF$Row.names
@@ -27,21 +27,21 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                                geneSymCol = "rgd_symbol")
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     ## EXT1024_vs_BDL
-    contrastDF <- t_obj1$EXT1024_vs_BDL
+    contrastDF <-  DGEobj::getItem(t_obj1,"EXT1024_vs_BDL")
     volcanoPlot <- volcanoPlot(contrastDF, title = "EXT1024_vs_BDL")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
     volcanoPlot <- volcanoPlot(contrastDF, title = "EXT1024_vs_BDL", plotType = "ggplot",
                                     sizeByIntensity = FALSE, symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     ## Nint_vs_BDL
-    contrastDF <- t_obj1$Nint_vs_BDL
+    contrastDF <- DGEobj::getItem(t_obj1,"Nint_vs_BDL")
     volcanoPlot <- volcanoPlot(contrastDF, title = "Nint_vs_BDL")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
     volcanoPlot <- volcanoPlot(contrastDF, title = "Nint_vs_BDL", plotType = "ggplot",
                                     sizeByIntensity = FALSE,symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     ## Sora_vs_BDL
-    contrastDF <- t_obj1$Sora_vs_BDL
+    contrastDF <- DGEobj::getItem(t_obj1,"Sora_vs_BDL")
     volcanoPlot <- volcanoPlot(contrastDF, title = "Sora_vs_BDL",
                                sizeByIntensity = FALSE,symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
@@ -49,8 +49,8 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                                     sizeByIntensity = FALSE,symbolSize = c(8,4,8))
     expect_s3_class(volcanoPlot, c("gg", "ggplot"))
     # testing gene symbols
-    contrastDF <- t_obj1$BDL_vs_Sham
-    gene_data <- t_obj1$geneData %>%
+    contrastDF <- DGEobj::getItem(t_obj1,"BDL_vs_Sham")
+    gene_data <- DGEobj::getItem(t_obj1,"geneData") %>%
         dplyr::select(rgd_symbol)
     contrastDF <- merge(contrastDF, gene_data, by = 0, all = TRUE)
     rownames(contrastDF) <- contrastDF$Row.names
