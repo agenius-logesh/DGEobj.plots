@@ -4,7 +4,7 @@ context("DGEobj.plots - tests for volcanoPlot.R functions")
 test_that("volcanoPlot.R: volcanoPlot()", {
     # testing contrast objects defualts (sizeByIntensity=TRUE and no geneSymCol)
     ## BDL_vs_Sham
-    contrastDF <- t_obj1$BDL_vs_Sham
+    contrastDF <- DGEobj::getItem(t_obj1,"BDL_vs_Sham")
     volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham")
     expect_s3_class(volcanoPlot, c("canvasXpress", "htmlwidget"))
     volcanoPlot <- volcanoPlot(contrastDF, title = "BDL_vs_Sham", plotType = "ggplot")

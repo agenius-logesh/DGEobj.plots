@@ -395,7 +395,7 @@ volcanoPlot <- function(contrastDF,
                             symbolColor = colors,
                             stringsAsFactors = FALSE)
 
-        volcanoPlot <- ggplot2::ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
+        volcanoPlot <- ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
             aes(shape = Group,
                 color = Group,
                 fill = Group) +
@@ -446,7 +446,7 @@ volcanoPlot <- function(contrastDF,
             labeldata <- contrastDF[[geneSymCol]] %in% geneSymLabels
             contrastDF_labelsubset <- contrastDF[labeldata,]
             volcanoPlot <- volcanoPlot +
-                ggrepel::geom_text_repel(data = contrastDF_labelsubset,
+                geom_text_repel(data = contrastDF_labelsubset,
                                 aes_string(x = logRatioCol, y = "negLog10P", label = geneSymCol),
                                 show.legend = TRUE, max.overlaps = dim(contrastDF_labelsubset)[1]*10)
         }
@@ -469,31 +469,13 @@ volcanoPlot <- function(contrastDF,
 
         # Footnote
         if (!missing(footnote)) {
-            volcanoPlot <- addFootnote(volcanoPlot,
+            volcanoPlot <- .addFootnote(volcanoPlot,
                                        footnoteText = footnote,
                                        footnoteSize = 3,
                                        footnoteColor = "black",
                                        footnoteJust = 1)
         }
 
-        if (is.null(legendPosition)) {
-            legendPosition <- "none"
-        } else if (legendPosition == "topRight") {
-            legendPosition <- "ne"
-        } else if (legendPosition == "bottomRight") {
-            legendPosition <- "se"
-        } else if (legendPosition == "topLeft") {
-            legendPosition <- "nw"
-        } else if (legendPosition == "bottomLeft") {
-            legendPosition <- "sw"
-        } else{
-            legendPosition <- legendPosition
-        }
-
-        if (legendPosition == "none") {
-            volcanoPlot + theme(legend.position = legendPosition)
-        } else{
-            setLegendPosition(volcanoPlot, legendPosition)
-        }
+        .setLegendPosition(volcanoPlot, legendPosition)
     }
 }
