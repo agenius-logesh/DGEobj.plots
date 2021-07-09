@@ -118,7 +118,11 @@ logRatioPlot <- function(dgeObj,
     assertthat::assert_that(minNameLen > 0,
                             msg = "All dataframes in topTable list must be named (it must be a named list.)")
 
-    geneData <- DGEobj::getItem(dgeObj, "geneData")
+    geneData <- DGEobj::getType(dgeObj, "geneData")
+    assertthat::assert_that(!is.null(geneData),
+                            length(geneData) == 1,
+                            msg = "There must be exactly one geneData object in dgeObj. Please specify a dgeObj that contains geneData.")
+    geneData <- geneData[[1]]
     assertthat::assert_that(!is.null(geneData),
                             nrow(geneData) > 0,
                             msg = "No geneData is found in dgeObj. Please specify a dgeObj that contains geneData.")
