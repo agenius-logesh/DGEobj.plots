@@ -15,8 +15,8 @@
 #'
 #' @param dgeObj A DGEobj that contains a contrast or more dataframe.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
-#' @param facetColname Define the column name to separate plots from geneData (Required) (e.g. rgd_symbol).
-#' @param xColname Define the column name to group boxplots by (Required) (e.g. Contrast).
+#' @param facetColname Define the column name to separate plots from geneData (default = "rgd_symbol").
+#' @param xColname Define name for the computed column to group boxplots by (Required) (default = "Contrast").
 #' @param yColname Define the column name for the output of the boxplots (default = "logFC")
 #' @param CI.R_colname Define name of the CI high value (default = "CI.R")
 #' @param CI.L_colname Define name of the CI low value (default =  "CI.L")
@@ -81,8 +81,8 @@
 #' @export
 logRatioPlot <- function(dgeObj,
                          plotType = "canvasXpress",
-                         facetColname,
-                         xColname,
+                         facetColname = "rgd_symbol",
+                         xColname = "Contrast",
                          yColname = "logFC",
                          CI.R_colname = "CI.R",
                          CI.L_colname = "CI.L",
@@ -139,28 +139,33 @@ logRatioPlot <- function(dgeObj,
         rownames(x) <- NULL
         x})
 
+    if (any(is.null(xColname),
+            length(xColname) != 1)) {
+        warning("xColname must be single string value. Setting default value 'Contrast'.")
+        xColname <- "Contrast"
+    }
+
     for (name in names(topTables)) {
-        topTables[[name]]["Contrast"] <- name
+        topTables[[name]][xColname] <- name
     }
 
     contrastsDF <- do.call(rbind, topTables)
 
-    assertthat::assert_that(!missing(facetColname),
-                            !is.null(facetColname),
-                            length(facetColname) == 1,
-                            facetColname %in% colnames(geneData),
-                            msg = "facetColname must be one of geneData data columns.")
+    if (any(is.null(facetColname),
+            length(facetColname) != 1,
+            !facetColname %in% colnames(geneData))) {
+        if ("rgd_symbol" %in% colnames(geneData)) {
+            warning("facetColname must be one of geneData data columns. Setting default value 'rgd_symbol'")
+            facetColname <- "rgd_symbol"
+        } else{
+            assertthat::assert_that(FALSE, msg = "facetColname must be one of geneData data columns.")
+        }
+    }
     # Add gene symbols from geneData
     genesSymbols <- data.frame("EnsgID" = row.names(geneData), GeneSymbol = geneData[[facetColname]])
     contrastsDF <-  dplyr::left_join(contrastsDF, genesSymbols, by = "EnsgID")
     symCol <- "GeneSymbol"
 
-
-    assertthat::assert_that(!missing(xColname),
-                            !is.null(xColname),
-                            length(xColname) == 1,
-                            xColname %in% colnames(contrastsDF),
-                            msg = "xColname must be one of toptables columns.")
     if (any(is.null(yColname),
             length(yColname) != 1,
             !yColname %in% colnames(contrastsDF))) {

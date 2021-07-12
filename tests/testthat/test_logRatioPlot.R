@@ -8,7 +8,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     # Simple barplot
     plot <- logRatioPlot(dgeObj          = t_obj1_subset,
                          plotType        = "canvasXpress",
-                         facetColname    = "rgd_symbol",
                          xColname        = "Contrast",
                          barColor        = "blue",
                          barTransparency = 0.5,
@@ -78,36 +77,84 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
 
     ## facetColname
-    msg <- "facetColname must be one of geneData data columns."
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset,
-                              facetColname = c("rgd_symbol", "rgd_symbol")),
+    msg <- "facetColname must be one of geneData data columns. Setting default value 'rgd_symbol'"
+    ### cxplot
+    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+                                        plotType     = "canvasXpress",
+                                        facetColname = c("rgd_symbol", "rgd_symbol"),
+                                        xColname     = "Contrast"),
                    regexp = msg)
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset,
-                              facetColname = "abc"),
-                 regexp = msg)
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset,
-                              facetColname = NULL),
-                 regexp = msg)
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset),
-                 regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plott <- logRatioPlot(dgeObj  = t_obj1_subset,
+                                         plotType     = "canvasXpress",
+                                         facetColname = "abc",
+                                         xColname     = "Contrast"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+                                        plotType     = "canvasXpress",
+                                        facetColname = NULL,
+                                        xColname     = "Contrast"),
+                   regexp = msg)
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+    geneData <- DGEobj::getType(t_obj1_subset, "geneData")[[1]]
+    geneData <- geneData %>% dplyr::rename(gSymbols = rgd_symbol)
+    t_obj1_subset2 <- DGEobj::addItems(t_obj1_subset,
+                                       list(geneData = geneData),
+                                       list("geneData"),
+                                       list("geneData"),
+                                       overwrite = TRUE)
+    expect_error(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+                                      plotType     = "canvasXpress",
+                                      facetColname = "rgd_symbol",
+                                      xColname     = "Contrast"),
+                 regexp = "facetColname must be one of geneData data columns.")
+    plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+                        plotType     = "canvasXpress",
+                        facetColname = "gSymbols",
+                        xColname     = "Contrast")
+    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
+
+    ### ggplot
+    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+                                        plotType     = "ggplot",
+                                        facetColname = c("rgd_symbol", "rgd_symbol"),
+                                        xColname     = "Contrast"),
+                   regexp = msg)
+    expect_s3_class(plot, c("gg", "ggplot"))
+    expect_warning(plott <- logRatioPlot(dgeObj  = t_obj1_subset,
+                                         plotType     = "ggplot",
+                                         facetColname = "abc",
+                                         xColname     = "Contrast"),
+                   regexp = msg)
+    expect_s3_class(plot, c("gg", "ggplot"))
+    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+                                        plotType     = "ggplot",
+                                        facetColname = NULL,
+                                        xColname     = "Contrast"),
+                   regexp = msg)
+    expect_s3_class(plot, c("gg", "ggplot"))
+    expect_error(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+                                      plotType     = "ggplot",
+                                      facetColname = "rgd_symbol",
+                                      xColname     = "Contrast"),
+                 regexp = "facetColname must be one of geneData data columns.")
+    plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+                         plotType     = "ggplot",
+                         facetColname = "gSymbols",
+                         xColname     = "Contrast")
+    expect_s3_class(plot, c("gg", "ggplot"))
 
     ## xColname
-    msg <- "xColname must be one of toptables columns."
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset,
-                              facetColname = "rgd_symbol",
-                              xColname = c("Contrast", "Contrast")),
-                 regexp = msg)
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset,
-                              facetColname = "rgd_symbol",
-                              xColname = "abc"),
-                 regexp = msg)
-    expect_error(logRatioPlot(dgeObj  = t_obj1_subset,
-                              facetColname = "rgd_symbol",
-                              xColname = NULL),
-                 regexp = msg)
-    expect_error(logRatioPlot(dgeObj = t_obj1_subset,
-                              facetColname = "rgd_symbol"),
-                 regexp = msg)
+    msg <- "xColname must be single string value. Setting default value 'Contrast'."
+    expect_warning(logRatioPlot(dgeObj  = t_obj1_subset,
+                                facetColname = "rgd_symbol",
+                                xColname = c("Contrast", "Contrast")),
+                   regexp = msg)
+    expect_warning(logRatioPlot(dgeObj  = t_obj1_subset,
+                                facetColname = "rgd_symbol",
+                                xColname = NULL),
+                   regexp = msg)
 
     ## yColname
     msg <- "yColname must be one of toptables data columns. Setting default value 'logFC'"

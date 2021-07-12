@@ -7,8 +7,8 @@
 logRatioPlot(
   dgeObj,
   plotType = "canvasXpress",
-  facetColname,
-  xColname,
+  facetColname = "rgd_symbol",
+  xColname = "Contrast",
   yColname = "logFC",
   CI.R_colname = "CI.R",
   CI.L_colname = "CI.L",
@@ -35,9 +35,9 @@ logRatioPlot(
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
-\item{facetColname}{Define the column name to separate plots from geneData (Required) (e.g. rgd_symbol).}
+\item{facetColname}{Define the column name to separate plots from geneData (default = "rgd_symbol").}
 
-\item{xColname}{Define the column name to group boxplots by (Required) (e.g. Contrast).}
+\item{xColname}{Define name for the computed column to group boxplots by (Required) (default = "Contrast").}
 
 \item{yColname}{Define the column name for the output of the boxplots (default = "logFC")}
 
