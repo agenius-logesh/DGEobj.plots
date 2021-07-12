@@ -547,10 +547,6 @@ logRatioPlot <- function(dgeObj,
                     aplot <- aplot + ggplot2::ggtitle(stringr::str_c(title, ": ", obs))
                 }
 
-                # if (labelAngle > 0) {
-                #     aplot <- aplot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
-                # }
-
                 if (refLine) {
                     aplot <- aplot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
                 }
@@ -558,6 +554,7 @@ logRatioPlot <- function(dgeObj,
             }
             myPlot = plotlist
         }
+
         myPlot
     }
 }
