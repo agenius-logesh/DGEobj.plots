@@ -25,7 +25,6 @@ logRatioPlot(
   pointTransparency = 1,
   pointSize = 2,
   facet = TRUE,
-  facetCol,
   labelAngle = 45,
   axisFree = TRUE
 )
@@ -72,9 +71,6 @@ logRatioPlot(
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
 
-\item{facetCol}{Explicitly set the number of rows for the facet plot. default
-behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))}
-
 \item{labelAngle}{Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)}
 
 \item{axisFree}{Specify same scale or independent scales for each subplot (Default = TRUE;
@@ -111,15 +107,13 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
   # Simple barplot
  logRatioPlot(t_obj1_subset,
               facetColname = "rgd_symbol",
-              xColname = "Contrast",
-              facetCol = 4)
+              xColname = "Contrast")
 
   # Lineplot with some options
  logRatioPlot(t_obj1_subset,
               plotCategory = "point",
               facetColname = "rgd_symbol",
               xColname = "Contrast",
-              facetCol = 4,
               axisFree = FALSE,
               facet = TRUE,
               title = "Test",

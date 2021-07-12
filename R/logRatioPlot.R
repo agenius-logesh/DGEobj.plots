@@ -34,8 +34,6 @@
 #' @param pointSize Size of the points, for ggplot plotType (default = 4)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
-#' @param facetCol Explicitly set the number of rows for the facet plot. default
-#'   behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))
 #' @param labelAngle Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)
 #' @param axisFree Specify same scale or independent scales for each subplot (Default = TRUE;
 #'   Allowed values: TRUE and FALSE)
@@ -55,15 +53,13 @@
 #'   # Simple barplot
 #'  logRatioPlot(t_obj1_subset,
 #'               facetColname = "rgd_symbol",
-#'               xColname = "Contrast",
-#'               facetCol = 4)
+#'               xColname = "Contrast")
 #'
 #'   # Lineplot with some options
 #'  logRatioPlot(t_obj1_subset,
 #'               plotCategory = "point",
 #'               facetColname = "rgd_symbol",
 #'               xColname = "Contrast",
-#'               facetCol = 4,
 #'               axisFree = FALSE,
 #'               facet = TRUE,
 #'               title = "Test",
@@ -99,7 +95,6 @@ logRatioPlot <- function(dgeObj,
                          pointTransparency = 1,
                          pointSize = 2,
                          facet = TRUE,
-                         facetCol,
                          labelAngle = 45,
                          axisFree = TRUE) {
     assertthat::assert_that(!missing(dgeObj),
@@ -328,16 +323,8 @@ logRatioPlot <- function(dgeObj,
         facet <- TRUE
     }
 
-    if (facet && !missing(facetColname)) {
-        if (missing(facetCol)) {
-            facetCol <- contrastsDF[[symCol]] %>% unique %>% length %>% sqrt %>% ceiling
-        } else if (any(is.null(facetCol),
-                       !is.numeric(facetCol),
-                       length(facetCol) != 1,
-                       facetCol < 0)) {
-            warning("facetCol must be a singular value of class numeric. Assigning default value.")
-            facetCol <- contrastsDF[[symCol]] %>% unique %>% length %>% sqrt %>% ceiling
-        }
+    if (facet) {
+        facetCol <- contrastsDF[[symCol]] %>% unique %>% length %>% sqrt %>% ceiling
     }
 
     #input validations

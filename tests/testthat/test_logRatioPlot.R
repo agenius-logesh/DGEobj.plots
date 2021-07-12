@@ -10,15 +10,13 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                          plotType        = "canvasXpress",
                          xColname        = "Contrast",
                          barColor        = "blue",
-                         barTransparency = 0.5,
-                         facetCol        = 3)
+                         barTransparency = 0.5)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     ## axis free
     plot <- logRatioPlot(dgeObj  = t_obj1_subset,
                          plotType     = "ggplot",
                          facetColname = "rgd_symbol",
                          xColname     = "Contrast",
-                         facetCol     = 3,
                          title = "test")
     expect_s3_class(plot, c("gg", "ggplot"))
     ## axis free disabled
@@ -26,7 +24,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                          plotType     = "ggplot",
                          facetColname = "rgd_symbol",
                          xColname     = "Contrast",
-                         facetCol     = 3,
                          title = "test",
                          axisFree = FALSE)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -36,7 +33,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                    plotCategory      = "point",
                                    facetColname      = "rgd_symbol",
                                    xColname          = "Contrast",
-                                   facetCol          = 4,
                                    axisFree          = FALSE,
                                    facet             = FALSE,
                                    title             = "Test",
@@ -52,7 +48,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                    plotCategory = "point",
                                    facetColname = "rgd_symbol",
                                    xColname     = "Contrast",
-                                   facetCol     = 4,
                                    axisFree     = FALSE,
                                    facet        = FALSE,
                                    title        = "Test",
@@ -437,7 +432,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
-                                        facetCol     = 2,
                                         plotCategory = "heatmap"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -445,7 +439,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
-                                        facetCol     = 2,
                                         plotCategory = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -453,7 +446,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
-                                        facetCol     = 2,
                                         plotCategory = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -461,7 +453,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
-                                        facetCol     = 2,
                                         plotCategory = c("bar", "point")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
@@ -1158,74 +1149,6 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = c(45, 90)),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    ## facetCol
-    msg <- "facetCol must be a singular value of class numeric. Assigning default value."
-    ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
-                                        plotType     = "canvasXpress",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = NULL),
-                   regexp = msg)
-    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
-                                        plotType     = "canvasXpress",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = "4"),
-                   regexp = msg)
-    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
-                                        plotType     = "canvasXpress",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = -4),
-                   regexp = msg)
-    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj = t_obj1_subset,
-                                        plotType     = "canvasXpress",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = c(4, 5)),
-                   regexp = msg)
-    expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
-                                        plotType     = "ggplot",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = NULL),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
-                                        plotType     = "ggplot",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = "4"),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
-                                        plotType     = "ggplot",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = -4),
-                   regexp = msg)
-    expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj = t_obj1_subset,
-                                        plotType     = "ggplot",
-                                        facetColname = "rgd_symbol",
-                                        xColname     = "Contrast",
-                                        facet        = TRUE,
-                                        facetCol     = c(4, 5)),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
     ## plotType
