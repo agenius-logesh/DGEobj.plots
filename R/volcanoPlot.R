@@ -1,4 +1,4 @@
-#' Create volcano plot
+#' Create volcano#' Create volcano plot
 #'
 #' A volcano plot shows Log Ratio data on the X axis and Negative Log P-values (NLP) on the
 #' Y axis. This function is intended to show the volcano plot from a dataframe
@@ -30,7 +30,9 @@
 #' required for these arguments which applies the attributes in this order:
 #' Increased, NoChange, Decreased.
 #'
-#' @param contrastDF A dataframe with LogRatio and LogIntensity columns and optionally a
+#' @param DGEdata Name of DGEobj data with a class of DGEobj.
+#' @param contrast A character vector of a topTable data in DGEobj and its a class of dataframe
+#'   with LogRatio and LogIntensity columns and optionally a
 #'   p-value or FDR column (typically a topTable dataframe).
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param logRatioCol Name of the LogRatio column (Default = "logFC")
@@ -40,12 +42,11 @@
 #' @param ylab Y axis label (Default is the LogRatio column name)
 #' @param title Plot title (optional)
 #' @param pthreshold Used to color points (Default = 0.01)
+#' @param geneSymCol Name of the gene symbol column in geneData from the list of DGEobj data. The gene symbol column is
+#'    not in topTable output by default it will be in the geneData output.This column will be used to label
+#'    significantly changed points.
 #' @param geneSymLabels A character vector of gene to label (must be the name space of the column
 #'   specified by geneSymCol)
-#' @param geneSymCol Name of the gene symbol column in contrastDF.  The gene symbol is
-#'    not in topTable output by default so the user has to bind this column
-#'    to the dataframe in advance.  This column will be used to label
-#'    significantly changed points.
 #' @param pthresholdLine Color for a horizontal line at the p-threshold (Default
 #'   = NULL (disabled))
 #' @param symbolSize Size of symbols for Up, no change, and Down. Ignored if sizeByIntensity is TRUE.
@@ -76,11 +77,13 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Simple plot with custom title (contrastDF is a topTable dataframe)
-#'    myPlot <- volcanoPlot(contrastDF, title = "Plot Title")
+#'    # Simple plot with custom title (DGEdata is a name of DGEobj and
+#'      contrast is a name of topTable dataframe)
+#'    myPlot <- volcanoPlot(DGEdata, contrast, title = "Plot Title")
 #'
 #'    # Some options with a custom datafile
-#'    myPlot <- volcanoPlot(contrastDF,
+#'    myPlot <- volcanoPlot(DGEdata,
+#'                          contrast,
 #'                          pthreshold = 0.1,
 #'                          logRatioCol = "logFC",
 #'                          logIntCol = "AveExpr",
@@ -98,7 +101,8 @@
 #' @importFrom htmlwidgets JS
 #'
 #' @export
-volcanoPlot <- function(contrastDF,
+volcanoPlot <- function(DGEdata,
+                        contrast,
                         plotType = "canvasXpress",
                         logRatioCol = "logFC",
                         logIntCol = "AveExpr",
@@ -119,13 +123,18 @@ volcanoPlot <- function(contrastDF,
                         refLineThickness = 2,
                         legendPosition = "right",
                         footnote) {
-
     ##### Asserts
-    assertthat::assert_that(!missing(contrastDF),
-                            !is.null(contrastDF),
-                            "data.frame" %in% class(contrastDF),
-                            nrow(contrastDF) > 0,
-                            msg = "contrastDF must be specified as dataframe with LogIntensity and LogRatio columns and optionally a p-value")
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified as class of DGEobj.")
+
+    assertthat::assert_that(!missing(contrast),
+                            !is.null(contrast),
+                            contrast %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            msg = "contrast to be a singular value of class character and must be one from DGEdata with LogIntensity and LogRatio columns and optionally a p-value.")
+
+    contrastDF <- DGEobj::getItems(DGEdata, contrast)
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -139,20 +148,20 @@ volcanoPlot <- function(contrastDF,
     # Make sure specified columns exist
     assertthat::assert_that(!is.null(logRatioCol),
                             logRatioCol %in% colnames(contrastDF),
-                            msg = "logRatioCol column not found in contrastDF.")
+                            msg = "logRatioCol column not found in contrast data.")
 
     assertthat::assert_that(!is.null(logIntCol),
                             logIntCol %in% colnames(contrastDF),
-                            msg = "logIntCol column not found in contrastDF.")
+                            msg = "logIntCol column not found in contrast data.")
 
     assertthat::assert_that(!is.null(pvalCol),
                             pvalCol %in% colnames(contrastDF),
-                            msg = "pvalCol column not found in contrastDF.")
+                            msg = "pvalCol column not found in contrast data.")
 
     if (!missing(geneSymCol)) {
         assertthat::assert_that(!is.null(geneSymCol),
-                                geneSymCol %in% colnames(contrastDF),
-                                msg = "geneSymCol column not found in contrastDF.")
+                                geneSymCol %in% names(getItems(DGEdata, itemNames = "geneData")),
+                                msg = "geneSymCol column not found in geneData from DGEdata.")
     }
 
     if (any(is.null(pthreshold),
@@ -203,8 +212,8 @@ volcanoPlot <- function(contrastDF,
     if (any(is.null(symbolShape),
             !is.character(symbolShape),
             length(symbolShape)  != 3,
-            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 3,
-            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 3)) {
+            plotType == "canvasxpress" && length(.validate_cx_shapes(symbolShape)) != 3,
+            plotType == "ggplot" && length(.validate_gg_shapes(symbolShape)) != 3)) {
         warning("symbolShape must be a vector of 3 charcter values. Assigning default values 'circle', 'circle', 'circle'.")
         symbolShape  <- c("circle", "circle", "circle")
 
@@ -279,8 +288,8 @@ volcanoPlot <- function(contrastDF,
     contrastDF <- contrastDF %>%
         dplyr::mutate(negLog10P = -log10(!!rlang::sym(pvalCol)),
                       Group = dplyr::case_when(
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (logFC < -foldChangeLines) ~ "Decreased",
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (logFC > foldChangeLines) ~ "Increased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -foldChangeLines) ~ "Decreased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > foldChangeLines) ~ "Increased",
                           TRUE ~  "No Change")) %>%
             dplyr::arrange(Group)
 
@@ -344,12 +353,11 @@ volcanoPlot <- function(contrastDF,
         }
 
         if (!missing(geneSymCol)) {
-            contrastDF <- contrastDF %>%
-                tibble::rownames_to_column(var = "GeneID") %>%
-                dplyr::select(GeneID, all_of(geneSymCol))
-            var.annot <- var.annot %>% tibble::rownames_to_column(var = "GeneID")
-            var.annot <-  dplyr::left_join(contrastDF, var.annot, by = "GeneID") %>%
-                tibble::column_to_rownames(var = "GeneID") %>%
+            gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
+                dplyr::select(all_of(geneSymCol))
+
+            var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
+                tibble::column_to_rownames(var = "Row.names") %>%
                 dplyr::rename(GeneName = all_of(geneSymCol))
         }
 
@@ -443,12 +451,17 @@ volcanoPlot <- function(contrastDF,
 
         # Add genesym labels to increased, decreased genes
         if (!missing(geneSymLabels) && !missing(geneSymCol)) {
-            labeldata <- contrastDF[[geneSymCol]] %in% geneSymLabels
-            contrastDF_labelsubset <- contrastDF[labeldata,]
+            gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
+                dplyr::select(all_of(geneSymCol))
+
+            geneSymLabels_df <- merge(contrastDF, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
+                tibble::column_to_rownames(var = "Row.names") %>%
+                dplyr::filter(!!rlang::sym(geneSymCol) %in% geneSymLabels)
+
             volcanoPlot <- volcanoPlot +
-                geom_text_repel(data = contrastDF_labelsubset,
+                geom_text_repel(data = geneSymLabels_df,
                                 aes_string(x = logRatioCol, y = "negLog10P", label = geneSymCol),
-                                show.legend = TRUE, max.overlaps = dim(contrastDF_labelsubset)[1]*10)
+                                show.legend = TRUE, max.overlaps = dim(geneSymLabels_df)[1]*10)
         }
 
         # Add axis Labels
