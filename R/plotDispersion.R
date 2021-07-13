@@ -55,6 +55,14 @@ plotDispersion <- function(DGEdata,
                            lineType     = "solid",
                            ...) {
 
+    assertthat::assert_that(!missing(DGEdata),
+                            !missing(designMatrix),
+                            msg = "Both DGEdata and designMatrix must be specified.")
+
+    assertthat::assert_that(class(DGEdata)[[1]] %in% c("matrix","DGEList"),
+                            "matrix" %in% class(designMatrix),
+                            msg = "DGEdata must be of class 'matrix' or 'DGEList' and designMatrix must be of class 'matrix'.")
+
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
             !is.character(plotType),
@@ -97,14 +105,6 @@ plotDispersion <- function(DGEdata,
             lineType <- "solid"
         }
     }
-
-    assertthat::assert_that(!missing(DGEdata),
-                            !missing(designMatrix),
-                            msg = "Both DGEdata and designMatrix must be specified.")
-
-    assertthat::assert_that(class(DGEdata)[[1]] %in% c("matrix","DGEList"),
-                            "matrix" %in% class(designMatrix),
-                            msg = "DGEdata must be of class 'matrix' or 'DGEList' and designMatrix must be of class 'matrix'.")
 
     if (any(is.null(symbolSize),
             !is.numeric(symbolSize),
