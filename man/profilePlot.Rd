@@ -16,7 +16,7 @@ profilePlot(
   xlab = NULL,
   ylab = NULL,
   title = NULL,
-  symbolSize = c(4, 1, 4),
+  symbolSize = c(10, 10, 4),
   symbolShape = c(21, 20, 21),
   symbolColor = c("black", "grey0", "grey25"),
   symbolFill = c("red3", "deepskyblue4", "grey25"),
@@ -30,8 +30,7 @@ profilePlot(
   legendPosition = "right",
   footnote,
   footnoteSize = 3,
-  footnoteColor = "black",
-  footnoteJust = 1
+  footnoteColor = "black"
 )
 }
 \arguments{
@@ -106,8 +105,6 @@ inside the figure. NULL disables the legend. Default = "right"}
 \item{footnoteSize}{Applies to footnote. (Default = 3)}
 
 \item{footnoteColor}{Applies to footnote. (Default = "black")}
-
-\item{footnoteJust}{Value 0-1. 0 is left justified, 1 is right justified, 0.5 is centered. (Default = 1)}
 }
 \value{
 canvasxpress or ggplot object based on plotType selection
