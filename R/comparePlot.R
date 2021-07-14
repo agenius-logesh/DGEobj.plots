@@ -29,8 +29,11 @@
 #' Note: if p-values or FDR values are not used to color the plot, the X Unique color
 #' values are used.
 #'
-#' @param compareDF A dataframe with the first two columns representing the x and y variables.
-#'          Optionally add xp and yp columns to hold p-values or FDR values.
+#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param contrastOne and
+#' @param contrastTwo A character vector of a topTable data in DGEobj and its a class of dataframe
+#'        with logFC and P.Value. These two contrasts representing the x and y variables.
+#'        Optionally add xp and yp columns to hold p-values or FDR values.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param xlab X-axis label (default = first column name)
 #' @param ylab Y-axis label (default = second column name)
@@ -58,7 +61,10 @@
 #' @examples
 #' \dontrun{
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-#'   contrastList <- getType(DGEobj, "topTable")[1:2]
+#'   contrastList <- lapply(c(contrastOne,contrastTwo), function(x){
+#'      getItems(DGEdata, x)
+#'    })
+#'    names(contrastList) <- c(contrastOne,contrastTwo)
 #'
 #'   # Capture the default logFC and P.Value
 #'   compareDat <- comparePrep(contrastList)
@@ -67,11 +73,13 @@
 #'   compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 #'
 #'   # Draw the plot
-#'   cPlot <- comparePlot(compareDat, title = "Plot Title")
+#'   cPlot <- comparePlot(DGEdata, contrastOne, contrastTwo, title = "Plot Title")
 #'   print(cPlot)
 #'
 #'   # Deluxe Plot with bells and whistles.
-#'   myPlot <- comparePlot(compareDat,
+#'   myPlot <- comparePlot(DGEdata,
+#'                         contrastOne,
+#'                         contrastTwo,
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
 #'                         ylab = "y Axis Label",
@@ -88,7 +96,10 @@
 #' @importFrom magrittr set_rownames
 #'
 #' @export
-comparePlot <- function(compareDF,
+comparePlot <- function(DGEdata,
+                        contrastOne,
+                        contrastTwo,
+                        sigMeasurePlot = TRUE,
                         plotType = "canvasXpress",
                         pThreshold = 0.01,
                         xlab = NULL,
@@ -105,14 +116,46 @@ comparePlot <- function(compareDF,
                         footnote,
                         footnoteSize = 3,
                         footnoteColor = "black") {
-    assertthat::assert_that(!missing(compareDF),
-                            !is.null(compareDF),
-                            "data.frame" %in% class(compareDF),
-                            sum(apply(compareDF, 2, FUN = is.numeric)) >= 2,
-                            msg = "Need at least two numeric columns in compareDF.")
+
+    ##### Asserts
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified as class of DGEobj.")
+
+    assertthat::assert_that(!missing(contrastOne),
+                            !is.null(contrastOne),
+                            contrastOne %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            msg = "contrastOne to be a singular value of class character and must be one from DGEdata with logFC and P.value columns.")
+
+    assertthat::assert_that(!missing(contrastTwo),
+                            !is.null(contrastTwo),
+                            contrastTwo %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            msg = "contrastTwo to be a singular value of class character and must be one from DGEdata with logFC and P.value columns.")
+
+    contrastList <- lapply(c(contrastOne,contrastTwo), function(x){
+        getItems(DGEdata, x)
+    })
+    names(contrastList) <- c(contrastOne,contrastTwo)
+
+    if (any(is.null(sigMeasurePlot),
+            !is.logical(sigMeasurePlot),
+            length(sigMeasurePlot) != 1)) {
+        warning("sigMeasurePlot must be a singular logical value. Assigning default value TRUE")
+        sigMeasurePlot <- TRUE
+    }
+
+    if (sigMeasurePlot) {
+        compareDF <- comparePrep(contrastList)
+    } else {
+        compareDF <- comparePrep(contrastList)[,1:2]
+    }
+
     plotType <- tolower(plotType)
     assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
                             msg = "Plot type must be either canvasXpress or ggplot.")
+
+
     if (any(is.null(pThreshold),
             !is.numeric(pThreshold),
             length(pThreshold) != 1)) {
@@ -228,8 +271,6 @@ comparePlot <- function(compareDF,
         footnoteColor <- "black"
     }
 
-
-    sigMeasurePlot <- FALSE
     levels         <- c("Common", "X Unique", "Y Unique", "Not Significant")
     xlabel         <- make.names(colnames(compareDF)[1])
     ylabel         <- make.names(colnames(compareDF)[2])
@@ -262,6 +303,7 @@ comparePlot <- function(compareDF,
         dplyr::select(ylabel) %>%
         dplyr::summarise(across(everything(), list(min, max))) %>%
         dplyr::rename_with(~ c("min", "max"))
+
     if (plotType == "canvasxpress") {
         # adding transparency to colors
         symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
@@ -374,13 +416,13 @@ comparePlot <- function(compareDF,
         }
         if (!missing(footnote)) {
             compPlot <- compPlot %>%
-                addFootnote(footnoteText = footnote,
+                .addFootnote(footnoteText = footnote,
                             footnoteSize = footnoteSize,
                             footnoteColor = "black",
                             yoffset = 0.05)
         }
         compPlot %>%
-            setLegendPosition(legendPosition) +
+            .setLegendPosition(legendPosition) +
             xlab(xlab) +
             ylab(ylab) +
             ggtitle(title)
