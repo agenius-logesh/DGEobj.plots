@@ -22,16 +22,9 @@
 #' @param CI.L_colname Define name of the CI low value (default =  "CI.L")
 #' @param plotCategory One of "bar" or "point" (default = "bar")
 #' @param refLine Adds a horizontal line at y = 0 (default = TRUE)
-#' @param refLineColor Color for the reference line (default = "red")
 #' @param xlab X axis label (defaults to xColname)
 #' @param ylab Y axis label (defaults to yColname)
 #' @param title Plot title, set to NULL to disable (Optional, default is NULL)
-#' @param barColor Color for the bar outline (default = "dodgerblue4")
-#' @param barTransparency Transparency for the bar layer (default = 1)
-#' @param pointColor Color for the point layer (default = "grey30")
-#' @param pointShape Shape for the point layer, for ggplot plotType (default = "circle")
-#' @param pointTransparency Transparency for the box layer (default = 1)
-#' @param pointSize Size of the points, for ggplot plotType (default = 4)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
 #' @param labelAngle Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)
@@ -62,8 +55,7 @@
 #'               xColname = "Contrast",
 #'               axisFree = FALSE,
 #'               facet = TRUE,
-#'               title = "Test",
-#'               pointSize = 4,
+#'               title = "Test"
 #'               labelAngle = 60)
 #' }
 #'
@@ -84,16 +76,9 @@ logRatioPlot <- function(dgeObj,
                          CI.L_colname = "CI.L",
                          plotCategory = "bar",
                          refLine = TRUE,
-                         refLineColor = "red",
                          xlab = xColname,
                          ylab = yColname,
                          title = NULL,
-                         barColor = "dodgerblue4",
-                         barTransparency = 1,
-                         pointColor = "dodgerblue4",
-                         pointShape = "circle",
-                         pointTransparency = 1,
-                         pointSize = 2,
                          facet = TRUE,
                          labelAngle = 45,
                          axisFree = TRUE) {
@@ -215,18 +200,6 @@ logRatioPlot <- function(dgeObj,
         refLine <- TRUE
     }
 
-    if (refLine) {
-        if (any(is.null(refLineColor),
-                !is.character(refLineColor),
-                length(refLineColor) != 1)) {
-            warning("refLineColor must be a singular value of class character. Assigning default value 'red'.")
-            refLineColor <- "red"
-        } else if (.rgbaConversion(refLineColor) == "invalid value") {
-            warning("Color specified is not valid. Assigning default value 'red'.")
-            refLineColor <- "red"
-        }
-    }
-
     if (!is.null(title) &&
         !all(is.character(title), length(title) == 1)) {
         warning("title must be a singular value of class character. Assigning default value 'NULL'.")
@@ -243,60 +216,6 @@ logRatioPlot <- function(dgeObj,
         !all(is.character(ylab), length(ylab) == 1)) {
         warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
         ylab <- NULL
-    }
-
-    if (any(is.null(barColor),
-            !is.character(barColor),
-            length(barColor) != 1)) {
-        warning("barColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
-        barColor <- "dodgerblue4"
-    } else if (.rgbaConversion(barColor) == "invalid value") {
-        warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
-        barColor <- "dodgerblue4"
-    }
-
-    if (any(is.null(barTransparency),
-            !is.numeric(barTransparency),
-            length(barTransparency) != 1,
-            barTransparency <= 0,
-            barTransparency > 1)) {
-        warning("barTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'.")
-        barTransparency <- 1
-    }
-
-    if (any(is.null(pointColor),
-            !is.character(pointColor),
-            length(pointColor) != 1)) {
-        warning("pointColor must be a singular value of class character. Assigning default value 'dodgerblue4'.")
-        pointColor <- "dodgerblue4"
-    } else if (.rgbaConversion(pointColor) == "invalid value") {
-        warning("Color specified is not valid. Assigning default value 'dodgerblue4'.")
-        pointColor <- "dodgerblue4"
-    }
-
-    if (any(is.null(pointShape),
-            !is.character(pointShape),
-            length(pointShape)  != 1,
-            !is.null(pointShape) && !.is_valid_symbolShapes_ggplot(pointShape))) {
-        warning("pointShape must be a singular charcter values. Assigning default values 'circle'.")
-        pointShape  <- "circle"
-    }
-
-    if (any(is.null(pointTransparency),
-            !is.numeric(pointTransparency),
-            length(pointTransparency) != 1,
-            pointTransparency <= 0,
-            pointTransparency > 1)) {
-        warning("pointTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '1'.")
-        pointTransparency <- 1
-    }
-
-    if (any(is.null(pointSize),
-            !is.numeric(pointSize),
-            length(pointSize) != 1,
-            pointSize < 0)) {
-        warning("pointSize must be a singular value of class numeric. Assigning default value '2'.")
-        pointSize <- 2
     }
 
     if (any(is.null(labelAngle),
@@ -333,10 +252,10 @@ logRatioPlot <- function(dgeObj,
     if (plotType == "canvasxpress") {
         if (plotCategory == "bar") {
             graphType <- "Bar"
-            transparency <- barTransparency
+            transparency <- 1
         } else {
             graphType <- "Boxplot"
-            transparency <- pointTransparency
+            transparency <- 1
         }
 
         minX <- NULL
@@ -386,7 +305,7 @@ logRatioPlot <- function(dgeObj,
 
         cx_params <- list(groupingFactors         = xColname,
                           graphOrientation        = "vertical",
-                          colors                  = barColor,
+                          colors                  = "dodgerblue4",
                           graphType               = graphType,
                           smpTitle                = xlab,
                           smpLableFontStyle       = "bold",
@@ -407,7 +326,7 @@ logRatioPlot <- function(dgeObj,
 
         if (refLine) {
             decorations <- list()
-            referenceLine <- .rgbaConversion(refLineColor)
+            referenceLine <- .rgbaConversion("red")
             decorations   <- .getCxPlotDecorations(decorations = decorations,
                                                    color       = referenceLine,
                                                    width       = 1,
@@ -487,15 +406,15 @@ logRatioPlot <- function(dgeObj,
         .addGeoms <- function(myPlot){
             if (plotCategory == "bar") {
                 myPlot <- myPlot + geom_bar(stat = "identity",
-                                            alpha = barTransparency,
-                                            color = barColor,
-                                            fill = barColor)
+                                            alpha = 1,
+                                            color = "dodgerblue4",
+                                            fill = "dodgerblue4")
             } else if (plotCategory == "point") {
-                myPlot <- myPlot + geom_point(alpha = pointTransparency,
-                                              color = pointColor,
-                                              fill = pointColor,
-                                              size = pointSize,
-                                              shape = pointShape)
+                myPlot <- myPlot + geom_point(alpha = 1,
+                                              color = "dodgerblue4",
+                                              fill = "dodgerblue4",
+                                              size = 2,
+                                              shape = "circle")
             }
 
             # Add error bars if columns present
@@ -529,7 +448,7 @@ logRatioPlot <- function(dgeObj,
 
             #Add refLine at 0
             if (refLine) {
-                myPlot <- myPlot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
+                myPlot <- myPlot + geom_hline(yintercept = 0, color = "red", size = 0.1)
             }
 
         } else {# Individual plots for each Gene returned in a list
@@ -548,7 +467,7 @@ logRatioPlot <- function(dgeObj,
                 }
 
                 if (refLine) {
-                    aplot <- aplot + geom_hline(yintercept = 0, color = refLineColor, size = 0.1)
+                    aplot <- aplot + geom_hline(yintercept = 0, color = "red", size = 0.1)
                 }
                 plotlist[[obs]] <- aplot
             }
