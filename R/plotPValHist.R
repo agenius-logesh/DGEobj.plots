@@ -4,7 +4,8 @@
 #' numbers. Intended to perform histogram analysis of p-value distributions,
 #' but should be useful for any dataframe of numeric columns.
 #'
-#' @param P.Val A matrix or dataframe of numeric data; col = samples
+#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param P.Val A character vector of a topTable data in DGEobj. Default="P.Value".
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
 #' @param binWidth Value is always between 0 and 1. (default = 0.02)
@@ -16,11 +17,10 @@
 #' @examples
 #' \dontrun{
 #'    # Print to console using all defaults
-#'    MyPvalMatrix <- extractCol(getType(myDGEobj, "topTable"), "P.Value")
-#'    plotPvalHist(MyPvalMatrix)
+#'    plotPvalHist(DGEdata, P.Val)
 #'
 #'    # Use some custom arguments
-#'    myplot <- plotPvalHist(MyPValMatrix)
+#'    myplot <- plotPvalHist(DGEdata, P.Val)
 #' }
 #'
 #' @import ggplot2
@@ -28,12 +28,27 @@
 #' @importFrom canvasXpress canvasXpress
 #'
 #' @export
-plotPvalHist <- function(P.Val,
-                         plotType = "canvasXpress",
+plotPvalHist <- function(DGEdata,
+                         P.Val          = "P.Value",
+                         plotType       = "canvasXpress",
                          facet          = TRUE,
                          binWidth       = 0.02,
                          transparency   = 0.6,
                          color    = "dodgerblue3") {
+
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified as class of DGEobj.")
+
+    if (any(is.null(P.Val),
+            !is.character(P.Val),
+            length(P.Val) != 1)) {
+        warning("P.Val must be a singular value of class character. Assigning default value 'P.Value'.")
+        P.Val <- "P.Value"
+    }
+
+    P.Val <- extractCol(getType(DGEdata, "topTable"), colName = P.Val, robust = FALSE)
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -43,14 +58,6 @@ plotPvalHist <- function(P.Val,
         warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
         plotType <- "canvasxpress"
     }
-
-    assertthat::assert_that(!missing(P.Val),
-                            class(P.Val)[[1]] %in% c("matrix","data.frame"),
-                            all(sapply(data.frame(P.Val),is.numeric)),
-                            msg = "P.Val must be specified and must be of class matrix or dataframe and must contain only numeric values.")
-
-    assertthat::assert_that(all(sapply(data.frame(P.Val),is.numeric)),
-                            msg = "P.Val must contain only numeric values.")
 
     if (any(is.null(color),
             !is.character(color),
