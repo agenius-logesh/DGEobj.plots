@@ -9,18 +9,9 @@
 #' @param designMatrix A design matrix created by stats::model.matrix (required)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param plotCategory One of "dispersion" or "BCV" (default = "dispersion")
-#' @param symbolSize (default = 6)
-#' @param symbolShape Any supported shape for the points (default = "circle")
-#' \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}
-#' @param symbolColor Fill color (default = "darkblue")
-#' @param symbolTransparency Transparency for the points. Value ranges from 0 to 1. Smaller
-#'   indicate more transparency (default = 0.5)
-#' @param linefitColor (default = "red")
 #' @param lineFit (default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
 #' one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
 #'   recommended.
-#' @param lineType Any supported style for the fitLine  (default = solid).
-#'  \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}
 #' @param ... Extra parameters to pass to edgeR::estimateDisp
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
@@ -46,13 +37,7 @@ plotDispersion <- function(DGEdata,
                            designMatrix,
                            plotType     = "canvasXpress",
                            plotCategory = "dispersion",
-                           symbolSize   = 6,
-                           symbolShape  = "circle",
-                           symbolColor  = "darkblue",
-                           symbolTransparency  = 0.5,
-                           linefitColor = "red",
                            lineFit      = NULL,
-                           lineType     = "solid",
                            ...) {
 
     assertthat::assert_that(!missing(DGEdata),
@@ -87,59 +72,6 @@ plotDispersion <- function(DGEdata,
              tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam')))  {
         warning("lineFit must be one value from 'glm', 'lm', 'loess', 'gam' or 'NULL' to disable. Assigning default value 'NULL'.")
         lineFit <- NULL
-    }
-
-    if (!is.null(lineFit)) {
-        if (any(is.null(linefitColor),
-                !is.character(linefitColor),
-                length(linefitColor) != 1,
-                length(.validate_colors(linefitColor)) != 1)) {
-            warning("linefitColor must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'red'.")
-            linefitColor <- "red"
-        }
-
-        if (any(is.null(lineType),
-                !is.character(lineType),
-                length(lineType) != 1)) {
-            warning("lineType must be a singular value of class character. Refer help section for the list of line types supported. Assigning default value 'solid'.")
-            lineType <- "solid"
-        }
-    }
-
-    if (any(is.null(symbolSize),
-            !is.numeric(symbolSize),
-            length(symbolSize)  != 1,
-            !symbolSize >= 0)) {
-        warning("symbolSize must be a singular numeric value. Assigning a default value of 6.")
-        symbolSize  <-  6
-
-    }
-
-    if (any(is.null(symbolShape),
-            !is.character(symbolShape),
-            length(symbolShape)  != 1,
-            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 1,
-            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 1)) {
-        warning("symbolShape must be a singular value of class 'character'. Assigning default value = 'circle'.")
-        symbolShape  <- "circle"
-
-    }
-
-    if (any(is.null(symbolColor),
-            !is.character(symbolColor),
-            length(symbolColor)  != 1,
-            length(.validate_colors(symbolColor)) != 1)) {
-        warning("symbolColor must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'darkblue'.")
-        symbolColor <- "darkblue"
-    }
-
-    if (any(is.null(symbolTransparency),
-            !is.numeric(symbolTransparency),
-            length(symbolTransparency) != 1,
-            symbolTransparency <= 0,
-            symbolTransparency > 1)) {
-        warning("symbolTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
-        symbolTransparency <- 0.5
     }
 
     if (class(DGEdata)[[1]] == "DGEList") {
@@ -178,33 +110,33 @@ plotDispersion <- function(DGEdata,
         }
         MyDispPlot <- canvasXpress::canvasXpress(data                    = plotdata,
                                                  graphType               = "Scatter2D",
-                                                 colors                  = symbolColor,
-                                                 dataPointSize           = symbolSize,
-                                                 shapes                  = symbolShape,
-                                                 transparency            = symbolTransparency,
+                                                 colors                  = "darkblue",
+                                                 dataPointSize           = 6,
+                                                 shapes                  = "circle",
+                                                 transparency            = 0.5,
                                                  scatterOutlineThreshold = 0,
                                                  title                   = title,
                                                  yAxisTitle              = ylab,
                                                  showLoessFit            = showLoessFit,
-                                                 fitLineColor            = linefitColor,
-                                                 fitLineStyle            = lineType,
+                                                 fitLineColor            = "red",
+                                                 fitLineStyle            = "solid",
                                                  afterRender             = afterRender)
 
 
     } else {
         MyDispPlot <- ggplot(plotdata, aes(x = AveLogCPM, y = Dispersion)) +
-            geom_point(size  = symbolSize,
-                       shape = symbolShape,
-                       fill  = symbolColor,
-                       color = symbolColor,
-                       alpha = symbolTransparency)
+            geom_point(size  = 6,
+                       shape = "circle",
+                       fill  = "darkblue",
+                       color = "darkblue",
+                       alpha = 0.5)
 
         if (!is.null(lineFit)) {
             MyDispPlot <- MyDispPlot +
                 geom_smooth(formula  = y ~ x,
                             method   = lineFit,
-                            color    = linefitColor,
-                            linetype = lineType)
+                            color    = "red",
+                            linetype = "solid")
         }
 
         MyDispPlot <- MyDispPlot +
