@@ -37,19 +37,11 @@
 #' @param ylab Y axis label (default = p-value column name)
 #' @param title Plot title (Optional)
 #' @param insetTitle Title for the inset plot (Optional)
-#' @param symbolSize Size of symbols for Not Significant and  Significant points (default = c(2,1);
-#' @param symbolShape Shape of the symbols for Not Significant and Significant points (default = c("circle", "circle")
-#'        See \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
-#' @param symbolColor Color of symbols for Not Significant and Significant points (default = c("red3", "deepskyblue4"))
-#'        See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
-#' @param transparency Controls the transparency of the plotted points. Value ranges between 0 -1 (default = 0.5)
 #' @param referenceLine Color for an horizontal line drawn at the p-threshold
 #'   (default = NULL; NULL disables, set to desired color to enable)
-#' @param refLineThickness Set thickness of the reference line (default = 1)
 #' @param viewportX x-location for the inset plot(default = 0.15)
 #' @param viewportY y-location for the inset plot(default = 0.85)
 #' @param viewportWidth width of the inset plot (default = 0.35)
-#' @param footnote Optional string placed right justified at bottom of plot.
 #'
 #' @return A list containing main plot, inset plot for both plotType. For plotType ="ggplot" list contains a combined plot which
 #' displays the inset plot in a viewport
@@ -75,17 +67,11 @@ cdfPlot <- function(DGEdata,
                     ylab,
                     title          = NULL,
                     insetTitle     = NULL,
-                    symbolSize     = c(4, 3),
-                    symbolShape    = c("circle", "circle"),
-                    symbolColor    = c("red3", "deepskyblue4"),
-                    transparency   = 0.7,
                     referenceLine  = NULL,
-                    refLineThickness = 3,
                     viewportX      = 0.15,
                     viewportY      = 0.85,
                     viewportWidth  = 0.35,
-                    pvalMax        = 0.10,
-                    footnote) {
+                    pvalMax        = 0.1) {
 
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
@@ -137,8 +123,8 @@ cdfPlot <- function(DGEdata,
         xlab <- "Rank"
     } else {
         if (!is.null(xlab) &&
-             !all(is.character(xlab),
-             length(xlab) == 1)) {
+            !all(is.character(xlab),
+            length(xlab) == 1)) {
             warning("xlab must be a singular value of class character. Assigning default value 'Rank' as the label.")
             xlab <- "Rank"
         }
@@ -149,44 +135,10 @@ cdfPlot <- function(DGEdata,
     } else {
         if (!is.null(ylab) &&
             !all(is.character(ylab),
-                 length(ylab) == 1)) {
+            length(ylab) == 1)) {
             warning("ylab must be a singular value of class character. Assigning default value 'pvalCol' as the label.")
             ylab <- pvalCol
         }
-    }
-
-    if (any(is.null(symbolSize),
-            !is.numeric(symbolSize),
-            length(symbolSize)  != 2,
-            !all(symbolSize >= 0))) {
-        warning("symbolSize must be a vector of 2 integer values. Assigning default values 2,1.")
-        symbolSize  <-  c(2,1)
-    }
-
-    if (any(is.null(symbolShape),
-            !is.character(symbolShape),
-            length(symbolShape)  != 2,
-            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 2,
-            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 2)) {
-        warning("symbolShape must be a vector of 2 charcter values. Assigning default values 'circle'.")
-        symbolShape  <- c("circle", "circle")
-    }
-
-    if (any(is.null(symbolColor),
-            !is.character(symbolColor),
-            length(symbolColor)  != 2,
-            length(.validate_colors(symbolColor)) != 2)) {
-        warning("symbolColor must be a vector of 2 character values. Assigning default values 'red3', 'deepskyblue4'.")
-        symbolColor <- c("red3", "deepskyblue4")
-    }
-
-    if (any(is.null(transparency),
-            !is.numeric(transparency),
-            length(transparency) != 1,
-            transparency <= 0,
-            transparency > 1)) {
-        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value 0.7.")
-        transparency <- 0.7
     }
 
     if (!is.null(referenceLine) &&
@@ -197,14 +149,6 @@ cdfPlot <- function(DGEdata,
     } else if (.rgbaConversion(referenceLine) == "invalid value") {
         warning("Color specified is not valid. Assigning default value NULL.")
         referenceLine <- NULL
-    }
-
-    if (any(is.null(refLineThickness),
-            !is.numeric(refLineThickness),
-            length(refLineThickness) != 1,
-            refLineThickness < 0)) {
-        warning("refLineThickness must be a singular value of class numeric Assigning default value 1.")
-        refLineThickness <- 1
     }
 
     if ((plotType == 'ggplot') &&
@@ -239,16 +183,6 @@ cdfPlot <- function(DGEdata,
         pvalMax <- 0.1
     }
 
-    if (missing(footnote)) {
-        footnote <- NULL
-    } else if (!is.null(footnote) &&
-               !all(is.character(footnote),
-                    length(footnote) == 1)) {
-        warning("footnote must be a singular value of class character or NULL to disable. Assigning default value NULL.")
-        footnote <- NULL
-    }
-
-    groupNames <- c("Not Significant", "Significant")
     # Storing column names in x and y variable
     x <- "Rank"
     y <- pvalCol
@@ -295,14 +229,13 @@ cdfPlot <- function(DGEdata,
 
         decorations <- list()
         if (!is.null(referenceLine)) {
-            referenceLine <- .rgbaConversion(referenceLine, alpha = transparency)
+            referenceLine <- .rgbaConversion(referenceLine, alpha = 0.7)
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                 color = referenceLine,
-                                                width = refLineThickness,
+                                                width = 3,
                                                 y     = pThreshold)
         }
 
-        # Footnote
         max.value <- max(pThreshold, max(contrastDF_subset[[y]]))
         maxY <- max.value + max.value*0.1
 
@@ -311,29 +244,29 @@ cdfPlot <- function(DGEdata,
                                               decorations       = decorations,
                                               graphType         = "Scatter2D",
                                               colorBy           = "group",
-                                              colors            = symbolColor,
+                                              colors            = c("red3", "deepskyblue4"),
                                               shapeBy           = "group",
-                                              shapes            = symbolShape,
+                                              shapes            = rep("circle",2),
                                               shapeByShowLegend = FALSE,
                                               sizeBy            = "group",
-                                              sizes             = symbolSize,
+                                              sizes             = c(4,3),
                                               sizeByShowLegend  = FALSE,
                                               title             = title,
                                               xAxisTitle        = xlab,
                                               yAxisTitle        = ylab,
-                                              citation          = footnote,
                                               setMaxY           = maxY)
 
         cdfInset <- canvasXpress::canvasXpress(data              = cx.data,
                                                varAnnot          = var.annot,
+                                               decorations       = decorations,
                                                graphType         = "Scatter2D",
                                                colorBy           = "group",
-                                               colors            = symbolColor,
+                                               colors            = c("red3", "deepskyblue4"),
                                                shapeBy           = "group",
-                                               shapes            = symbolShape,
+                                               shapes            = rep("circle",2),
                                                shapeByShowLegend = FALSE,
                                                sizeBy            = "group",
-                                               sizes             = symbolSize,
+                                               sizes             = c(4,3),
                                                sizeByShowLegend  = FALSE,
                                                title             = insetTitle,
                                                xAxisTitle        = xlab,
@@ -341,6 +274,12 @@ cdfPlot <- function(DGEdata,
                                                setMaxY           = max(contrastDF[[y]]))
         cdfPlot <- list("main" = cdfMain, "inset" = cdfInset)
     } else {
+        groupNames <- c("Not Significant", "Significant")
+
+        symbolSize     = c(4, 3)
+        symbolShape    = c("circle", "circle")
+        symbolColor    = c("red3", "deepskyblue4")
+
         names(symbolShape) <- groupNames
         names(symbolSize)  <- groupNames
         names(symbolColor) <- groupNames
@@ -352,13 +291,13 @@ cdfPlot <- function(DGEdata,
             scale_shape_manual(values = symbolShape) +
             scale_size_manual( values =  symbolSize) +
             scale_color_manual(values = symbolColor,  aesthetics = c("colour", "fill")) +
-            geom_point(alpha = transparency)
+            geom_point(alpha = 0.7)
 
         # Optional Decorations
         if (!is.null(referenceLine)) {
             cdfMain <- cdfMain +
                 geom_hline(yintercept = pThreshold, color = referenceLine,
-                           size = refLineThickness, alpha = 0.5)
+                           size = 3, alpha = 0.5)
         }
 
         # Add Labels
@@ -366,14 +305,6 @@ cdfPlot <- function(DGEdata,
             xlab(xlab) +
             ylab(ylab) +
             ggtitle(title)
-
-        if (!missing(footnote)) {
-            cdfMain <- .addFootnote(cdfMain,
-                                   footnoteText = footnote,
-                                   footnoteSize = 3,
-                                   footnoteColor = "black",
-                                   footnoteJust = 1)
-        }
 
         # Set up the inset plot with All Data
         cdfInset <- ggplot(contrastDF, aes_string(x = x, y = y)) +
@@ -385,7 +316,7 @@ cdfPlot <- function(DGEdata,
             geom_rect(xmin = 0, xmax = nrow(contrastDF),
                       ymin = 0, ymax = max(contrastDF[[y]]), color = "lightblue",
                       fill = "lightblue", alpha = 0.2) +
-            geom_point(alpha = transparency)
+            geom_point(alpha = 0.7)
 
         #remove the legends for the inset plot
         cdfInset <- cdfInset + theme(legend.position = "none")
