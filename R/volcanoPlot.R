@@ -45,33 +45,11 @@
 #' @param geneSymCol Name of the gene symbol column in geneData from the list of DGEobj data. The gene symbol column is
 #'    not in topTable output by default it will be in the geneData output.This column will be used to label
 #'    significantly changed points.
-#' @param geneSymLabels A character vector of gene to label (must be the name space of the column
-#'   specified by geneSymCol)
 #' @param pthresholdLine Color for a horizontal line at the p-threshold (Default
 #'   = NULL (disabled))
-#' @param symbolSize Size of symbols for Up, no change, and Down. Ignored if sizeByIntensity is TRUE.
-#'        default = c(10,4,10);
-#'  Note: All three cannot be the same size. Decimal values are acceptable to help offset that
-#'        (e.g. 4, 4.1, 4.2).
-#' @param symbolShape Shape of the symbols for Up, no change, and Down; Default =
-#'        c("circle", "circle", "circle"); Ignored if sizeByIntensity is TRUE and default shape circle.
-#'        Note: The same symbol shape cannot
-#'        be selected for all three symbols. See
-#'        \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
-#' @param symbolColor c(Up, NoChange, Down); default = c("red3", "grey25", "deepskyblue4")
-#'   Note that for PlotType ggplot, only symbols 21- 25 are fillable.This will have no effect on other symbols.
-#'   Note: Colors cannot be duplicated.
-#' @param transparency Controls the transparency of the plotted points (range: 0-1;
-#'   default = 0.5)
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (Default = TRUE)
 #' @param foldChangeLines Position of reference vertical lines for fold change
 #'   (Default = log2(1.5); NULL disables)
-#' @param legendPosition One of "top", "bottom", "left", "right", "topRight",
-#'   "bottomRight", "topLeft", "bottomLeft", NULL. top/bottom/left/right place the legend outside the
-#'   figure. topRight/bottomRight/topLeft/bottomLeft place the figure inside the figure. NULL disables the
-#'   legend. Default = "right"
-#' @param refLineThickness Set the thickness for all reference lines (Default = 2).
-#' @param footnote Optional string placed right justified at bottom of plot.
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
 #'
@@ -90,8 +68,7 @@
 #'                          pvalCol = "P.Value",
 #'                          xlab = "logFC", ylab = "negLog10p",
 #'                          title = "Volcano Plot Title",
-#'                          pthresholdLine = "blue",
-#'                          legendPosition = "right")
+#'                          pthresholdLine = "blue")
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -108,21 +85,13 @@ volcanoPlot <- function(DGEdata,
                         logIntCol = "AveExpr",
                         pvalCol = "P.Value",
                         pthreshold = 0.01,
-                        geneSymLabels,
                         geneSymCol,
                         xlab = NULL,
                         ylab = NULL,
                         title = NULL,
-                        symbolSize = c(10, 4, 10),
-                        symbolShape = c("circle", "circle", "circle"),
-                        symbolColor = c("red3", "grey25", "deepskyblue4"),
                         sizeByIntensity = TRUE,
-                        transparency = 0.5,
                         pthresholdLine = NULL,
-                        foldChangeLines = log2(1.5),
-                        refLineThickness = 2,
-                        legendPosition = "right",
-                        footnote) {
+                        foldChangeLines = log2(1.5)) {
     ##### Asserts
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
@@ -199,43 +168,6 @@ volcanoPlot <- function(DGEdata,
         ylab <- NULL
     }
 
-    if (any(is.null(symbolSize),
-            !is.numeric(symbolSize),
-            length(symbolSize)  != 3,
-            length(unique(symbolSize)) < 2,
-            !all(symbolSize >= 0))) {
-        warning("symbolSize must be a vector of 3 integer values, at least 2 of them are different. Assigning default values 10, 4, 10.")
-        symbolSize  <-  c(10, 4, 10)
-
-    }
-
-    if (any(is.null(symbolShape),
-            !is.character(symbolShape),
-            length(symbolShape)  != 3,
-            plotType == "canvasxpress" && length(.validate_cx_shapes(symbolShape)) != 3,
-            plotType == "ggplot" && length(.validate_gg_shapes(symbolShape)) != 3)) {
-        warning("symbolShape must be a vector of 3 charcter values. Assigning default values 'circle', 'circle', 'circle'.")
-        symbolShape  <- c("circle", "circle", "circle")
-
-    }
-
-    if (any(is.null(symbolColor),
-            !is.character(symbolColor),
-            length(symbolColor)  != 3,
-            length(.validate_colors(symbolColor)) != 3)) {
-        warning("symbolColor must be a vector of 3 character values. Assigning default values 'red3', 'grey25', 'deepskyblue4'.")
-        symbolColor <- c("red3", "grey25", "deepskyblue4")
-    }
-
-    if (any(is.null(transparency),
-            !is.numeric(transparency),
-            length(transparency) != 1,
-            transparency <= 0,
-            transparency > 1)) {
-        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
-        transparency <- 0.5
-    }
-
     if (!is.null(pthresholdLine) &&
         !all(is.character(pthresholdLine), length(pthresholdLine) == 1)) {
         warning("pthresholdLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
@@ -243,31 +175,6 @@ volcanoPlot <- function(DGEdata,
     } else if (.rgbaConversion(pthresholdLine) == "invalid value") {
         warning("Color specified is not valid. Assigning default value 'NULL'.")
         pthresholdLine <- NULL
-    }
-
-    if (any(is.null(refLineThickness),
-            !is.numeric(refLineThickness),
-            length(refLineThickness) != 1,
-            refLineThickness < 0)) {
-        warning("refLineThickness must be a singular value of class numeric Assigning default value '2'.")
-        refLineThickness <- 2
-    }
-
-    if (!is.null(legendPosition) &&
-        !all(is.character(legendPosition),
-         length(legendPosition) == 1,
-         legendPosition %in% c("top", "bottom", "left", "right", "topRight", "bottomRight", "topLeft", "bottomLeft"))) {
-        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'topRight', 'bottomRight', 'topLeft', 'bottomLeft' or 'NULL' to disable. Assigning default value 'right'.")
-        legendPosition <- "right"
-    }
-
-    if (missing(footnote)) {
-        footnote <- NULL
-    } else if (!is.null(footnote) &&
-               !all(is.character(footnote),
-               length(footnote) == 1)) {
-        warning("footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
-        footnote <- NULL
     }
 
     if (any(is.null(sizeByIntensity),
@@ -295,30 +202,26 @@ volcanoPlot <- function(DGEdata,
 
     if (plotType == "canvasxpress") {
 
-        symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
-
-        sizes   <- symbolSize[c(3,1,2)]
-        colors  <- symbolColor[c(3,1,2)]
-        shapes  <- symbolShape[c(3,1,2)]
+        symbolColor <- sapply(c("deepskyblue4", "red3", "grey25"), .rgbaConversion, alpha = 0.5, USE.NAMES = FALSE)
 
         decorations <- list()
 
         if (!is.null(pthresholdLine)) {
-            pthresholdLine <- .rgbaConversion(pthresholdLine, alpha = transparency)
+            pthresholdLine <- .rgbaConversion(pthresholdLine, alpha = 0.5)
             decorations   <- .getCxPlotDecorations(decorations = decorations,
                                                    color = pthresholdLine,
-                                                   width = refLineThickness,
+                                                   width = 2,
                                                    y     = -log10(pthreshold))
         }
 
         if (!is.null(foldChangeLines)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = colors[2],
-                                                 width       = refLineThickness,
+                                                 color       = "red3",
+                                                 width       = 2,
                                                  x           = foldChangeLines)
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = colors[1],
-                                                 width       = refLineThickness,
+                                                 color       = "deepskyblue4",
+                                                 width       = 2,
                                                  x           = -foldChangeLines)
         }
 
@@ -344,12 +247,10 @@ volcanoPlot <- function(DGEdata,
         if (sizeByIntensity) {
             var.annot <- contrastDF %>% dplyr::select(Group,LogInt)
             sizeBy <- "LogInt"
-            showSizeLegend <- TRUE
         } else {
             var.annot <- contrastDF %>%
                 dplyr::select(Group)
             sizeBy <- "Group"
-            showSizeLegend <- FALSE
         }
 
         if (!missing(geneSymCol)) {
@@ -361,46 +262,26 @@ volcanoPlot <- function(DGEdata,
                 dplyr::rename(GeneName = all_of(geneSymCol))
         }
 
-        cx_params <- list(data              = cx.data,
-                          varAnnot          = var.annot,
-                          decorations       = decorations,
-                          graphType         = "Scatter2D",
-                          colorBy           = "Group",
-                          colors            = colors,
-                          legendPosition    = legendPosition,
-                          legendInside      = ifelse(legendPosition %in% c("topRight", "bottomRight", "topLeft", "bottomLeft"), TRUE, FALSE),
-                          showDecorations   = TRUE,
-                          sizeByShowLegend  = showSizeLegend,
-                          shapeByShowLegend = TRUE,
-                          title             = title,
-                          showLegend        = ifelse(is.null(legendPosition), FALSE, TRUE),
-                          xAxisTitle        = xlab,
-                          yAxisTitle        = ylab,
-                          sizeBy            = sizeBy,
-                          citation          = footnote,
-                          events            = events)
-        if (sizeBy == "Group") {
-            cx_params <- c(cx_params, list(sizes = sizes, shapes = shapes, shapeBy = "Group"))
-        } else{
-            cx_params <- c(cx_params, list(shapes = "circle"))
-        }
-        do.call(canvasXpress::canvasXpress, cx_params)
+        canvasXpress::canvasXpress( data              = cx.data,
+                                    varAnnot          = var.annot,
+                                    decorations       = decorations,
+                                    graphType         = "Scatter2D",
+                                    colorBy           = "Group",
+                                    colors            = symbolColor,
+                                    legendPosition    = "right",
+                                    showDecorations   = TRUE,
+                                    title             = title,
+                                    xAxisTitle        = xlab,
+                                    yAxisTitle        = ylab,
+                                    sizeBy            = sizeBy,
+                                    events            = events)
+
     } else {
 
         groupNames <- c("Decreased", "Increased", "No Change")
 
-        sizes   <- symbolSize[c(3,1,2)]
-        colors  <- symbolColor[c(3,1,2)]
-        shapes  <- symbolShape[c(3,1,2)]
-
-        names(shapes) <-  groupNames
-        names(sizes)  <-  groupNames
-        names(colors) <-  groupNames
-
         ssc  <-  data.frame(group = factor(groupNames, levels = groupNames),
-                            symbolShape = shapes,
-                            symbolSize = sizes,
-                            symbolColor = colors,
+                            symbolColor = c("deepskyblue4", "red3", "grey25"),
                             stringsAsFactors = FALSE)
 
         volcanoPlot <- ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
@@ -412,54 +293,53 @@ volcanoPlot <- function(DGEdata,
                                values = ssc$symbolColor) +
             scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
                               values = ssc$symbolColor) +
-            geom_point(alpha = transparency)
+            geom_point(alpha = 0.5)
 
         # Optional Decorations
         if (sizeByIntensity) {
             volcanoPlot <- volcanoPlot + aes(size = LogInt) +
                 scale_size_continuous() +
                 scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                   values = rep("circle",3))
+                                   values = rep("circle", 3))
 
         } else {
             volcanoPlot <- volcanoPlot + aes(size = Group) +
                 scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = ssc$symbolSize) +
+                                  values = c(2, 4, 6)) +
                 scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                   values = ssc$symbolShape)
+                                   values = rep("circle", 3))
         }
 
         if (!is.null(pthresholdLine)) {
             volcanoPlot <- volcanoPlot +
                 geom_hline(yintercept = -log10(pthreshold),
                            color = pthresholdLine,
-                           size = refLineThickness,
-                           alpha = transparency)
+                           size = 2,
+                           alpha = 0.5)
         }
 
         if (!is.null(foldChangeLines)) {
             volcanoPlot <- volcanoPlot +
                 geom_vline(xintercept = foldChangeLines,
-                           color = colors["Increased"],
-                           size = refLineThickness,
-                           alpha = transparency) +
+                           color = "red3",
+                           size = 2,
+                           alpha = 0.5) +
                 geom_vline(xintercept = -foldChangeLines,
-                           color = colors["Decreased"],
-                           size = refLineThickness,
-                           alpha = transparency)
+                           color = "deepskyblue4",
+                           size = 2,
+                           alpha = 0.5)
         }
 
         # Add genesym labels to increased, decreased genes
-        if (!missing(geneSymLabels) && !missing(geneSymCol)) {
+        if (!missing(geneSymCol)) {
             gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
                 dplyr::select(all_of(geneSymCol))
 
             geneSymLabels_df <- merge(contrastDF, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
-                tibble::column_to_rownames(var = "Row.names") %>%
-                dplyr::filter(!!rlang::sym(geneSymCol) %in% geneSymLabels)
+                tibble::column_to_rownames(var = "Row.names")
 
             volcanoPlot <- volcanoPlot +
-                geom_text_repel(data = geneSymLabels_df,
+                ggrepel::geom_text_repel(data = geneSymLabels_df,
                                 aes_string(x = logRatioCol, y = "negLog10P", label = geneSymCol),
                                 show.legend = TRUE, max.overlaps = dim(geneSymLabels_df)[1]*10)
         }
@@ -480,15 +360,6 @@ volcanoPlot <- function(DGEdata,
                 ggtitle(title)
         }
 
-        # Footnote
-        if (!missing(footnote)) {
-            volcanoPlot <- .addFootnote(volcanoPlot,
-                                       footnoteText = footnote,
-                                       footnoteSize = 3,
-                                       footnoteColor = "black",
-                                       footnoteJust = 1)
-        }
-
-        .setLegendPosition(volcanoPlot, legendPosition)
+        volcanoPlot + theme(legend.position = "right")
     }
 }
