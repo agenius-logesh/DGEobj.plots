@@ -35,7 +35,14 @@ plotPvalHist <- function(P.Val,
                          transparency   = 0.6,
                          color    = "dodgerblue3") {
 
-    plotType = tolower(plotType)
+    plotType <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
+    }
 
     assertthat::assert_that(!missing(P.Val),
                             class(P.Val)[[1]] %in% c("matrix","data.frame"),
@@ -45,34 +52,36 @@ plotPvalHist <- function(P.Val,
     assertthat::assert_that(all(sapply(data.frame(P.Val),is.numeric)),
                             msg = "P.Val must contain only numeric values.")
 
-    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
-                            msg = "Plot type must be either canvasXpress or ggplot.")
-
-    if (!assertthat::see_if(is.character(color),
-                            length(color) == 1)) {
+    if (any(is.null(color),
+            !is.character(color),
+            length(color)  != 1,
+            length(.validate_colors(color)) != 1)) {
         warning("color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
         color <- "dodgerblue3"
     }
 
-    if (!assertthat::see_if(is.logical(facet),
-                            length(facet) == 1)) {
+    if (any(is.null(facet),
+            !is.logical(facet),
+            length(facet) != 1)) {
         warning("facet must be a singular logical value. Assigning default value TRUE.")
-        facet <- TRUE
+        facet = TRUE
     }
 
-    if (!assertthat::see_if(is.numeric(binWidth),
-                            length(binWidth) == 1,
-                            binWidth > 0,
-                            binWidth <= 1)) {
-        warning("binWidth must be a singular numeric value between 0 & 1. Assigning default value 0.02.")
+    if (any(is.null(binWidth),
+            !is.numeric(binWidth),
+            length(binWidth) != 1,
+            binWidth <= 0,
+            binWidth > 1)) {
+        warning("binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
         binWidth <- 0.02
     }
 
-    if (!assertthat::see_if(is.numeric(transparency),
-                            length(transparency) == 1,
-                            transparency > 0,
-                            transparency <= 1)) {
-        warning("Transparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.6.")
+    if (any(is.null(transparency),
+            !is.numeric(transparency),
+            length(transparency) != 1,
+            transparency <= 0,
+            transparency > 1)) {
+        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
         transparency <- 0.6
     }
 
@@ -91,7 +100,7 @@ plotPvalHist <- function(P.Val,
     title <- "P-value Histograms"
     plotlist <- list()
     if (plotType == "canvasxpress") {
-        events <- JS("{'mousemove' : function(o, e, t) {
+        events <- htmlwidgets::JS("{'mousemove' : function(o, e, t) {
                       if (o != null && o != false) {
                           count = o.y.data[0][0];
                           bin = o.y.data[0][1];
@@ -167,7 +176,7 @@ plotPvalHist <- function(P.Val,
                     ggplot2::ylab("Count") +
                     ggplot2::ggtitle(paste(title, "\n", sample))
 
-                 hist_pval
+                hist_pval
             })
         }
     }
