@@ -43,14 +43,7 @@ test_that("plotPValHist.R: plotPvalHist()", {
     expect_warning(plotPvalHist(DGEdata, P.Val = 123),
                  regexp = msg)
 
-    pval_plot <- plotPvalHist(DGEdata, binWidth = 0.2, color = "red", transparency = 0.2)
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    pval_plot <- plotPvalHist(DGEdata, plotType = "ggplot", binWidth = 0.2, color = "red", transparency = 0.2)
-    expect_s3_class(pval_plot, c("gg","ggplot"))
-
     #testing invalid optional parameters
-
     #binWidth
     expect_warning(pval_plot <- plotPvalHist(DGEdata, binWidth = 1.2),
                    regexp = "binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
@@ -60,15 +53,6 @@ test_that("plotPValHist.R: plotPvalHist()", {
                    regexp = "binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
     expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
 
-    #color
-    expect_warning(pval_plot <- plotPvalHist(DGEdata, color = c(1,2)),
-                   regexp = "color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(pval_plot <- plotPvalHist(DGEdata, color = 1),
-                   regexp = "color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
     #facet
     expect_warning(pval_plot <- plotPvalHist(DGEdata, facet = "true"),
                    regexp = "facet must be a singular logical value. Assigning default value TRUE.")
@@ -76,14 +60,5 @@ test_that("plotPValHist.R: plotPvalHist()", {
 
     expect_warning(pval_plot <- plotPvalHist(DGEdata, facet = c(TRUE,TRUE)),
                    regexp = "facet must be a singular logical value. Assigning default value TRUE.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    #transparency
-    expect_warning(pval_plot <- plotPvalHist(DGEdata, transparency = 1.2),
-                   regexp = "transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(pval_plot <- plotPvalHist(DGEdata, transparency = c(1,2)),
-                   regexp = "transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
     expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
 })
