@@ -26,7 +26,9 @@
 #' is required for these arguments which applies the attributes in
 #' this order: Significant, Not Significant.
 #'
-#' @param contrastDF A dataframe with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
+#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param contrast A character vector of a topTable data in DGEobj and its a class of dataframe
+#'        with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
 #' @param pvalMax Limit the range of the main plot (default = 0.10)
@@ -54,8 +56,9 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Plot to console (contrastDF is a topTable dataframe)
-#'    cdfPlot(contrastDF, title = "My CDF Plot")
+#'    # Plot to console (DGEdata is a name of DGEonj and
+#'    contrast is a dataframe from DGEobj)
+#'    cdfPlot(DGEdata, contrast, title = "My CDF Plot")
 #' }
 #' @import ggplot2 magrittr
 #' @importFrom dplyr arrange mutate case_when select filter
@@ -63,7 +66,8 @@
 #' @importFrom canvasXpress canvasXpress
 #'
 #' @export
-cdfPlot <- function(contrastDF,
+cdfPlot <- function(DGEdata,
+                    contrast,
                     plotType       = "canvasXpress",
                     pvalCol        = "P.Value",
                     pThreshold     = 0.01,
@@ -83,15 +87,21 @@ cdfPlot <- function(contrastDF,
                     pvalMax        = 0.10,
                     footnote) {
 
-    assertthat::assert_that(!missing(contrastDF),
-                            !is.null(contrastDF),
-                            "data.frame" %in% class(contrastDF),
-                            nrow(contrastDF) > 0,
-                            msg = "contrastDF must be specified as dataframe with a p-value column.")
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified as class of DGEobj.")
+
+    assertthat::assert_that(!missing(contrast),
+                            !is.null(contrast),
+                            contrast %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            msg = "contrast to be a singular value of class character and must be one from DGEdata with LogIntensity and LogRatio columns and optionally a p-value.")
+
+    contrastDF <- DGEobj::getItems(DGEdata, contrast)
 
     assertthat::assert_that(!is.null(pvalCol),
                             pvalCol %in% colnames(contrastDF),
-                            msg = "pvalCol column not found in contrastDF.")
+                            msg = "pvalCol column not found in contrast data.")
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -358,7 +368,7 @@ cdfPlot <- function(contrastDF,
             ggtitle(title)
 
         if (!missing(footnote)) {
-            cdfMain <- addFootnote(cdfMain,
+            cdfMain <- .addFootnote(cdfMain,
                                    footnoteText = footnote,
                                    footnoteSize = 3,
                                    footnoteColor = "black",
