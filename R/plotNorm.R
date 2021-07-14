@@ -38,20 +38,38 @@ plotNorm <- function(DGEdata,
                      plotType = "canvasXpress",
                      plotCategory = "box",
                      normalize = "tmm") {
-    plotType     <- tolower(plotType)
-    plotCategory <- tolower(plotCategory)
-    normalize    <- tolower(normalize)
 
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
                             any(c("matrix", "DGEobj") %in% class(DGEdata)),
                             msg = "DGEdata must be of either class 'matrix' or 'DGEobj'.")
-    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
-                            msg = "plotType must be either canvasXpress or ggplot.")
-    assertthat::assert_that(plotCategory %in% c("box", "density"),
-                            msg = "plotCategory must be one of 'box' or 'density'.")
-    assertthat::assert_that(normalize %in% c("tmm", "rle", "upperquartile", "none"),
-                            msg = "normalize must be one of 'TMM', 'RLE', 'upperquartile', or 'none'.")
+
+    plotType     <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
+    }
+
+    plotCategory <- tolower(plotCategory)
+    if (any(is.null(plotCategory),
+            !is.character(plotCategory),
+            !length(plotCategory) == 1,
+            !plotCategory %in% c("box", "density"))) {
+        warning("plotCategory must be one of 'box' or 'density'.")
+        plotCategory <- "box"
+    }
+
+    normalize    <- tolower(normalize)
+    if (any(is.null(normalize),
+            !is.character(normalize),
+            !length(normalize) == 1,
+            !normalize %in% c("tmm", "rle", "upperquartile", "none"))) {
+        warning("normalize must be one of 'TMM', 'RLE', 'upperquartile', or 'none'.")
+        normalize <- "tmm"
+    }
 
     if ("matrix" %in% class(DGEdata)) {
         counts <- DGEdata
@@ -63,7 +81,7 @@ plotNorm <- function(DGEdata,
 
     if (normalize != "none") {
         tall <- tall %>%
-            bind_rows(build_normalized_data(counts, toupper(normalize)))
+            dplyr::bind_rows(build_normalized_data(counts, toupper(normalize)))
     }
 
 
@@ -91,9 +109,9 @@ build_cx_density_plot <- function(data, title) {
     plot.data <- data %>%
         tidyr::spread(SampleID, Log2CPM)
     cx.data <- plot.data %>%
-        select(!c(GeneID, Normalization))
+        dplyr::select(!c(GeneID, Normalization))
     var.annot <- plot.data %>%
-        select(c(GeneID, Normalization))
+        dplyr::select(c(GeneID, Normalization))
 
     xlab <- "Log2CPM"
     ylab <- "density"
@@ -131,11 +149,11 @@ build_cx_box_plot <- function(data, title) {
     plot.data <- data %>%
         tidyr::spread(SampleID, Log2CPM)
     cx.data <- plot.data %>%
-        select(!c(GeneID, Normalization)) %>%
+        dplyr::select(!c(GeneID, Normalization)) %>%
         t() %>%
         as.data.frame()
     smp.data <- plot.data %>%
-        select(c(GeneID, Normalization))
+        dplyr::select(c(GeneID, Normalization))
     rownames(smp.data) <- colnames(cx.data)
 
     xlab      <- "Log2CPM"

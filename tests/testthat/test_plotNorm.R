@@ -82,10 +82,10 @@ test_that("plotNorm.R: plotNorm()", {
                  regexp = "DGEdata must be of either class 'matrix' or 'DGEobj'.")
     expect_error(plotNorm(NULL),
                  regexp = "DGEdata must be of either class 'matrix' or 'DGEobj'.")
-    expect_error(plotNorm(t_obj1, plotCategory = "heatmap"),
+    expect_warning(plotNorm(t_obj1, plotCategory = "heatmap"),
                  regexp = "plotCategory must be one of 'box' or 'density'.")
-    expect_error(plotNorm(t_obj1, normalize = "xyz"),
+    expect_warning(plotNorm(t_obj1, normalize = "xyz"),
                  regexp = "normalize must be one of 'TMM', 'RLE', 'upperquartile', or 'none'.")
-    expect_error(plotNorm(t_obj1, plotType = "myplot"),
+    expect_warning(plotNorm(t_obj1, plotType = "myplot"),
                  regexp = "plotType must be either canvasXpress or ggplot.")
 })
