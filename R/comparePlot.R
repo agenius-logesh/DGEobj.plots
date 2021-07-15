@@ -69,7 +69,7 @@
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
 #'                         ylab = "y Axis Label",
-#'                         title = "Plot Title"
+#'                         title = "Plot Title",
 #'                         referenceLine = "blue")
 #' }
 #'

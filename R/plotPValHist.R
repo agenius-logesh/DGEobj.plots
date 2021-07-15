@@ -104,7 +104,6 @@ plotPvalHist <- function(DGEdata,
                                                     histogramBinWidth    = binWidth,
                                                     graphType            = "Scatter2D",
                                                     colors               = "dodgerblue3",
-                                                    transparency         = 0.6,
                                                     title                = title,
                                                     xAxisTitle           = "P-value",
                                                     yAxisTitle           = "Count",
@@ -124,7 +123,6 @@ plotPvalHist <- function(DGEdata,
                                                         histogramBinWidth    = binWidth,
                                                         graphType            = "Scatter2D",
                                                         colors               = "dodgerblue3",
-                                                        transparency         = 0.6,
                                                         title                = paste(title, "\n", sample),
                                                         xAxisTitle           = "P-value",
                                                         yAxisTitle           = "Count",
@@ -141,8 +139,7 @@ plotPvalHist <- function(DGEdata,
             numrow <- (samples_num / numcol) %>% ceiling
 
             plotlist <- ggplot2::ggplot(data = P.Val, aes(x = pval)) +
-                ggplot2::geom_histogram(alpha    = 0.6,
-                                        fill     = "dodgerblue3",
+                ggplot2::geom_histogram(fill     = "dodgerblue3",
                                         color    = "dodgerblue3",
                                         binwidth = binWidth) +
                 ggplot2::xlab("P-value") +
@@ -155,8 +152,7 @@ plotPvalHist <- function(DGEdata,
                 pval_subset <- dplyr::filter(P.Val, grepl(sample, levels))
 
                 hist_pval <- ggplot2::ggplot(data = pval_subset, aes(x = pval)) +
-                    ggplot2::geom_histogram(alpha = 0.6,
-                                            fill = "dodgerblue3",
+                    ggplot2::geom_histogram(fill = "dodgerblue3",
                                             color = "dodgerblue3",
                                             binwidth = binWidth) +
                     ggplot2::xlab("P-value") +

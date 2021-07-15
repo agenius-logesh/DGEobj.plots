@@ -111,9 +111,6 @@ plotDispersion <- function(DGEdata,
         MyDispPlot <- canvasXpress::canvasXpress(data                    = plotdata,
                                                  graphType               = "Scatter2D",
                                                  colors                  = "darkblue",
-                                                 dataPointSize           = 6,
-                                                 shapes                  = "circle",
-                                                 transparency            = 0.5,
                                                  scatterOutlineThreshold = 0,
                                                  title                   = title,
                                                  yAxisTitle              = ylab,
@@ -125,11 +122,9 @@ plotDispersion <- function(DGEdata,
 
     } else {
         MyDispPlot <- ggplot(plotdata, aes(x = AveLogCPM, y = Dispersion)) +
-            geom_point(size  = 6,
-                       shape = "circle",
+            geom_point(shape = "circle",
                        fill  = "darkblue",
-                       color = "darkblue",
-                       alpha = 0.5)
+                       color = "darkblue")
 
         if (!is.null(lineFit)) {
             MyDispPlot <- MyDispPlot +
