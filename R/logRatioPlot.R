@@ -252,10 +252,8 @@ logRatioPlot <- function(dgeObj,
     if (plotType == "canvasxpress") {
         if (plotCategory == "bar") {
             graphType <- "Bar"
-            transparency <- 1
         } else {
             graphType <- "Boxplot"
-            transparency <- 1
         }
 
         minX <- NULL
@@ -313,7 +311,6 @@ logRatioPlot <- function(dgeObj,
                           xAxisTitle              = ylab,
                           showLegend              = FALSE,
                           xAxis2Show              = FALSE,
-                          transparency            = transparency,
                           events                  = events)
 
         if (!axisFree && !is.null(minX) && !is.null(maxX)) {
@@ -406,15 +403,11 @@ logRatioPlot <- function(dgeObj,
         .addGeoms <- function(myPlot){
             if (plotCategory == "bar") {
                 myPlot <- myPlot + geom_bar(stat = "identity",
-                                            alpha = 1,
                                             color = "dodgerblue4",
                                             fill = "dodgerblue4")
             } else if (plotCategory == "point") {
-                myPlot <- myPlot + geom_point(alpha = 1,
-                                              color = "dodgerblue4",
-                                              fill = "dodgerblue4",
-                                              size = 2,
-                                              shape = "circle")
+                myPlot <- myPlot + geom_point(color = "dodgerblue4",
+                                              fill = "dodgerblue4")
             }
 
             # Add error bars if columns present

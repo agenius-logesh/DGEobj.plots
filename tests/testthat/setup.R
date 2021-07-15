@@ -6,3 +6,5 @@ require(DGEobj.plots)
 require(DGEobj.utils)
 
 t_obj1 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
+source("~/DGEobj.plots/R/plot_utils.R")
+source("~/DGEobj.plots/R/internal.R")
