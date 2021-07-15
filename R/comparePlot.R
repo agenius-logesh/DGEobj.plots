@@ -30,8 +30,7 @@
 #' values are used.
 #'
 #' @param DGEdata Name of DGEobj with a class of DGEobj.
-#' @param contrastOne and
-#' @param contrastTwo A character vector of a topTable data in DGEobj and its a class of dataframe
+#' @param contrasts A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
 #'        with logFC and P.Value. These two contrasts representing the x and y variables.
 #'        Optionally add xp and yp columns to hold p-values or FDR values.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
@@ -73,13 +72,12 @@
 #'   compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 #'
 #'   # Draw the plot
-#'   cPlot <- comparePlot(DGEdata, contrastOne, contrastTwo, title = "Plot Title")
+#'   cPlot <- comparePlot(DGEdata, contrasts, title = "Plot Title")
 #'   print(cPlot)
 #'
 #'   # Deluxe Plot with bells and whistles.
 #'   myPlot <- comparePlot(DGEdata,
-#'                         contrastOne,
-#'                         contrastTwo,
+#'                         contrasts,
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
 #'                         ylab = "y Axis Label",
@@ -97,8 +95,7 @@
 #'
 #' @export
 comparePlot <- function(DGEdata,
-                        contrastOne,
-                        contrastTwo,
+                        contrasts,
                         sigMeasurePlot = TRUE,
                         plotType = "canvasXpress",
                         pThreshold = 0.01,
@@ -121,22 +118,19 @@ comparePlot <- function(DGEdata,
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
                             "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified as class of DGEobj.")
+                            msg = "DGEdata must be specified and must belong to DGEobj class.")
 
-    assertthat::assert_that(!missing(contrastOne),
-                            !is.null(contrastOne),
-                            contrastOne %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrastOne to be a singular value of class character and must be one from DGEdata with logFC and P.value columns.")
+    assertthat::assert_that(!missing(contrasts),
+                            !is.null(contrasts),
+                            length(contrasts) == 2,
+                            contrasts[1] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            contrasts[2] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            msg = "contrast must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns.")
 
-    assertthat::assert_that(!missing(contrastTwo),
-                            !is.null(contrastTwo),
-                            contrastTwo %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrastTwo to be a singular value of class character and must be one from DGEdata with logFC and P.value columns.")
-
-    contrastList <- lapply(c(contrastOne,contrastTwo), function(x){
+    contrastList <- lapply(contrasts, function(x){
         getItems(DGEdata, x)
     })
-    names(contrastList) <- c(contrastOne,contrastTwo)
+    names(contrastList) <- contrasts
 
     if (any(is.null(sigMeasurePlot),
             !is.logical(sigMeasurePlot),
@@ -370,7 +364,7 @@ comparePlot <- function(DGEdata,
                           symbolColor = symbolColor,
                           symbolFill  = symbolColor)
         # Used to set uniform square scale
-        scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% multiply_by(1.05)
+        scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% magrittr::multiply_by(1.05)
         if (!sigMeasurePlot) {
             compPlot <- compareDF %>%
                 ggplot(aes_string(x = xlabel, y = ylabel)) +
@@ -416,13 +410,13 @@ comparePlot <- function(DGEdata,
         }
         if (!missing(footnote)) {
             compPlot <- compPlot %>%
-                .addFootnote(footnoteText = footnote,
+                addFootnote(footnoteText = footnote,
                             footnoteSize = footnoteSize,
                             footnoteColor = "black",
                             yoffset = 0.05)
         }
         compPlot %>%
-            .setLegendPosition(legendPosition) +
+            setLegendPosition(legendPosition) +
             xlab(xlab) +
             ylab(ylab) +
             ggtitle(title)
