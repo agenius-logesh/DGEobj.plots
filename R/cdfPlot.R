@@ -36,7 +36,7 @@
 #' @param xlab X axis label (default = "Rank")
 #' @param ylab Y axis label (default = p-value column name)
 #' @param title Plot title (Optional)
-#' @param insetTitle Title for the inset plot (Optional)
+#' @param viewportTitle Title for the inset plot (Optional)
 #' @param referenceLine Color for an horizontal line drawn at the p-threshold
 #'   (default = NULL; NULL disables, set to desired color to enable)
 #' @param viewportX x-location for the inset plot(default = 0.15)
@@ -66,7 +66,7 @@ cdfPlot <- function(DGEdata,
                     xlab,
                     ylab,
                     title          = NULL,
-                    insetTitle     = NULL,
+                    viewportTitle     = NULL,
                     referenceLine  = NULL,
                     viewportX      = 0.15,
                     viewportY      = 0.85,
@@ -112,11 +112,11 @@ cdfPlot <- function(DGEdata,
         title <- NULL
     }
 
-    if (!is.null(insetTitle) &&
-        !all(is.character(insetTitle),
-             length(insetTitle) == 1)) {
-        warning("insetTitle must be a singular value of class character. Assigning default value NULL.")
-        insetTitle <- NULL
+    if (!is.null(viewportTitle) &&
+        !all(is.character(viewportTitle),
+             length(viewportTitle) == 1)) {
+        warning("viewportTitle must be a singular value of class character. Assigning default value NULL.")
+        viewportTitle <- NULL
     }
 
     if (missing(xlab)) {
@@ -135,7 +135,7 @@ cdfPlot <- function(DGEdata,
     } else {
         if (!is.null(ylab) &&
             !all(is.character(ylab),
-            length(ylab) == 1)) {
+                length(ylab) == 1)) {
             warning("ylab must be a singular value of class character. Assigning default value 'pvalCol' as the label.")
             ylab <- pvalCol
         }
@@ -191,8 +191,8 @@ cdfPlot <- function(DGEdata,
         title = ""
     }
 
-    if (is.null(insetTitle)) {
-        insetTitle = ""
+    if (is.null(viewportTitle)) {
+        viewportTitle = ""
     }
 
     # Combo PLOT: full data inset, most significant data in main plot
@@ -268,7 +268,7 @@ cdfPlot <- function(DGEdata,
                                                sizeBy            = "group",
                                                sizes             = c(4,3),
                                                sizeByShowLegend  = FALSE,
-                                               title             = insetTitle,
+                                               title             = viewportTitle,
                                                xAxisTitle        = xlab,
                                                yAxisTitle        = ylab,
                                                setMaxY           = max(contrastDF[[y]]))
@@ -325,7 +325,7 @@ cdfPlot <- function(DGEdata,
         cdfInset <- cdfInset +
             xlab(xlab) +
             ylab(ylab) +
-            ggtitle(insetTitle)
+            ggtitle(viewportTitle)
 
         plot_limits <- get_plot_limits(cdfMain, viewportX, viewportY, viewportWidth)
         vp_plot <- cdfMain +
