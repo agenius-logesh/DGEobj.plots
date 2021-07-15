@@ -27,8 +27,7 @@
 #' this order: Significant, Not Significant.
 #'
 #' @param DGEdata Name of DGEobj with a class of DGEobj.
-#' @param contrast A character vector of a topTable data in DGEobj and its a class of dataframe
-#'        with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
+#' @param contrast Name of a topTable item in DGEobj with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
 #' @param pvalMax Limit the range of the main plot (default = 0.10)
@@ -90,12 +89,13 @@ cdfPlot <- function(DGEdata,
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
                             "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified as class of DGEobj.")
+                            msg = "DGEdata must be specified and must belong to DGEobj class.")
 
     assertthat::assert_that(!missing(contrast),
                             !is.null(contrast),
+                            length(contrast) == 1,
                             contrast %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrast to be a singular value of class character and must be one from DGEdata with LogIntensity and LogRatio columns and optionally a p-value.")
+                            msg = "contrast must be a singular value of class character and must be one of the top tables in the DGEdata.")
 
     contrastDF <- DGEobj::getItems(DGEdata, contrast)
 
@@ -368,7 +368,7 @@ cdfPlot <- function(DGEdata,
             ggtitle(title)
 
         if (!missing(footnote)) {
-            cdfMain <- .addFootnote(cdfMain,
+            cdfMain <- addFootnote(cdfMain,
                                    footnoteText = footnote,
                                    footnoteSize = 3,
                                    footnoteColor = "black",
