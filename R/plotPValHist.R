@@ -39,7 +39,7 @@ plotPvalHist <- function(DGEdata,
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
                             "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified as class of DGEobj.")
+                            msg = "DGEdata must be specified and must belong to DGEobj class.")
 
     if (any(is.null(P.Val),
             !is.character(P.Val),
