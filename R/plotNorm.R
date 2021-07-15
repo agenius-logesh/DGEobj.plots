@@ -8,7 +8,7 @@
 #' Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored to count-based
 #' data.  Thus this function is only appropriate for count-based data.
 #'
-#' @param DGEdata  A DGEobj or counts matrix.
+#' @param DGEdata Name of DGEobj with a class of DGEobj.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param plotCategory  One of "box" or "density." (Default = "box")
 #' @param normalize Default = "TMM" and invokes TMM normalization. Other allowed
@@ -41,8 +41,8 @@ plotNorm <- function(DGEdata,
 
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
-                            any(c("matrix", "DGEobj") %in% class(DGEdata)),
-                            msg = "DGEdata must be of either class 'matrix' or 'DGEobj'.")
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified and must belong to DGEobj class.")
 
     plotType     <- tolower(plotType)
     if (any(is.null(plotType),
@@ -71,11 +71,7 @@ plotNorm <- function(DGEdata,
         normalize <- "tmm"
     }
 
-    if ("matrix" %in% class(DGEdata)) {
-        counts <- DGEdata
-    } else {
-        counts <- DGEobj::getItem(DGEdata, "counts")
-    }
+    counts <- DGEobj::getItem(DGEdata, "counts")
 
     tall <- build_normalized_data(counts)
 
