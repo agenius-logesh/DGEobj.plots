@@ -100,8 +100,9 @@ volcanoPlot <- function(DGEdata,
 
     assertthat::assert_that(!missing(contrast),
                             !is.null(contrast),
+                            length(contrast) == 1,
                             contrast %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrast to be a singular value of class character and must be one from DGEdata with LogIntensity and LogRatio columns and optionally a p-value.")
+                            msg = "contrast to be a singular value of class character and must be one of the topTables in DGEdata.")
 
     contrastDF <- DGEobj::getItems(DGEdata, contrast)
 
@@ -116,14 +117,17 @@ volcanoPlot <- function(DGEdata,
 
     # Make sure specified columns exist
     assertthat::assert_that(!is.null(logRatioCol),
+                            length(logRatioCol) == 1,
                             logRatioCol %in% colnames(contrastDF),
                             msg = "logRatioCol column not found in contrast data.")
 
     assertthat::assert_that(!is.null(logIntCol),
+                            length(logIntCol) == 1,
                             logIntCol %in% colnames(contrastDF),
                             msg = "logIntCol column not found in contrast data.")
 
     assertthat::assert_that(!is.null(pvalCol),
+                            length(pvalCol) == 1,
                             pvalCol %in% colnames(contrastDF),
                             msg = "pvalCol column not found in contrast data.")
 
