@@ -26,7 +26,7 @@
 #' is required for these arguments which applies the attributes in
 #' this order: Significant, Not Significant.
 #'
-#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param DGEdata DGEobj with a class of DGEobj.
 #' @param contrast Name of a topTable item in DGEobj with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
@@ -55,9 +55,12 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Plot to console (DGEdata is a name of DGEonj and
-#'    contrast is a dataframe from DGEobj)
-#'    cdfPlot(DGEdata, contrast, title = "My CDF Plot")
+#'    # Plot to console (DGEdata is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
+#'    contrast <- names(DGEobj::getType(DGEdata, type = "topTable"))
+#'
+#'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot")
+#'
+#'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot", plotType-"ggplot")
 #' }
 #' @import ggplot2 magrittr
 #' @importFrom dplyr arrange mutate case_when select filter
@@ -99,7 +102,12 @@ cdfPlot <- function(DGEdata,
 
     contrastDF <- DGEobj::getItems(DGEdata, contrast)
 
+    assertthat::assert_that(nrow(contrastDF) > 0,
+                            "data.frame" %in% class(contrastDF),
+                            msg = "contrast data must be a class of dataframe")
+
     assertthat::assert_that(!is.null(pvalCol),
+                            length(pvalCol) == 1,
                             pvalCol %in% colnames(contrastDF),
                             msg = "pvalCol column not found in contrast data.")
 

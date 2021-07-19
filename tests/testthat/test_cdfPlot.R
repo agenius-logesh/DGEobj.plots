@@ -146,6 +146,8 @@ test_that("cdfPlot.R: cdfPlot()", {
     msg <- "pvalCol column not found in contrast data."
     expect_error(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = "notacolumn"),
                  regexp = msg)
+    expect_error(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = c("notacolumn","abc")),
+                 regexp = msg)
     expect_error(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
                  regexp = msg)
 
