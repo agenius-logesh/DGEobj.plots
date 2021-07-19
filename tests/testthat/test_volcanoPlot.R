@@ -75,8 +75,6 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                  regexp = msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = c("xyz","abc")),
                  regexp = msg)
-    #contrast
-    contrast <- "BDL_vs_Sham"
     ## plotType
     msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
     expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "xyz"),
@@ -88,35 +86,43 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = c("canvasXpress", "ggplot")),
                    regexp = msg)
     ## logRatioCol
-    msg <- "logRatioCol column not found in contrast data."
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = "xyz"),
+    msg <- "logRatioCol to be a singular value of class character and must be in contrast data. Assigning default value 'logFC'."
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = "xyz"),
                  regexp =  msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = NULL),
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = NULL),
                  regexp =  msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = 123),
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = c("xyz","abc")),
+                 regexp =  msg)
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = 123),
                  regexp = msg)
     ## logIntCol
-    msg <- "logIntCol column not found in contrast data."
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = "xyz"),
+    msg <- "logIntCol to be a singular value of class character and must be in contrast data. Assigning default value 'AveExpr'."
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = "xyz"),
                  regexp =  msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = NULL),
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = NULL),
                  regexp =  msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = 123),
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = c("xyz","abc")),
+                 regexp =  msg)
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = 123),
                  regexp = msg)
     ## pvalCol
-    msg <- "pvalCol column not found in contrast data."
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = "xyz"),
+    msg <- "pvalCol to be a singular value of class character and must be in contrast data. Assigning default value 'P.Value'."
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = "xyz"),
                  regexp = msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
                  regexp = msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = 123),
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = c("xyz","abc")),
+                 regexp =  msg)
+    expect_warning(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = 123),
                  regexp = msg)
     ## geneNameCol
-    msg <- "geneNameCol column not found in geneData from DGEdata."
+    msg <- "geneNameCol to be a singular value of class character and must be in contrast data."
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = NULL),
                  regexp = msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = "xyz"),
                  regexp = msg)
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = c("xyz","abc")),
+                 regexp =  msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = 123),
                  regexp = msg)
     ## pthreshold

@@ -1,8 +1,8 @@
-#' Create volcano#' Create volcano plot
+#' Create volcano
 #'
 #' A volcano plot shows Log Ratio data on the X axis and Negative Log P-values (NLP) on the
-#' Y axis. This function is intended to show the volcano plot from a dataframe
-#' created by topTable or topTreat. Properly normalized data will generally be
+#' Y axis. This function is intended to show the volcano plot created from a
+#' topTable dataframe in a DGEobj. Properly normalized data will generally be
 #' centered around LogRatio = 0.
 #'
 #' By default, the plot places "logFC" on the X axis and Log10 of the "P.Value" on the Y axis.
@@ -12,39 +12,33 @@
 #' By default, the P.Value field is used with a threshold of 0.01 to color code the points and fold-change
 #' threshold of +/- 1.5X.
 #'
-#' \strong{Data Structure for the input dataframe:}
+#' \strong{Data Structure for the input DGEobj:}
 #'
-#' The defaults are set for dataframes produced by topTable and topTreat.  The columns named "logFC"
-#' and "P.Value" are used by default to accommodate the column
-#' names used in topTable/topTreat dataframes.  Any other dataframe
-#' can be used with fold-change, intensity, and significance measures, with appropriate
-#' arguments to define the column names to use provided. By default, the
-#' column names will be used for the axis labels, but can be overridden with xlab and ylab arguments.
+#' A contrast needs to be specified along with the DGEobj. The top table is extracted from the DGEobj for this contrast.
+#' The columns named "logFC" and "P.Value" in the topTable are used by default to generate the volcano plot.
+#' By default, the column names will be used for the axis labels, but can be overridden with xlab and ylab arguments.
 #'
 #' A significance measure (which defaults to P.Value <= 0.01) and LogRatio
 #' threshold are used to color code genes that are significantly increased or decreased.
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
-#' @param DGEdata Name of DGEobj data. Should below to class DGEobj.
-#' @param contrast A single character vector of a topTable data in DGEobj and its a class of dataframe
-#'   with LogRatio and LogIntensity columns and optionally a
-#'   p-value or FDR column (typically a topTable dataframe).
-#' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
-#' @param logRatioCol Name of the LogRatio column (Default = "logFC")
-#' @param logIntCol Name of the LogIntensity column (Default = "AveExpr")
-#' @param pvalCol Name of the p-value or FDR column (Default = "P.Value")
+#' @param DGEdata DGEobj.
+#' @param contrast Name of the contrast.
+#' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
+#' @param logRatioCol Name of the LogRatio column (default = "logFC")
+#' @param logIntCol Name of the LogIntensity column (default = "AveExpr")
+#' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
 #' @param xlab X axis label (Default is the LogIntensity column name)
 #' @param ylab Y axis label (Default is the LogRatio column name)
 #' @param title Plot title (optional)
-#' @param pthreshold Used to color points (Default = 0.01)
-#' @param geneNameCol Name of the gene symbol column in geneData from the list of DGEobj data. The gene symbol column is
-#'    not in topTable output by default it will be in the geneData output.This column will be used to label
+#' @param pthreshold Used to color points (default = 0.01)
+#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label
 #'    significantly changed points.
-#' @param pthresholdLine Color for a horizontal line at the p-threshold (Default
+#' @param pthresholdLine Color for a horizontal line at the p-threshold (default
 #'   = NULL (disabled))
-#' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (Default = TRUE)
+#' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (default = TRUE)
 #' @param foldChangeLines Position of reference vertical lines for fold change
-#'   (Default = log2(1.5); NULL disables)
+#'   (default = log2(1.5); NULL disables this FCline)
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
 #'
@@ -79,7 +73,9 @@
 #' }
 #'
 #' @import ggplot2 magrittr
-#' @importFrom dplyr left_join
+#' @importFrom dplyr rename case_when mutate arrange
+#' @importFrom rlang sym
+#' @importFrom tibble column_to_rownames
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom htmlwidgets JS
@@ -123,22 +119,35 @@ volcanoPlot <- function(DGEdata,
     }
 
     # Make sure specified columns exist
-    assertthat::assert_that(!is.null(logRatioCol),
-                            logRatioCol %in% colnames(contrastDF),
-                            msg = "logRatioCol column not found in contrast data.")
+    if (any(is.null(logRatioCol),
+            !is.character(logRatioCol),
+            length(logRatioCol) != 1,
+            !logRatioCol %in% colnames(contrastDF))) {
+        warning("logRatioCol to be a singular value of class character and must be in contrast data. Assigning default value 'logFC'.")
+        logRatioCol <- "logFC"
+    }
 
-    assertthat::assert_that(!is.null(logIntCol),
-                            logIntCol %in% colnames(contrastDF),
-                            msg = "logIntCol column not found in contrast data.")
+    if (any(is.null(logIntCol),
+            !is.character(logIntCol),
+            length(logIntCol) != 1,
+            !logIntCol %in% colnames(contrastDF))) {
+        warning("logIntCol to be a singular value of class character and must be in contrast data. Assigning default value 'AveExpr'.")
+        logIntCol <- "AveExpr"
+    }
 
-    assertthat::assert_that(!is.null(pvalCol),
-                            pvalCol %in% colnames(contrastDF),
-                            msg = "pvalCol column not found in contrast data.")
+    if (any(is.null(pvalCol),
+            !is.character(pvalCol),
+            length(pvalCol) != 1,
+            !pvalCol %in% colnames(contrastDF))) {
+        warning("pvalCol to be a singular value of class character and must be in contrast data. Assigning default value 'P.Value'.")
+        pvalCol <- "P.Value"
+    }
 
     if (!missing(geneNameCol)) {
         assertthat::assert_that(!is.null(geneNameCol),
+                                length(geneNameCol) == 1,
                                 geneNameCol %in% names(getItems(DGEdata, itemNames = "geneData")),
-                                msg = "geneNameCol column not found in geneData from DGEdata.")
+                                msg = "geneNameCol to be a singular value of class character and must be in contrast data.")
     }
 
     if (any(is.null(pthreshold),
