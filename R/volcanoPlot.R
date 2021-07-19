@@ -42,7 +42,7 @@
 #' @param ylab Y axis label (Default is the LogRatio column name)
 #' @param title Plot title (optional)
 #' @param pthreshold Used to color points (Default = 0.01)
-#' @param geneSymCol Name of the gene symbol column in geneData from the list of DGEobj data. The gene symbol column is
+#' @param geneNameCol Name of the gene symbol column in geneData from the list of DGEobj data. The gene symbol column is
 #'    not in topTable output by default it will be in the geneData output.This column will be used to label
 #'    significantly changed points.
 #' @param pthresholdLine Color for a horizontal line at the p-threshold (Default
@@ -85,7 +85,7 @@ volcanoPlot <- function(DGEdata,
                         logIntCol = "AveExpr",
                         pvalCol = "P.Value",
                         pthreshold = 0.01,
-                        geneSymCol,
+                        geneNameCol,
                         xlab = NULL,
                         ylab = NULL,
                         title = NULL,
@@ -131,10 +131,10 @@ volcanoPlot <- function(DGEdata,
                             pvalCol %in% colnames(contrastDF),
                             msg = "pvalCol column not found in contrast data.")
 
-    if (!missing(geneSymCol)) {
-        assertthat::assert_that(!is.null(geneSymCol),
-                                geneSymCol %in% names(getItems(DGEdata, itemNames = "geneData")),
-                                msg = "geneSymCol column not found in geneData from DGEdata.")
+    if (!missing(geneNameCol)) {
+        assertthat::assert_that(!is.null(geneNameCol),
+                                geneNameCol %in% names(getItems(DGEdata, itemNames = "geneData")),
+                                msg = "geneNameCol column not found in geneData from DGEdata.")
     }
 
     if (any(is.null(pthreshold),
@@ -257,13 +257,13 @@ volcanoPlot <- function(DGEdata,
             sizeBy <- "Group"
         }
 
-        if (!missing(geneSymCol)) {
+        if (!missing(geneNameCol)) {
             gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
-                dplyr::select(all_of(geneSymCol))
+                dplyr::select(all_of(geneNameCol))
 
             var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
                 tibble::column_to_rownames(var = "Row.names") %>%
-                dplyr::rename(GeneName = all_of(geneSymCol))
+                dplyr::rename(GeneName = all_of(geneNameCol))
         }
 
         canvasXpress::canvasXpress( data              = cx.data,
@@ -288,82 +288,82 @@ volcanoPlot <- function(DGEdata,
                             symbolColor = c("deepskyblue4", "red3", "grey25"),
                             stringsAsFactors = FALSE)
 
-        volcanoPlot <- ggplot(contrastDF, aes_string(y = "negLog10P" , x = logRatioCol)) +
-            aes(shape = Group,
-                color = Group,
-                fill = Group) +
+        volcanoPlot <- ggplot2::ggplot(contrastDF, ggplot2::aes_string(y = "negLog10P" , x = logRatioCol)) +
+            ggplot2::aes(shape = Group,
+                         color = Group,
+                         fill  = Group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
+            ggplot2::scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
                                values = ssc$symbolColor) +
-            scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
+            ggplot2::scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
                               values = ssc$symbolColor) +
-            geom_point(alpha = 0.5)
+            ggplot2::geom_point(alpha = 0.5)
 
         # Optional Decorations
         if (sizeByIntensity) {
-            volcanoPlot <- volcanoPlot + aes(size = LogInt) +
-                scale_size_continuous() +
-                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                   values = rep("circle", 3))
+            volcanoPlot <- volcanoPlot + ggplot2::aes(size = LogInt) +
+                ggplot2::scale_size_continuous() +
+                ggplot2::scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
+                                            values = rep("circle", 3))
 
         } else {
-            volcanoPlot <- volcanoPlot + aes(size = Group) +
-                scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = c(2, 4, 6)) +
-                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                   values = rep("circle", 3))
+            volcanoPlot <- volcanoPlot + ggplot2::aes(size = Group) +
+                ggplot2::scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
+                                           values = c(2, 4, 6)) +
+                ggplot2::scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
+                                            values = rep("circle", 3))
         }
 
         if (!is.null(pthresholdLine)) {
             volcanoPlot <- volcanoPlot +
-                geom_hline(yintercept = -log10(pthreshold),
-                           color = pthresholdLine,
-                           size = 2,
-                           alpha = 0.5)
+                ggplot2::geom_hline(yintercept = -log10(pthreshold),
+                                    color = pthresholdLine,
+                                    size = 2,
+                                    alpha = 0.5)
         }
 
         if (!is.null(foldChangeLines)) {
             volcanoPlot <- volcanoPlot +
-                geom_vline(xintercept = foldChangeLines,
-                           color = "red3",
-                           size = 2,
-                           alpha = 0.5) +
-                geom_vline(xintercept = -foldChangeLines,
-                           color = "deepskyblue4",
-                           size = 2,
-                           alpha = 0.5)
+                ggplot2::geom_vline(xintercept = foldChangeLines,
+                                    color = "red3",
+                                    size = 2,
+                                    alpha = 0.5) +
+                ggplot2::geom_vline(xintercept = -foldChangeLines,
+                                    color = "deepskyblue4",
+                                    size = 2,
+                                    alpha = 0.5)
         }
 
         # Add genesym labels to increased, decreased genes
-        if (!missing(geneSymCol)) {
+        if (!missing(geneNameCol)) {
             gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
-                dplyr::select(all_of(geneSymCol))
+                dplyr::select(all_of(geneNameCol))
 
             geneSymLabels_df <- merge(contrastDF, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
                 tibble::column_to_rownames(var = "Row.names")
 
             volcanoPlot <- volcanoPlot +
                 ggrepel::geom_text_repel(data = geneSymLabels_df,
-                                aes_string(x = logRatioCol, y = "negLog10P", label = geneSymCol),
-                                show.legend = TRUE, max.overlaps = dim(geneSymLabels_df)[1]*10)
+                                ggplot2::aes_string(x = logRatioCol, y = "negLog10P", label = geneNameCol),
+                                         show.legend = TRUE, max.overlaps = dim(geneSymLabels_df)[1]*10)
         }
 
         # Add axis Labels
         if (is.null(xlab)) {
-            volcanoPlot <- volcanoPlot + xlab(logRatioCol)
+            volcanoPlot <- volcanoPlot + ggplot2::xlab(logRatioCol)
         } else {
-            volcanoPlot <- volcanoPlot + xlab(xlab)
+            volcanoPlot <- volcanoPlot + ggplot2::xlab(xlab)
         }
         if (is.null(ylab)) {
-            volcanoPlot <- volcanoPlot + ylab("negLog10P")
+            volcanoPlot <- volcanoPlot + ggplot2::ylab("negLog10P")
         } else {
-            volcanoPlot <- volcanoPlot + ylab(ylab)
+            volcanoPlot <- volcanoPlot + ggplot2::ylab(ylab)
         }
         if (!is.null(title)) {
             volcanoPlot <- volcanoPlot +
-                ggtitle(title)
+                ggplot2::ggtitle(title)
         }
 
-        volcanoPlot + theme(legend.position = "right")
+        volcanoPlot + ggplot2::theme(legend.position = "right")
     }
 }

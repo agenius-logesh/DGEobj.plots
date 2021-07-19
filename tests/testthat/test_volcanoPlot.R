@@ -2,24 +2,24 @@ context("DGEobj.plots - tests for volcanoPlot.R functions")
 
 
 test_that("volcanoPlot.R: volcanoPlot()", {
-    # testing contrast objects defualts (sizeByIntensity=TRUE and no geneSymCol)
+    # testing contrast objects defualts (sizeByIntensity=TRUE and no geneNameCol)
     ## BDL_vs_Sham
     volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham")
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
     volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham", plotType = "ggplot")
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
-    ### contrast objects defualts (with sizeByIntensity=False with symbolSize and no geneSymCol)-
+    ### contrast objects defualts (with sizeByIntensity=False with symbolSize and no geneNameCol)-
     volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham",
                                sizeByIntensity = FALSE)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
     volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham", plotType = "ggplot",
                                sizeByIntensity = FALSE)
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
-    ### contrast objects defualts (without sizeByIntensity=False and with geneSymCol)-
-    volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham", geneSymCol = "rgd_symbol")
+    ### contrast objects defualts (without sizeByIntensity=False and with geneNameCol)-
+    volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham", geneNameCol = "rgd_symbol")
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
     volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham", plotType = "ggplot",
-                               geneSymCol = "rgd_symbol")
+                               geneNameCol = "rgd_symbol")
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
     ## EXT1024_vs_BDL
     volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "EXT1024_vs_BDL", title = "EXT1024_vs_BDL")
@@ -38,13 +38,13 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     volcano_plot <- volcanoPlot(DGEdata            = t_obj1,
                                contrast           = "BDL_vs_Sham",
                                title              = "BDL_vs_Sham with Symbols",
-                               geneSymCol         = "rgd_symbol")
+                               geneNameCol         = "rgd_symbol")
     expect_s3_class(volcano_plot, c("canvasXpress","htmlwidget"))
     volcano_plot <- volcanoPlot(DGEdata            = t_obj1,
                                contrast           = "BDL_vs_Sham",
                                title              = "BDL_vs_Sham with Symbols",
                                plotType           = "ggplot",
-                               geneSymCol         = "rgd_symbol")
+                               geneNameCol         = "rgd_symbol")
     expect_s3_class(volcano_plot, c("gg","ggplot"))
     # testing asserts
     ## DGEdata
@@ -111,11 +111,11 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                  regexp =  msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
                  regexp = msg)
-    ## geneSymCol
-    msg <- "geneSymCol column not found in geneData from DGEdata."
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneSymCol = NULL),
+    ## geneNameCol
+    msg <- "geneNameCol column not found in geneData from DGEdata."
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = NULL),
                  regexp = msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneSymCol = "xyz"),
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = "xyz"),
                  regexp = msg)
     ## pthreshold
     msg <- "pthreshold must be a singular numeric value. Assigning default value 0.01"
