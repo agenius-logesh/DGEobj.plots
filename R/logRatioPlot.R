@@ -402,17 +402,17 @@ logRatioPlot <- function(dgeObj,
     } else {
         .addGeoms <- function(myPlot){
             if (plotCategory == "bar") {
-                myPlot <- myPlot + geom_bar(stat = "identity",
-                                            color = "dodgerblue4",
-                                            fill = "dodgerblue4")
+                myPlot <- myPlot + ggplot2::geom_bar(stat  = "identity",
+                                                     color = "dodgerblue4",
+                                                     fill  = "dodgerblue4")
             } else if (plotCategory == "point") {
-                myPlot <- myPlot + geom_point(color = "dodgerblue4",
-                                              fill = "dodgerblue4")
+                myPlot <- myPlot + ggplot2::geom_point(color = "dodgerblue4",
+                                                       fill = "dodgerblue4")
             }
 
             # Add error bars if columns present
             if (is_confidence_used) {
-                myPlot <- myPlot + geom_errorbar(aes_string(ymin = CI.L_colname, ymax = CI.R_colname), width = .2)
+                myPlot <- myPlot + ggplot2::geom_errorbar(ggplot2::aes_string(ymin = CI.L_colname, ymax = CI.R_colname), width = .2)
             }
 
             myPlot
@@ -424,7 +424,7 @@ logRatioPlot <- function(dgeObj,
             } else {
                 axisFree <- "fixed"
             }
-            myPlot <- ggplot2::ggplot(contrastsDF, aes_string(x = xColname, y = yColname))
+            myPlot <- ggplot2::ggplot(contrastsDF, ggplot2::aes_string(x = xColname, y = yColname))
             myPlot <- .addGeoms(myPlot)
             facetFormula <- stringr::str_c("~", symCol, sep = " ")
             myPlot <- myPlot + ggplot2::facet_wrap(facetFormula, ncol = facetCol, scales = axisFree)
@@ -436,23 +436,23 @@ logRatioPlot <- function(dgeObj,
             }
 
             if (labelAngle > 0) {
-                myPlot <- myPlot + theme(axis.text.x = element_text(angle = labelAngle, hjust = 1))
+                myPlot <- myPlot + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = labelAngle, hjust = 1))
             }
 
             #Add refLine at 0
             if (refLine) {
-                myPlot <- myPlot + geom_hline(yintercept = 0, color = "red", size = 0.1)
+                myPlot <- myPlot + ggplot2::geom_hline(yintercept = 0, color = "red", size = 0.1)
             }
 
         } else {# Individual plots for each Gene returned in a list
             plotlist <- list()
             for (obs in unique(contrastsDF[[symCol]])) { # For each gene
                 dat <- contrastsDF[contrastsDF[[symCol]] == obs, ] # Pull data for one gene
-                aplot <- ggplot(dat, aes_string(x = xColname, y = yColname)) + # Samples vs Log2CPM
-                    xlab(xlab) +
-                    ylab(ylab) +
-                    ggtitle(obs) +
-                    theme_grey()
+                aplot <- ggplot2::ggplot(dat, ggplot2::aes_string(x = xColname, y = yColname)) + # Samples vs Log2CPM
+                    ggplot2::xlab(xlab) +
+                    ggplot2::ylab(ylab) +
+                    ggplot2::ggtitle(obs) +
+                    ggplot2::theme_grey()
                 aplot <- .addGeoms(aplot)
 
                 if (!is.null(title)) {
@@ -460,7 +460,7 @@ logRatioPlot <- function(dgeObj,
                 }
 
                 if (refLine) {
-                    aplot <- aplot + geom_hline(yintercept = 0, color = "red", size = 0.1)
+                    aplot <- aplot + ggplot2::geom_hline(yintercept = 0, color = "red", size = 0.1)
                 }
                 plotlist[[obs]] <- aplot
             }
