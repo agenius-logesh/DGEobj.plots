@@ -216,11 +216,11 @@ volcanoPlot <- function(DGEdata,
 
         if (!is.null(foldChangeLines)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = "red3",
+                                                 color       = symbolColor[2],
                                                  width       = 2,
                                                  x           = foldChangeLines)
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = "deepskyblue4",
+                                                 color       = symbolColor[1],
                                                  width       = 2,
                                                  x           = -foldChangeLines)
         }
@@ -232,8 +232,8 @@ volcanoPlot <- function(DGEdata,
                                                       o.y.smps != null) {
                                                       info = '<b>' + o.y.vars[0]  + '</b>' + '<br/>' +
                                                              '<i>' + o.z.Group  + '</i><br/>' +
-                                                             '<b>' + o.y.smps[0]  + '</b>' + ': ' + o.y.data[0][0] + '<br/>' +
-                                                             '<b>' + o.y.smps[1]  + '</b>' + ': ' + o.y.data[0][1] ;
+                                                             'logFC: ' +  o.y.data[0][0] + '<br/>' +
+                                                             '-log-pVal: ' +  o.y.data[0][1] ;
                                                       if (o.z != null && o.z['GeneName'] != null) {
                                                         info  = info + '<br/>' +
                                                               '<b> Symbol</b>' + ': ' + o.z['GeneName'] ;
