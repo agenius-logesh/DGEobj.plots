@@ -8,7 +8,7 @@
 #' Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored to count-based
 #' data.  Thus this function is only appropriate for count-based data.
 #'
-#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param DGEdata DGEobj with a class of DGEobj.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param plotCategory  One of "box" or "density." (Default = "box")
 #' @param normalize Default = "TMM" and invokes TMM normalization. Other allowed

@@ -30,11 +30,10 @@
 #' @param xlab X axis label (defaults to group column name if not specified)
 #' @param ylab Y axis label (defaults to value column name if not specified)
 #' @param title Plot title (optional)
-#' @param color Color for the boxplot or the violin ploy (default = "deepskyblue3")
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
 #' @param axisFree Specify same scale or independent scales for each subplot (default = TRUE;
-#'   Allowed values: TRUE and FALSE)
+#'   Allowed values: TRUE or FALSE)
 #'
 #' @return Plot of type canvasXpress or ggplot. If Facet = TRUE (default) returns a faceted object. If
 #'   facet = FALSE, returns a list of objects indexed
@@ -93,7 +92,6 @@ obsPlot <- function(DGEdata,
                     xlab,
                     ylab,
                     title,
-                    color               = "deepskyblue3",
                     facet               = TRUE,
                     axisFree            = TRUE) {
     assertthat::assert_that(!missing(DGEdata),
@@ -283,23 +281,12 @@ obsPlot <- function(DGEdata,
         violinLayer <- FALSE
     }
 
-    #color Validations
-    if (any(is.null(color),
-            length(color) != 1,
-            !is.character(color))) {
-        warning("color must be of class character and must specify the name of the color or the rgb value. Assigning default value 'deepskyblue3'.")
-        color <- "deepskyblue3"
-    } else if (.rgbaConversion(color) == "invalid value") {
-        warning("color specified is not valid. Assigning default value 'deepskyblue3'.")
-        color <- "deepskyblue3"
-    }
-
     if (violinLayer) {
-        violinColor <- color
+        violinColor <- "deepskyblue3"
         boxColor <- NA
     } else {
         violinColor <- NA
-        boxColor <- color
+        boxColor <- "deepskyblue3"
     }
 
     #point validations
@@ -325,30 +312,30 @@ obsPlot <- function(DGEdata,
             cx_data  <- data %>% dplyr::select(!!rlang::sym(valueCol)) %>% t() %>% as.data.frame()
             smp_data <- data %>% dplyr::select(-!!rlang::sym(valueCol))
             rownames(smp_data) <- colnames(cx_data)
-            obsPlot  <- canvasXpress(data               = cx_data,
-                                    smpAnnot            = smp_data,
-                                    graphOrientation    = "vertical",
-                                    graphType           = "Boxplot",
-                                    groupingFactors     = groupCol,
-                                    boxplotColor        = boxColor,
-                                    boxplotMean         = TRUE,
-                                    boxplotWhiskersType = "single",
-                                    showViolinBoxplot   = violinLayer,
-                                    showBoxplotIfViolin = TRUE,
-                                    violinColor         = violinColor,
-                                    smpLabelRotate      = 30,
-                                    smpLabelScaleFontFactor = 0.5,
-                                    smpTitle            = xlab,
-                                    layoutAdjust        = axisFree,
-                                    showBoxplotOriginalData = showPoints,
-                                    theme               = "CanvasXpress",
-                                    xAxisTitle          = ylab,
-                                    xAxis2Show          = FALSE,
-                                    title               = title,
-                                    showLegend          = FALSE,
-                                    layoutTopology      = paste0(numrow, "X", numcol),
-                                    segregateSamplesBy  = plotByCol,
-                                    afterRender         = list(list('sortSamplesByCategory', list("group"))))
+            obsPlot  <- canvasXpress::canvasXpress(data               = cx_data,
+                                                   smpAnnot            = smp_data,
+                                                   graphOrientation    = "vertical",
+                                                   graphType           = "Boxplot",
+                                                   groupingFactors     = groupCol,
+                                                   boxplotColor        = boxColor,
+                                                   boxplotMean         = TRUE,
+                                                   boxplotWhiskersType = "single",
+                                                   showViolinBoxplot   = violinLayer,
+                                                   showBoxplotIfViolin = TRUE,
+                                                   violinColor         = violinColor,
+                                                   smpLabelRotate      = 30,
+                                                   smpLabelScaleFontFactor = 0.5,
+                                                   smpTitle            = xlab,
+                                                   layoutAdjust        = axisFree,
+                                                   showBoxplotOriginalData = showPoints,
+                                                   theme               = "CanvasXpress",
+                                                   xAxisTitle          = ylab,
+                                                   xAxis2Show          = FALSE,
+                                                   title               = title,
+                                                   showLegend          = FALSE,
+                                                   layoutTopology      = paste0(numrow, "X", numcol),
+                                                   segregateSamplesBy  = plotByCol,
+                                                   afterRender         = list(list('sortSamplesByCategory', list("group"))))
         } else {
             plotlist   <- list()
             plotby_vec <- unique(data[[plotByCol]])
@@ -364,39 +351,39 @@ obsPlot <- function(DGEdata,
                 rownames(smp_data) <- colnames(cx_data)
                 title <- x
 
-                canvasXpress(data                = cx_data,
-                             smpAnnot            = smp_data,
-                             graphOrientation    = "vertical",
-                             graphType           = "Boxplot",
-                             groupingFactors     = groupCol,
-                             boxplotColor        = boxColor,
-                             boxplotMean         = TRUE,
-                             boxplotWhiskersType = "single",
-                             showViolinBoxplot   = violinLayer,
-                             showBoxplotIfViolin = TRUE,
-                             violinColor         = boxColor,
-                             smpLabelRotate      = 30,
-                             smpLabelScaleFontFactor = 0.5,
-                             smpTitle            = xlab,
-                             layoutAdjust        = axisFree,
-                             showBoxplotOriginalData = showPoints,
-                             theme               = "CanvasXpress",
-                             xAxisTitle          = ylab,
-                             title               = title,
-                             xAxis2Show          = FALSE,
-                             showLegend          = FALSE,
-                             afterRender         = list(list('sortSamplesByCategory', list("group"))))
+                canvasXpress::canvasXpress(data                = cx_data,
+                                           smpAnnot            = smp_data,
+                                           graphOrientation    = "vertical",
+                                           graphType           = "Boxplot",
+                                           groupingFactors     = groupCol,
+                                           boxplotColor        = boxColor,
+                                           boxplotMean         = TRUE,
+                                           boxplotWhiskersType = "single",
+                                           showViolinBoxplot   = violinLayer,
+                                           showBoxplotIfViolin = TRUE,
+                                           violinColor         = boxColor,
+                                           smpLabelRotate      = 30,
+                                           smpLabelScaleFontFactor = 0.5,
+                                           smpTitle            = xlab,
+                                           layoutAdjust        = axisFree,
+                                           showBoxplotOriginalData = showPoints,
+                                           theme               = "CanvasXpress",
+                                           xAxisTitle          = ylab,
+                                           title               = title,
+                                           xAxis2Show          = FALSE,
+                                           showLegend          = FALSE,
+                                           afterRender         = list(list('sortSamplesByCategory', list("group"))))
             })
         }
     } else {
         .addGeoms <- function(obsPlot) {
-            obsPlot <- obsPlot + geom_boxplot(
+            obsPlot <- obsPlot + ggplot2::geom_boxplot(
                 alpha = 0.5,
                 color = "black",
                 fill  = boxColor,
                 outlier.shape = outlier.shape,
                 outlier.size  = outlier.size
-            ) + stat_summary(fun   = mean,
+            ) + ggplot2::stat_summary(fun   = mean,
                              geom  = "point",
                              shape = "square",
                              size  = 3,
@@ -405,19 +392,19 @@ obsPlot <- function(DGEdata,
                              alpha = 0.7)
 
             if (violinLayer) {
-                obsPlot <- obsPlot + geom_violin(alpha = 0.5,
+                obsPlot <- obsPlot + ggplot2::geom_violin(alpha = 0.5,
                                                  color = "black",
                                                  fill  = violinColor)
             }
 
             if (showPoints) {
                     obsPlot <-
-                        obsPlot + geom_point(position = position_jitter(width = 0.1),
-                                             alpha    = 0.5,
-                                             color    = "grey30",
-                                             fill     = "dodgerblue4",
-                                             size     = 2,
-                                             shape    = "circle")
+                        obsPlot +  ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.1),
+                                                       alpha    = 0.5,
+                                                       color    = "grey30",
+                                                       fill     = "dodgerblue4",
+                                                       size     = 2,
+                                                       shape    = "circle")
             }
 
             obsPlot
@@ -439,8 +426,8 @@ obsPlot <- function(DGEdata,
 
         # Plot code here
         if (facet) {
-            obsPlot <- ggplot2::ggplot(data, aes_string(x = groupCol, y = valueCol))
-            obsPlot <- .addGeoms(obsPlot) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+            obsPlot <- ggplot2::ggplot(data,  ggplot2::aes_string(x = groupCol, y = valueCol))
+            obsPlot <- .addGeoms(obsPlot) +  ggplot2::theme(axis.text.x =  ggplot2::element_text(angle = 30, hjust = 1))
             facetFormula <- stringr::str_c("~", plotByCol, sep = " ")
             obsPlot <- obsPlot + ggplot2::facet_wrap(facetFormula, nrow = numrow, scales = axisFree)
             obsPlot <- obsPlot + ggplot2::xlab(xlab)
@@ -452,11 +439,11 @@ obsPlot <- function(DGEdata,
             plotlist <- list()
             for (obs in unique(data[[plotByCol]])) {
                 dat   <- data[data[[plotByCol]] == obs, ]
-                aplot <- ggplot(dat, aes_string(x = groupCol, y = valueCol)) +
-                    xlab(xlab) +
-                    ylab(ylab) +
-                    ggtitle(obs)
-                aplot <- .addGeoms(aplot) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+                aplot <-  ggplot2::ggplot(dat,  ggplot2::aes_string(x = groupCol, y = valueCol)) +
+                    ggplot2::xlab(xlab) +
+                    ggplot2::ylab(ylab) +
+                    ggplot2::ggtitle(obs)
+                aplot <- .addGeoms(aplot) +  ggplot2::theme(axis.text.x =  ggplot2::element_text(angle = 30, hjust = 1))
                 plotlist[[obs]] <- aplot
             }
             obsPlot <- plotlist

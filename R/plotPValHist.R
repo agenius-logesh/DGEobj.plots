@@ -4,7 +4,7 @@
 #' numbers. Intended to perform histogram analysis of p-value distributions,
 #' but should be useful for any dataframe of numeric columns.
 #'
-#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param DGEdata DGEobj with a class of DGEobj.
 #' @param P.Val A character vector of a topTable data in DGEobj. Default="P.Value".
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
@@ -48,7 +48,7 @@ plotPvalHist <- function(DGEdata,
         P.Val <- "P.Value"
     }
 
-    P.Val <- extractCol(getType(DGEdata, "topTable"), colName = P.Val, robust = FALSE)
+    P.Val <- DGEobj.utils::extractCol(DGEobj::getType(DGEdata, "topTable"), colName = P.Val, robust = FALSE)
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -71,7 +71,7 @@ plotPvalHist <- function(DGEdata,
             !is.logical(facet),
             length(facet) != 1)) {
         warning("facet must be a singular logical value. Assigning default value TRUE.")
-        facet = TRUE
+        facet <- TRUE
     }
 
     if (any(is.null(binWidth),
