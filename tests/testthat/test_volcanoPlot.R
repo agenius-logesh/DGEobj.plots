@@ -48,7 +48,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_s3_class(volcano_plot, c("gg","ggplot"))
     # testing asserts
     ## DGEdata
-    msg <- "DGEdata must be specified as class of DGEobj."
+    msg <- "DGEdata must be specified and must belong to DGEobj"
     expect_error(volcanoPlot(),
                  regexp = msg)
     expect_error(volcanoPlot(NULL),
@@ -91,31 +91,33 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     msg <- "logRatioCol column not found in contrast data."
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = "xyz"),
                  regexp =  msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = c("xyz","abc")),
-                 regexp =  msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = NULL),
                  regexp =  msg)
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logRatioCol = 123),
+                 regexp = msg)
     ## logIntCol
     msg <- "logIntCol column not found in contrast data."
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = "xyz"),
                  regexp =  msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = c("xyz","abc")),
-                 regexp =  msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = NULL),
                  regexp =  msg)
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", logIntCol = 123),
+                 regexp = msg)
     ## pvalCol
     msg <- "pvalCol column not found in contrast data."
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = "xyz"),
                  regexp = msg)
-    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = c("xyz","abc")),
-                 regexp =  msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
+                 regexp = msg)
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = 123),
                  regexp = msg)
     ## geneNameCol
     msg <- "geneNameCol column not found in geneData from DGEdata."
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = NULL),
                  regexp = msg)
     expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = "xyz"),
+                 regexp = msg)
+    expect_error(volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", geneNameCol = 123),
                  regexp = msg)
     ## pthreshold
     msg <- "pthreshold must be a singular numeric value. Assigning default value 0.01"
@@ -141,108 +143,61 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", title = 123),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", title = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", title = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", title = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
+
     ## xlab
     msg <- "xlab must be a singular value of class character. Assigning default value 'NULL'."
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", xlab = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", xlab = 123),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", xlab = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", xlab = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", xlab = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", xlab = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
+
     ## ylab
     msg <- "ylab must be a singular value of class character. Assigning default value 'NULL'."
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", ylab = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", ylab = 123),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", ylab = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", ylab = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", ylab = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", ylab = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
-
     ## pthresholdLine
     msg <- "pthresholdLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pthresholdLine = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", pthresholdLine = 123),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pthresholdLine = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", pthresholdLine = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pthresholdLine = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", pthresholdLine = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     msg <- "Color specified is not valid. Assigning default value 'NULL'."
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pthresholdLine = "abc"),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", pthresholdLine = "abc"),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
 
     ## sizeByIntensity
     msg <- "sizeByIntensity must be a singular logical value. Assigning default value TRUE"
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", sizeByIntensity = "123"),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", sizeByIntensity = "123"),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", sizeByIntensity = c(TRUE, TRUE)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", sizeByIntensity = c(TRUE, TRUE)),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
     expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", sizeByIntensity = NULL),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", plotType = "ggplot", sizeByIntensity = NULL),
-                   regexp = msg)
-    expect_s3_class(volcano_plot, c("gg", "ggplot"))
 })

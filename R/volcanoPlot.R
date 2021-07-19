@@ -25,13 +25,8 @@
 #' threshold are used to color code genes that are significantly increased or decreased.
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
-#' Sensible defaults are chosen for symbols (Size, Shape,  and Color), but they can be
-#' adjusted through the use of optional arguments. A length of 3 is
-#' required for these arguments which applies the attributes in this order:
-#' Increased, NoChange, Decreased.
-#'
-#' @param DGEdata Name of DGEobj data with a class of DGEobj.
-#' @param contrast A character vector of a topTable data in DGEobj and its a class of dataframe
+#' @param DGEdata Name of DGEobj data. Should below to class DGEobj.
+#' @param contrast A single character vector of a topTable data in DGEobj and its a class of dataframe
 #'   with LogRatio and LogIntensity columns and optionally a
 #'   p-value or FDR column (typically a topTable dataframe).
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
@@ -57,6 +52,7 @@
 #' \dontrun{
 #'    # Simple plot with custom title (DGEdata is a name of DGEobj and
 #'      contrast is a name of topTable dataframe)
+#'    contrast <- names(DGEobj::getItems(DGEdata, "topTable"))[1]
 #'    myPlot <- volcanoPlot(DGEdata, contrast, title = "Plot Title")
 #'
 #'    # Some options with a custom datafile
@@ -69,6 +65,17 @@
 #'                          xlab = "logFC", ylab = "negLog10p",
 #'                          title = "Volcano Plot Title",
 #'                          pthresholdLine = "blue")
+#'
+#'    myPlot <- volcanoPlot(DGEdata,
+#'                          contrast,
+#'                          pthreshold = 0.1,
+#'                          logRatioCol = "logFC",
+#'                          logIntCol = "AveExpr",
+#'                          pvalCol = "P.Value",
+#'                          xlab = "logFC", ylab = "negLog10p",
+#'                          title = "Volcano Plot Title",
+#'                          pthresholdLine = "blue",
+#'                          plotType = "ggplot")
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -96,7 +103,7 @@ volcanoPlot <- function(DGEdata,
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
                             "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified as class of DGEobj.")
+                            msg = "DGEdata must be specified and must belong to DGEobj.")
 
     assertthat::assert_that(!missing(contrast),
                             !is.null(contrast),
@@ -117,17 +124,14 @@ volcanoPlot <- function(DGEdata,
 
     # Make sure specified columns exist
     assertthat::assert_that(!is.null(logRatioCol),
-                            length(logRatioCol) == 1,
                             logRatioCol %in% colnames(contrastDF),
                             msg = "logRatioCol column not found in contrast data.")
 
     assertthat::assert_that(!is.null(logIntCol),
-                            length(logIntCol) == 1,
                             logIntCol %in% colnames(contrastDF),
                             msg = "logIntCol column not found in contrast data.")
 
     assertthat::assert_that(!is.null(pvalCol),
-                            length(pvalCol) == 1,
                             pvalCol %in% colnames(contrastDF),
                             msg = "pvalCol column not found in contrast data.")
 
