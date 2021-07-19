@@ -91,7 +91,6 @@ test_that("cdfPlot.R: cdfPlot()", {
 
     expect_setequal(unlist(plot_with_aes$main$labels[c("title", "y", "x")]), c("MyPlot", "yaxis-title", "xaxis-title"))
     expect_setequal(plot_with_aes$inset$labels$title, "Sub plot title")
-    expect_equal(plot_with_aes$main$layers[[2]]$geom_params$colour, "blue")
 
     #DGEdata
     msg <- "DGEdata must be specified and must belong to DGEobj class."
@@ -143,12 +142,12 @@ test_that("cdfPlot.R: cdfPlot()", {
     expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
 
     #pvalCol
-    msg <- "pvalCol column not found in contrast data."
-    expect_error(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = "notacolumn"),
+    msg <- "pvalCol must to be a singular value of class character and must be in contrast data. Assigning default value 'P.Value'."
+    expect_warning(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = "notacolumn"),
                  regexp = msg)
-    expect_error(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = c("notacolumn","abc")),
+    expect_warning(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = c("notacolumn","abc")),
                  regexp = msg)
-    expect_error(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
+    expect_warning(cdf_plot <- cdfPlot(DGEdata = t_obj1, contrast = "BDL_vs_Sham", pvalCol = NULL),
                  regexp = msg)
 
     #pThreshold

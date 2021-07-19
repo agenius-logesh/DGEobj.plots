@@ -104,12 +104,15 @@ cdfPlot <- function(DGEdata,
 
     assertthat::assert_that(nrow(contrastDF) > 0,
                             "data.frame" %in% class(contrastDF),
-                            msg = "contrast data must be a class of dataframe")
+                            msg = "The specified contrast does not have a valid topTable associated with it. Re-run the function with a valid contrast.")
 
-    assertthat::assert_that(!is.null(pvalCol),
-                            length(pvalCol) == 1,
-                            pvalCol %in% colnames(contrastDF),
-                            msg = "pvalCol column not found in contrast data.")
+    if (any(is.null(pvalCol),
+            !is.character(pvalCol),
+            length(pvalCol) != 1,
+            !pvalCol %in% colnames(contrastDF))) {
+        warning("pvalCol must to be a singular value of class character and must be in contrast data. Assigning default value 'P.Value'.")
+        pvalCol <- "P.Value"
+    }
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -272,7 +275,7 @@ cdfPlot <- function(DGEdata,
     # Combo PLOT: full data inset, most significant data in main plot
     # Rank by p-value
     contrastDF <- contrastDF %>%
-        dplyr::arrange(!!sym(pvalCol))
+        dplyr::arrange(!!rlang::sym(pvalCol))
     contrastDF$Rank <- c(1:nrow(contrastDF))
 
     # Let"s plot the p-value subsets
@@ -354,26 +357,26 @@ cdfPlot <- function(DGEdata,
         names(symbolColor) <- groupNames
 
         # Plot subset percent of the data for the main plot
-        cdfMain <- ggplot(contrastDF_subset, aes_string(x = x, y = y)) +
-            aes(shape = group, size = group, color = group, fill = group) +
+        cdfMain <- ggplot2::ggplot(contrastDF_subset, ggplot2::aes_string(x = x, y = y)) +
+            ggplot2::aes(shape = group, size = group, color = group, fill = group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            scale_shape_manual(values = symbolShape) +
-            scale_size_manual( values =  symbolSize) +
-            scale_color_manual(values = symbolColor,  aesthetics = c("colour", "fill")) +
-            geom_point(alpha = transparency)
+            ggplot2::scale_shape_manual(values = symbolShape) +
+            ggplot2::scale_size_manual( values =  symbolSize) +
+            ggplot2::scale_color_manual(values = symbolColor,  aesthetics = c("colour", "fill")) +
+            ggplot2::geom_point(alpha = transparency)
 
         # Optional Decorations
         if (!is.null(referenceLine)) {
             cdfMain <- cdfMain +
-                geom_hline(yintercept = pThreshold, color = referenceLine,
-                           size = refLineThickness, alpha = 0.5)
+                ggplot2::geom_hline(yintercept = pThreshold, color = referenceLine,
+                                    size = refLineThickness, alpha = 0.5)
         }
 
         # Add Labels
         cdfMain <- cdfMain +
-            xlab(xlab) +
-            ylab(ylab) +
-            ggtitle(title)
+            ggplot2::xlab(xlab) +
+            ggplot2::ylab(ylab) +
+            ggplot2::ggtitle(title)
 
         if (!missing(footnote)) {
             cdfMain <- addFootnote(cdfMain,
@@ -384,33 +387,33 @@ cdfPlot <- function(DGEdata,
         }
 
         # Set up the inset plot with All Data
-        cdfInset <- ggplot(contrastDF, aes_string(x = x, y = y)) +
-            aes(shape = group, size = group, color = group, fill = group) +
+        cdfInset <- ggplot2::ggplot(contrastDF, ggplot2::aes_string(x = x, y = y)) +
+            ggplot2::aes(shape = group, size = group, color = group, fill = group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            scale_shape_manual(values = symbolShape) +
-            scale_size_manual( values = symbolSize) +
-            scale_color_manual(values = symbolColor, aesthetics = c("colour", "fill")) +
-            geom_rect(xmin = 0, xmax = nrow(contrastDF),
-                      ymin = 0, ymax = max(contrastDF[[y]]), color = "lightblue",
-                      fill = "lightblue", alpha = 0.2) +
-            geom_point(alpha = transparency)
+            ggplot2::scale_shape_manual(values = symbolShape) +
+            ggplot2::scale_size_manual( values = symbolSize) +
+            ggplot2::scale_color_manual(values = symbolColor, aesthetics = c("colour", "fill")) +
+            ggplot2::geom_rect(xmin = 0, xmax = nrow(contrastDF),
+                               ymin = 0, ymax = max(contrastDF[[y]]), color = "lightblue",
+                               fill = "lightblue", alpha = 0.2) +
+            ggplot2::geom_point(alpha = transparency)
 
         #remove the legends for the inset plot
-        cdfInset <- cdfInset + theme(legend.position = "none")
+        cdfInset <- cdfInset + ggplot2::theme(legend.position = "none")
 
         # Add Labels and title
         cdfInset <- cdfInset +
-            xlab(xlab) +
-            ylab(ylab) +
-            ggtitle(insetTitle)
+            ggplot2::xlab(xlab) +
+            ggplot2::ylab(ylab) +
+            ggplot2::ggtitle(insetTitle)
 
         plot_limits <- get_plot_limits(cdfMain, viewportX, viewportY, viewportWidth)
         vp_plot <- cdfMain +
-            annotation_custom(grob =  ggplotGrob(cdfInset),
-                              ymin = plot_limits[["ymin"]],
-                              ymax = plot_limits[["ymax"]],
-                              xmin = plot_limits[["xmin"]],
-                              xmax = plot_limits[["xmax"]])
+            ggplot2::annotation_custom(grob =  ggplot2::ggplotGrob(cdfInset),
+                                       ymin = plot_limits[["ymin"]],
+                                       ymax = plot_limits[["ymax"]],
+                                       xmin = plot_limits[["xmin"]],
+                                       xmax = plot_limits[["xmax"]])
 
         cdfPlot <- list(main = cdfMain, inset = cdfInset, combined = vp_plot)
     }
@@ -419,7 +422,7 @@ cdfPlot <- function(DGEdata,
 }
 
 get_plot_limits <- function(main_plot, viewportX, viewportY, viewportWidth) {
-    main_plot_build <- ggplot_build(main_plot)
+    main_plot_build <- ggplot2::ggplot_build(main_plot)
     xrange <- main_plot_build$layout$panel_params[[1]]$x.range
     yrange <- main_plot_build$layout$panel_params[[1]]$y.range
 
