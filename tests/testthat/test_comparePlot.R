@@ -21,7 +21,7 @@ test_that("comparePlot.R: comparePlot()", {
 
     # testing aesthetics of plots with significance measures
     cPlot <- comparePlot(DGEdata = t_obj1,
-                         contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL")
+                         contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
                          pThreshold = 0.001,
                          title    = "MyPlot",
                          xlab     = "xaxis-title",

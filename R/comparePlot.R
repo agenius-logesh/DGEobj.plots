@@ -29,7 +29,7 @@
 #' Note: if p-values or FDR values are not used to color the plot, the X Unique color
 #' values are used.
 #'
-#' @param DGEdata Name of DGEobj with a class of DGEobj.
+#' @param DGEdata DGEobj with a class of DGEobj.
 #' @param contrasts A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
 #'        with logFC and P.Value. These two contrasts representing the x and y variables.
 #'        Optionally add xp and yp columns to hold p-values or FDR values.
@@ -60,10 +60,11 @@
 #' @examples
 #' \dontrun{
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-#'   contrastList <- lapply(c(contrastOne,contrastTwo), function(x){
+#'   contrasts <- names(DGEobj::getType(DGEdata, "topTable"))[1:2]
+#'   contrastList <- lapply(contrasts, function(x){
 #'      getItems(DGEdata, x)
 #'    })
-#'    names(contrastList) <- c(contrastOne,contrastTwo)
+#'    names(contrastList) <- contrasts
 #'
 #'   # Capture the default logFC and P.Value
 #'   compareDat <- comparePrep(contrastList)
@@ -85,13 +86,24 @@
 #'                         crosshair = "red",
 #'                         referenceLine = "blue",
 #'                         legendPosition = "right")
+#'
+#'                         myPlot <- comparePlot(DGEdata,
+#'                         contrasts,
+#'                         pThreshold = 0.5,
+#'                         xlab = "x Axis Label",
+#'                         ylab = "y Axis Label",
+#'                         title = "Plot Title",
+#'                         crosshair = "red",
+#'                         referenceLine = "blue",
+#'                         legendPosition = "right",
+#'                         plotType = "ggplot")
 #' }
 #'
 #' @import ggplot2
-#' @importFrom dplyr mutate arrange filter select rename_with summarise
+#' @importFrom dplyr mutate arrange filter select rename_with summarise across everything
 #' @importFrom assertthat assert_that
 #' @importFrom canvasXpress canvasXpress
-#' @importFrom magrittr set_rownames
+#' @importFrom magrittr set_rownames multiply_by
 #'
 #' @export
 comparePlot <- function(DGEdata,
@@ -123,6 +135,7 @@ comparePlot <- function(DGEdata,
     assertthat::assert_that(!missing(contrasts),
                             !is.null(contrasts),
                             length(contrasts) == 2,
+                            is.character(contrasts),
                             contrasts[1] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
                             contrasts[2] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
                             msg = "contrast must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns.")
@@ -148,7 +161,6 @@ comparePlot <- function(DGEdata,
     plotType <- tolower(plotType)
     assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
                             msg = "Plot type must be either canvasXpress or ggplot.")
-
 
     if (any(is.null(pThreshold),
             !is.numeric(pThreshold),
@@ -295,7 +307,7 @@ comparePlot <- function(DGEdata,
 
     y_range <- compareDF %>%
         dplyr::select(ylabel) %>%
-        dplyr::summarise(across(everything(), list(min, max))) %>%
+        dplyr::summarise(dplyr::across(dplyr::everything(), list(min, max))) %>%
         dplyr::rename_with(~ c("min", "max"))
 
     if (plotType == "canvasxpress") {
