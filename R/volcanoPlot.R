@@ -243,14 +243,15 @@ volcanoPlot <- function(DGEdata,
                                                   if (o.y != null &&
                                                       o.y.data != null &&
                                                       o.y.smps != null) {
-                                                      info = '<b>' + o.y.vars[0]  + '</b>' + '<br/>' +
+                                                      if (o.z != null && o.z['GeneName'] != null) {
+                                                        info  = '<b>' + o.z['GeneName'] + '</b>'+ ' (' + o.y.vars[0] + ')';
+                                                      } else {
+                                                        info = '<b>' + o.y.vars[0]  + '</b>' ;
+                                                      }
+                                                      info = info + '</br>' +
                                                              '<i>' + o.z.Group  + '</i><br/>' +
                                                              'logFC: ' +  o.y.data[0][0] + '<br/>' +
                                                              '-log-pVal: ' +  o.y.data[0][1] ;
-                                                      if (o.z != null && o.z['GeneName'] != null) {
-                                                        info  = info + '<br/>' +
-                                                              '<b> Symbol</b>' + ': ' + o.z['GeneName'] ;
-                                                      }
                                                     t.showInfoSpan(e, info);
                                                   }
                                                 }; }}")
@@ -262,10 +263,12 @@ volcanoPlot <- function(DGEdata,
             var.annot <- contrastDF %>%
                 dplyr::select(Group, LogInt)
             sizeBy <- "LogInt"
+            sizes <- c(4, 8, 10, 12, 14)
         } else {
             var.annot <- contrastDF %>%
                 dplyr::select(Group)
             sizeBy <- "Group"
+            sizes <- c(10, 10, 4)
         }
 
         if (!missing(geneNameCol)) {
@@ -289,7 +292,7 @@ volcanoPlot <- function(DGEdata,
                                     xAxisTitle        = xlab,
                                     yAxisTitle        = ylab,
                                     sizeBy            = sizeBy,
-                                    sizes             = c(4, 8, 10, 12, 14),
+                                    sizes             = sizes,
                                     events            = events)
 
     } else {
@@ -329,7 +332,7 @@ volcanoPlot <- function(DGEdata,
                 scale_size_manual(name   = "Group",
                                   guide  = "legend",
                                   labels = ssc$group,
-                                  values = c(2, 4, 6)) +
+                                  values = c(4, 4, 2)) +
                 scale_shape_manual(name   = "Group",
                                    guide  = "legend",
                                    labels = ssc$group,
@@ -354,23 +357,6 @@ volcanoPlot <- function(DGEdata,
                            color      = "deepskyblue4",
                            size       = 2,
                            alpha      = 0.5)
-        }
-
-        # Add genesym labels to increased, decreased genes
-        if (!missing(geneNameCol)) {
-            gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
-                dplyr::select(all_of(geneNameCol))
-
-            geneSymLabels_df <- merge(contrastDF, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
-                tibble::column_to_rownames(var = "Row.names")
-
-            volcanoPlot <- volcanoPlot +
-                ggrepel::geom_text_repel(data = geneSymLabels_df,
-                                         aes_string(x = logRatioCol,
-                                                    y = "negLog10P",
-                                                    label = geneNameCol),
-                                         show.legend  = TRUE,
-                                         max.overlaps = dim(geneSymLabels_df)[1]*10)
         }
 
         # Add axis Labels
