@@ -16,11 +16,10 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Print to console using all defaults
-#'    plotPvalHist(DGEdata, P.Val)
+#'    # Plot to console (DGEdata is a DGEobj and P.Val is a name of topTable data in DGEobj.)
+#'    myplot <- plotPvalHist(DGEdata, P.Val = "P.Value")
 #'
-#'    # Use some custom arguments
-#'    myplot <- plotPvalHist(DGEdata, P.Val)
+#'    myplot <- plotPvalHist(DGEdata, P.Val = "P.Value", plotType = "ggplot")
 #' }
 #'
 #' @import ggplot2
