@@ -40,13 +40,17 @@
 
 .is_valid_symbolShapes_cxplot <- function(shape) {
     valid_shapes <- .get_valid_symbolShapes_cxplot()
-    is_valid_shape <- ifelse(shape %in% valid_shapes, TRUE, FALSE)
+    is_valid_shape <- FALSE
+    if (!is.null(shape)) {
+        is_valid_shape <- ifelse(shape %in% valid_shapes, TRUE, FALSE)
+    }
+    is_valid_shape
 }
 
 .get_valid_symbolShapes_cxplot <- function() {
-    valid_shapes <- c("sphere", "square", "rhombus", "triangle", "plus", "star", "octagon", "oval",
+    valid_shapes <- c("circle","sphere", "square", "rhombus", "triangle", "plus", "star", "octagon", "oval",
                       "minus", "pacman", "pacman2", "mdavid", "rect2", "pentagon",
-                      "rect3", "arc", "rectangle", "image", "circle")
+                      "rect3", "arc", "rectangle", "image")
 }
 
 .get_valid_symbolShapes_ggplot <- function() {
@@ -62,9 +66,12 @@
 
 .is_valid_symbolShapes_ggplot <- function(shape) {
     valid_shapes <- .get_valid_symbolShapes_ggplot()
-    is_valid_shape <- ifelse(shape %in% valid_shapes, TRUE, FALSE)
-    if (!is_valid_shape && (shape %in% c(1:25))) {
-        is_valid_shape <- TRUE
+    is_valid_shape <- FALSE
+    if (!is.null(shape)) {
+        is_valid_shape <- ifelse(shape %in% valid_shapes, TRUE, FALSE)
+        if (!is_valid_shape && (shape %in% c(1:25))) {
+            is_valid_shape <- TRUE
+        }
     }
     is_valid_shape
 }
@@ -107,5 +114,4 @@
         line <- append(line, list(y = y))
     }
     list(line = append(decorations$line, list(line)))
-
 }

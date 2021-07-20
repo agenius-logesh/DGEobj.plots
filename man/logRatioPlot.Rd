@@ -14,16 +14,9 @@ logRatioPlot(
   CI.L_colname = "CI.L",
   plotCategory = "bar",
   refLine = TRUE,
-  refLineColor = "red",
   xlab = xColname,
   ylab = yColname,
   title = NULL,
-  barColor = "dodgerblue4",
-  barTransparency = 1,
-  pointColor = "dodgerblue4",
-  pointShape = "circle",
-  pointTransparency = 1,
-  pointSize = 2,
   facet = TRUE,
   labelAngle = 45,
   axisFree = TRUE
@@ -48,25 +41,11 @@ logRatioPlot(
 
 \item{refLine}{Adds a horizontal line at y = 0 (default = TRUE)}
 
-\item{refLineColor}{Color for the reference line (default = "red")}
-
 \item{xlab}{X axis label (defaults to xColname)}
 
 \item{ylab}{Y axis label (defaults to yColname)}
 
 \item{title}{Plot title, set to NULL to disable (Optional, default is NULL)}
-
-\item{barColor}{Color for the bar outline (default = "dodgerblue4")}
-
-\item{barTransparency}{Transparency for the bar layer (default = 1)}
-
-\item{pointColor}{Color for the point layer (default = "grey30")}
-
-\item{pointShape}{Shape for the point layer, for ggplot plotType (default = "circle")}
-
-\item{pointTransparency}{Transparency for the box layer (default = 1)}
-
-\item{pointSize}{Size of the points, for ggplot plotType (default = 4)}
 
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
@@ -116,8 +95,7 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
               xColname = "Contrast",
               axisFree = FALSE,
               facet = TRUE,
-              title = "Test",
-              pointSize = 4,
+              title = "Test"
               labelAngle = 60)
 }
 
