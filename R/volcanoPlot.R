@@ -24,52 +24,51 @@
 #'
 #' @param DGEdata DGEobj.
 #' @param contrast Name of the contrast.
-#' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
-#' @param logRatioCol Name of the LogRatio column (default = "logFC")
-#' @param logIntCol Name of the LogIntensity column (default = "AveExpr")
-#' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
-#' @param xlab X axis label (Default is the LogIntensity column name)
-#' @param ylab Y axis label (Default is the LogRatio column name)
-#' @param title Plot title (optional)
-#' @param pthreshold Used to color points (default = 0.01)
-#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label
-#'    significantly changed points.
-#' @param pthresholdLine Color for a horizontal line at the p-threshold (default
-#'   = NULL (disabled))
+#' @param plotType Plot type must be canvasXpress or ggplot. (default = canvasXpress)
+#' @param logRatioCol Name of the LogRatio column. (default = "logFC")
+#' @param logIntCol Name of the LogIntensity column. (default = "AveExpr")
+#' @param pvalCol Name of the p-value or FDR column. (default = "P.Value")
+#' @param xlab X axis label. (Default is the LogIntensity column name)
+#' @param ylab Y axis label. (Default is the LogRatio column name)
+#' @param title Plot title (optional).
+#' @param pthreshold Used to color points. (default = 0.01)
+#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label significantly changed points.
+#' @param pthresholdLine Color for a horizontal line at the p-threshold. (default = NULL (disabled))
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (default = TRUE)
-#' @param foldChangeLines Position of reference vertical lines for fold change
-#'   (default = log2(1.5); NULL disables this FCline)
-#'
-#' @return canvasxpress or ggplot object based on plotType selection
+#' @param foldChangeLines Position of reference vertical lines for fold change. (default = 1.5)
+#' @return canvasxpress or ggplot object based on plotType selection.
 #'
 #' @examples
 #' \dontrun{
-#'    # Simple plot with custom title (DGEdata is a name of DGEobj and
-#'      contrast is a name of topTable dataframe)
+#'    # Simple plot with custom title (DGEdata is a name of DGEobj and contrast is a name of topTable dataframe)
 #'    contrast <- names(DGEobj::getItems(DGEdata, "topTable"))[1]
-#'    myPlot <- volcanoPlot(DGEdata, contrast, title = "Plot Title")
+#'    myPlot <- volcanoPlot(DGEdata,
+#'                          contrast,
+#'                          title = "Plot Title")
 #'
 #'    # Some options with a custom datafile
 #'    myPlot <- volcanoPlot(DGEdata,
 #'                          contrast,
-#'                          pthreshold = 0.1,
-#'                          logRatioCol = "logFC",
-#'                          logIntCol = "AveExpr",
-#'                          pvalCol = "P.Value",
-#'                          xlab = "logFC", ylab = "negLog10p",
-#'                          title = "Volcano Plot Title",
+#'                          pthreshold     = 0.1,
+#'                          logRatioCol    = "logFC",
+#'                          logIntCol      = "AveExpr",
+#'                          pvalCol        = "P.Value",
+#'                          xlab           = "logFC",
+#'                          ylab           = "negLog10p",
+#'                          title          = "Volcano Plot Title",
 #'                          pthresholdLine = "blue")
 #'
 #'    myPlot <- volcanoPlot(DGEdata,
 #'                          contrast,
-#'                          pthreshold = 0.1,
-#'                          logRatioCol = "logFC",
-#'                          logIntCol = "AveExpr",
-#'                          pvalCol = "P.Value",
-#'                          xlab = "logFC", ylab = "negLog10p",
-#'                          title = "Volcano Plot Title",
+#'                          pthreshold     = 0.1,
+#'                          logRatioCol    = "logFC",
+#'                          logIntCol      = "AveExpr",
+#'                          pvalCol        = "P.Value",
+#'                          xlab           = "logFC",
+#'                          ylab           = "negLog10p",
+#'                          title          = "Volcano Plot Title",
 #'                          pthresholdLine = "blue",
-#'                          plotType = "ggplot")
+#'                          plotType       = "ggplot")
 #' }
 #'
 #' @import ggplot2 magrittr
@@ -83,18 +82,18 @@
 #' @export
 volcanoPlot <- function(DGEdata,
                         contrast,
-                        plotType = "canvasXpress",
-                        logRatioCol = "logFC",
-                        logIntCol = "AveExpr",
-                        pvalCol = "P.Value",
-                        pthreshold = 0.01,
+                        plotType        = "canvasXpress",
+                        logRatioCol     = "logFC",
+                        logIntCol       = "AveExpr",
+                        pvalCol         = "P.Value",
+                        pthreshold      = 0.01,
                         geneNameCol,
-                        xlab = NULL,
-                        ylab = NULL,
-                        title = NULL,
+                        xlab            = NULL,
+                        ylab            = NULL,
+                        title           = NULL,
                         sizeByIntensity = TRUE,
-                        pthresholdLine = NULL,
-                        foldChangeLines = log2(1.5)) {
+                        pthresholdLine  = NULL,
+                        foldChangeLines = 1.5) {
     ##### Asserts
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
@@ -119,34 +118,25 @@ volcanoPlot <- function(DGEdata,
     }
 
     # Make sure specified columns exist
-    if (any(is.null(logRatioCol),
-            !is.character(logRatioCol),
-            length(logRatioCol) != 1,
-            !logRatioCol %in% colnames(contrastDF))) {
-        warning("logRatioCol to be a singular value of class character and must be in contrast data. Assigning default value 'logFC'.")
-        logRatioCol <- "logFC"
-    }
+    assertthat::assert_that(!is.null(logRatioCol),
+                            length(logRatioCol) == 1,
+                            logRatioCol %in% colnames(contrastDF),
+                            msg = "logRatioCol to be a singular value of class character and must be in contrast data.")
 
-    if (any(is.null(logIntCol),
-            !is.character(logIntCol),
-            length(logIntCol) != 1,
-            !logIntCol %in% colnames(contrastDF))) {
-        warning("logIntCol to be a singular value of class character and must be in contrast data. Assigning default value 'AveExpr'.")
-        logIntCol <- "AveExpr"
-    }
+    assertthat::assert_that(!is.null(logIntCol),
+                            length(logIntCol) == 1,
+                            logIntCol %in% colnames(contrastDF),
+                            msg = "logIntCol to be a singular value of class character and must be in contrast data.")
 
-    if (any(is.null(pvalCol),
-            !is.character(pvalCol),
-            length(pvalCol) != 1,
-            !pvalCol %in% colnames(contrastDF))) {
-        warning("pvalCol to be a singular value of class character and must be in contrast data. Assigning default value 'P.Value'.")
-        pvalCol <- "P.Value"
-    }
+    assertthat::assert_that(!is.null(pvalCol),
+                            length(pvalCol) == 1,
+                            pvalCol %in% colnames(contrastDF),
+                            msg = "pvalCol to be a singular value of class character and must be in contrast data.")
 
     if (!missing(geneNameCol)) {
         assertthat::assert_that(!is.null(geneNameCol),
                                 length(geneNameCol) == 1,
-                                geneNameCol %in% names(getItems(DGEdata, itemNames = "geneData")),
+                                geneNameCol %in% names(DGEobj::getType(DGEdata, type = "geneData")[[1]]),
                                 msg = "geneNameCol to be a singular value of class character and must be in contrast data.")
     }
 
@@ -160,8 +150,8 @@ volcanoPlot <- function(DGEdata,
     if (any(is.null(foldChangeLines),
             !is.numeric(foldChangeLines),
             length(foldChangeLines) != 1)) {
-        warning("foldChangeLines must be a singular numeric value. Assigning default value log2(1.5)")
-        foldChangeLines <- log2(1.5)
+        warning("foldChangeLines must be a singular numeric value. Assigning default value 1.5.")
+        foldChangeLines <- 1.5
     }
 
     if (!is.null(title) &&
@@ -186,7 +176,8 @@ volcanoPlot <- function(DGEdata,
     }
 
     if (!is.null(pthresholdLine) &&
-        !all(is.character(pthresholdLine), length(pthresholdLine) == 1)) {
+        !all(is.character(pthresholdLine),
+             length(pthresholdLine) == 1)) {
         warning("pthresholdLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
         pthresholdLine <- NULL
     } else if (.rgbaConversion(pthresholdLine) == "invalid value") {
@@ -212,8 +203,8 @@ volcanoPlot <- function(DGEdata,
     contrastDF <- contrastDF %>%
         dplyr::mutate(negLog10P = -log10(!!rlang::sym(pvalCol)),
                       Group = dplyr::case_when(
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -foldChangeLines) ~ "Decreased",
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > foldChangeLines) ~ "Increased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -log2(foldChangeLines)) ~ "Decreased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > log2(foldChangeLines)) ~ "Increased",
                           TRUE ~  "No Change")) %>%
             dplyr::arrange(Group)
 
@@ -221,25 +212,30 @@ volcanoPlot <- function(DGEdata,
 
         symbolColor <- sapply(c("deepskyblue4", "red3", "grey25"), .rgbaConversion, alpha = 0.5, USE.NAMES = FALSE)
 
+        group <- c("Decreased", "Increased", "No Change")
+
+        ssc <- data.frame(group, symbolColor, row.names = NULL) %>%
+            dplyr::filter(group %in% unique(contrastDF$Group))
+
         decorations <- list()
 
         if (!is.null(pthresholdLine)) {
             pthresholdLine <- .rgbaConversion(pthresholdLine, alpha = 0.5)
             decorations   <- .getCxPlotDecorations(decorations = decorations,
-                                                   color = pthresholdLine,
-                                                   width = 2,
-                                                   y     = -log10(pthreshold))
+                                                   color       = pthresholdLine,
+                                                   width       = 2,
+                                                   y           = -log10(pthreshold))
         }
 
         if (!is.null(foldChangeLines)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                  color       = symbolColor[2],
                                                  width       = 2,
-                                                 x           = foldChangeLines)
+                                                 x           = log2(foldChangeLines))
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                  color       = symbolColor[1],
                                                  width       = 2,
-                                                 x           = -foldChangeLines)
+                                                 x           = -log2(foldChangeLines))
         }
 
         events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
@@ -259,10 +255,12 @@ volcanoPlot <- function(DGEdata,
                                                   }
                                                 }; }}")
 
-        cx.data <- contrastDF %>% dplyr::select(all_of(logRatioCol), negLog10P)
+        cx.data <- contrastDF %>%
+            dplyr::select(all_of(logRatioCol), negLog10P)
 
         if (sizeByIntensity) {
-            var.annot <- contrastDF %>% dplyr::select(Group,LogInt)
+            var.annot <- contrastDF %>%
+                dplyr::select(Group, LogInt)
             sizeBy <- "LogInt"
         } else {
             var.annot <- contrastDF %>%
@@ -284,67 +282,78 @@ volcanoPlot <- function(DGEdata,
                                     decorations       = decorations,
                                     graphType         = "Scatter2D",
                                     colorBy           = "Group",
-                                    colors            = symbolColor,
+                                    colors            = ssc$symbolColor,
                                     legendPosition    = "right",
                                     showDecorations   = TRUE,
                                     title             = title,
                                     xAxisTitle        = xlab,
                                     yAxisTitle        = ylab,
                                     sizeBy            = sizeBy,
+                                    sizes             = c(4, 8, 10, 12, 14),
                                     events            = events)
 
     } else {
 
-        groupNames <- c("Decreased", "Increased", "No Change")
+        group <- c("Decreased", "Increased", "No Change")
+        symbolColor <- c("deepskyblue4", "red3", "grey25")
 
-        ssc  <-  data.frame(group = factor(groupNames, levels = groupNames),
-                            symbolColor = c("deepskyblue4", "red3", "grey25"),
-                            stringsAsFactors = FALSE)
+        ssc <- data.frame(group, symbolColor, row.names = NULL) %>%
+            dplyr::filter(group %in% unique(contrastDF$Group))
 
-        volcanoPlot <- ggplot2::ggplot(contrastDF, ggplot2::aes_string(y = "negLog10P" , x = logRatioCol)) +
-            ggplot2::aes(shape = Group,
-                         color = Group,
-                         fill  = Group) +
+        volcanoPlot <- ggplot(contrastDF, aes_string(y = "negLog10P", x = logRatioCol)) +
+            aes(shape = Group,
+                color = Group,
+                fill  = Group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            ggplot2::scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
+            scale_color_manual(name   = "Group",
+                               guide  = "legend",
+                               labels = ssc$group,
                                values = ssc$symbolColor) +
-            ggplot2::scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
+            scale_fill_manual(name   = "Group",
+                              guide  = "legend",
+                              labels = ssc$group,
                               values = ssc$symbolColor) +
-            ggplot2::geom_point(alpha = 0.5)
+            geom_point(alpha = 0.5)
 
         # Optional Decorations
         if (sizeByIntensity) {
-            volcanoPlot <- volcanoPlot + ggplot2::aes(size = LogInt) +
-                ggplot2::scale_size_continuous() +
-                ggplot2::scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                            values = rep("circle", 3))
+            volcanoPlot <- volcanoPlot + aes(size = LogInt) +
+                scale_size_continuous() +
+                scale_shape_manual(name   = "Group",
+                                   guide  = "legend",
+                                   labels = ssc$group,
+                                   values = rep("circle", 3))
 
         } else {
-            volcanoPlot <- volcanoPlot + ggplot2::aes(size = Group) +
-                ggplot2::scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                           values = c(2, 4, 6)) +
-                ggplot2::scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                            values = rep("circle", 3))
+            volcanoPlot <- volcanoPlot + aes(size = Group) +
+                scale_size_manual(name   = "Group",
+                                  guide  = "legend",
+                                  labels = ssc$group,
+                                  values = c(2, 4, 6)) +
+                scale_shape_manual(name   = "Group",
+                                   guide  = "legend",
+                                   labels = ssc$group,
+                                   values = rep("circle", 3))
         }
 
         if (!is.null(pthresholdLine)) {
             volcanoPlot <- volcanoPlot +
-                ggplot2::geom_hline(yintercept = -log10(pthreshold),
-                                    color = pthresholdLine,
-                                    size = 2,
-                                    alpha = 0.5)
+                geom_hline(yintercept = -log10(pthreshold),
+                           color      = pthresholdLine,
+                           size       = 2,
+                           alpha      = 0.5)
         }
 
         if (!is.null(foldChangeLines)) {
             volcanoPlot <- volcanoPlot +
-                ggplot2::geom_vline(xintercept = foldChangeLines,
-                                    color = "red3",
-                                    size = 2,
-                                    alpha = 0.5) +
-                ggplot2::geom_vline(xintercept = -foldChangeLines,
-                                    color = "deepskyblue4",
-                                    size = 2,
-                                    alpha = 0.5)
+                geom_vline(xintercept = log2(foldChangeLines),
+                           color      = "red3",
+                           size       = 2,
+                           alpha      = 0.5) +
+                geom_vline(xintercept = -log2(foldChangeLines),
+                           color      = "deepskyblue4",
+                           size       = 2,
+                           alpha      = 0.5)
         }
 
         # Add genesym labels to increased, decreased genes
@@ -357,26 +366,29 @@ volcanoPlot <- function(DGEdata,
 
             volcanoPlot <- volcanoPlot +
                 ggrepel::geom_text_repel(data = geneSymLabels_df,
-                                ggplot2::aes_string(x = logRatioCol, y = "negLog10P", label = geneNameCol),
-                                         show.legend = TRUE, max.overlaps = dim(geneSymLabels_df)[1]*10)
+                                         aes_string(x = logRatioCol,
+                                                    y = "negLog10P",
+                                                    label = geneNameCol),
+                                         show.legend  = TRUE,
+                                         max.overlaps = dim(geneSymLabels_df)[1]*10)
         }
 
         # Add axis Labels
         if (is.null(xlab)) {
-            volcanoPlot <- volcanoPlot + ggplot2::xlab(logRatioCol)
+            volcanoPlot <- volcanoPlot + xlab(logRatioCol)
         } else {
-            volcanoPlot <- volcanoPlot + ggplot2::xlab(xlab)
+            volcanoPlot <- volcanoPlot + xlab(xlab)
         }
         if (is.null(ylab)) {
-            volcanoPlot <- volcanoPlot + ggplot2::ylab("negLog10P")
+            volcanoPlot <- volcanoPlot + ylab("negLog10P")
         } else {
-            volcanoPlot <- volcanoPlot + ggplot2::ylab(ylab)
+            volcanoPlot <- volcanoPlot + ylab(ylab)
         }
         if (!is.null(title)) {
             volcanoPlot <- volcanoPlot +
-                ggplot2::ggtitle(title)
+                ggtitle(title)
         }
 
-        volcanoPlot + ggplot2::theme(legend.position = "right")
+        volcanoPlot + theme(legend.position = "right")
     }
 }
