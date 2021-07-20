@@ -29,12 +29,10 @@
 #' @examples
 #' \dontrun{
 #'    # canvasxpress plot
-#'    myCxplot <- plotDispersion(myDGElist, designMatrix )
-#'    myCxplot <- plotDispersion(myDGEobj, designMatrix)
+#'    myCxplot <- plotDispersion(myDGEobj, matrixType = "counts")
 #'
 #'    # ggplot
-#'    myGgplot <- plotDispersion(myDGElist, designMatrix, plotType = "ggplot")
-#'    myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
+#'    myGgplot <- plotDispersion(myDGEobj, matrixType = "counts", plotType = "ggplot")
 #' }
 #'
 #' @importFrom assertthat assert_that see_if

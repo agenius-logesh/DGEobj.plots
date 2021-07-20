@@ -5,7 +5,8 @@
 \title{Plot histogram analysis of p-value distributions}
 \usage{
 plotPvalHist(
-  P.Val,
+  DGEdata,
+  P.Val = "P.Value",
   plotType = "canvasXpress",
   facet = TRUE,
   binWidth = 0.02,
@@ -14,7 +15,9 @@ plotPvalHist(
 )
 }
 \arguments{
-\item{P.Val}{A matrix or dataframe of numeric data; col = samples}
+\item{DGEdata}{DGEobj with a class of DGEobj.}
+
+\item{P.Val}{A character vector of a topTable data in DGEobj. Default="P.Value".}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
@@ -36,12 +39,10 @@ but should be useful for any dataframe of numeric columns.
 }
 \examples{
 \dontrun{
-   # Print to console using all defaults
-   MyPvalMatrix <- extractCol(getType(myDGEobj, "topTable"), "P.Value")
-   plotPvalHist(MyPvalMatrix)
+   # Plot to console (DGEdata is a DGEobj and P.Val is a name of topTable data in DGEobj.)
+   myplot <- plotPvalHist(DGEdata, P.Val = "P.Value")
 
-   # Use some custom arguments
-   myplot <- plotPvalHist(MyPValMatrix)
+   myplot <- plotPvalHist(DGEdata, P.Val = "P.Value", plotType = "ggplot")
 }
 
 }
