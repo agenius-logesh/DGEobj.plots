@@ -136,9 +136,8 @@ comparePlot <- function(DGEdata,
                             !is.null(contrasts),
                             length(contrasts) == 2,
                             is.character(contrasts),
-                            contrasts[1] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            contrasts[2] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrast must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns.")
+                            all(contrasts %in% names(DGEobj::getType(DGEdata, type = "topTable"))),
+                            msg = "contrasts must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns.")
 
     contrastList <- lapply(contrasts, function(x){
         getItems(DGEdata, x)
@@ -319,6 +318,10 @@ comparePlot <- function(DGEdata,
                                                  color = .rgbaConversion(crosshair, alpha = transparency),
                                                  width = refLineThickness,
                                                  x     = 0)
+            decorations <- .getCxPlotDecorations(decorations,
+                                                 color = .rgbaConversion(crosshair, alpha = transparency),
+                                                 width = refLineThickness,
+                                                 y     = 0)
         }
         if (!is.null(referenceLine)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
@@ -379,59 +382,53 @@ comparePlot <- function(DGEdata,
         scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% magrittr::multiply_by(1.05)
         if (!sigMeasurePlot) {
             compPlot <- compareDF %>%
-                ggplot(aes_string(x = xlabel, y = ylabel)) +
-                geom_point(shape = 21,
-                           size  = ssc$symbolSize[ssc$group == "X Unique"],
-                           color = ssc$symbolFill[ssc$group == "X Unique"],
-                           fill  = ssc$symbolFill[ssc$group == "X Unique"],
-                           alpha = transparency) +
-                coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
+                ggplot2::ggplot(ggplot2::aes_string(x = xlabel, y = ylabel)) +
+                ggplot2::geom_point(shape = 21,
+                                    size  = ssc$symbolSize[ssc$group == "X Unique"],
+                                    color = ssc$symbolFill[ssc$group == "X Unique"],
+                                    fill  = ssc$symbolFill[ssc$group == "X Unique"],
+                                    alpha = transparency) +
+                ggplot2::coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
         } else {
             compPlot <- compareDF %>%
-                ggplot(aes_string(x = xlabel, y = ylabel)) +
-                aes(shape = group, size = group,
-                    color = group, fill = group) +
-                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolShape) +
-                scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
-                scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +
-                scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolFill) +
-                geom_point(alpha = transparency) +
+                ggplot2::ggplot(ggplot2::aes_string(x = xlabel, y = ylabel)) +
+                ggplot2::aes(shape = group, size = group,
+                             color = group, fill = group) +
+                ggplot2::scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolShape) +
+                ggplot2::scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
+                ggplot2::scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +
+                ggplot2::scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolFill) +
+                ggplot2::geom_point(alpha = transparency) +
                 # Make it square with same axis scales
-                coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax)) +
+                ggplot2::coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax)) +
                 # Box around the legend
-                theme(legend.background = element_rect(fill = "gray95", size = .5, linetype = "dotted"))
+                ggplot2::theme(legend.background = ggplot2::element_rect(fill = "gray95", size = .5, linetype = "dotted"))
         }
         if (!is.null(crosshair)) {
             compPlot <- compPlot +
-                geom_hline(yintercept = 0,
-                           color = crosshair,
-                           size = refLineThickness,
-                           alpha = 0.5) +
-                geom_vline(xintercept = 0,
-                           color = crosshair,
-                           size = refLineThickness,
-                           alpha = 0.5)
+                ggplot2::geom_hline(yintercept = 0,
+                                    color = crosshair,
+                                    size = refLineThickness,
+                                    alpha = 0.5) +
+                ggplot2::geom_vline(xintercept = 0,
+                                    color = crosshair,
+                                    size = refLineThickness,
+                                    alpha = 0.5)
         }
         if (!is.null(referenceLine)) {
             compPlot <- compPlot +
-                geom_abline(slope = 1,
-                            intercept = 0,
-                            color = referenceLine,
-                            size = refLineThickness,
-                            alpha = 0.5)
+                ggplot2::geom_abline(slope = 1,
+                                     intercept = 0,
+                                     color = referenceLine,
+                                     size = refLineThickness,
+                                     alpha = 0.5)
         }
-        if (!missing(footnote)) {
-            compPlot <- compPlot %>%
-                addFootnote(footnoteText = footnote,
-                            footnoteSize = footnoteSize,
-                            footnoteColor = "black",
-                            yoffset = 0.05)
-        }
-        compPlot %>%
-            setLegendPosition(legendPosition) +
-            xlab(xlab) +
-            ylab(ylab) +
-            ggtitle(title)
+
+        compPlot +
+            ggplot2::theme(legend.position = "right") +
+            ggplot2::xlab(xlab) +
+            ggplot2::ylab(ylab) +
+            ggplot2::ggtitle(title)
     }
 }
 

@@ -60,7 +60,7 @@
 #'
 #'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot")
 #'
-#'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot", plotType-"ggplot")
+#'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot", plotType = "ggplot")
 #' }
 #' @import ggplot2 magrittr
 #' @importFrom dplyr arrange mutate case_when select filter
@@ -378,13 +378,7 @@ cdfPlot <- function(DGEdata,
             ggplot2::ylab(ylab) +
             ggplot2::ggtitle(title)
 
-        if (!missing(footnote)) {
-            cdfMain <- addFootnote(cdfMain,
-                                   footnoteText = footnote,
-                                   footnoteSize = 3,
-                                   footnoteColor = "black",
-                                   footnoteJust = 1)
-        }
+
 
         # Set up the inset plot with All Data
         cdfInset <- ggplot2::ggplot(contrastDF, ggplot2::aes_string(x = x, y = y)) +

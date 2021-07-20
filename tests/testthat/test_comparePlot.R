@@ -100,15 +100,15 @@ test_that("comparePlot.R: comparePlot()", {
                  regexp = msg)
     ## contrasts
     msg = "contrasts must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns."
-    expect_error(comparePlot(DGEdata),
+    expect_error(comparePlot(DGEdata = t_obj1),
                  regexp = msg)
-    expect_error(comparePlot(DGEdata, contrasts = NULL),
+    expect_error(comparePlot(DGEdata = t_obj1, contrasts = NULL),
                  regexp = msg)
-    expect_error(comparePlot(DGEdata, contrasts = "123"),
+    expect_error(comparePlot(DGEdata = t_obj1, contrasts = "123"),
                  regexp = msg)
-    expect_error(comparePlot(DGEdata, contrasts = c(123,234)),
+    expect_error(comparePlot(DGEdata = t_obj1, contrasts = c(123,234)),
                  regexp = msg)
-    expect_error(comparePlot(DGEdata, contrasts = "xyz"),
+    expect_error(comparePlot(DGEdata = t_obj1, contrasts = "xyz"),
                  regexp = msg)
 
     ## sigMeasurePlot
