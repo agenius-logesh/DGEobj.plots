@@ -33,11 +33,12 @@
 #' @param contrasts A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
 #'        with logFC and P.Value. These two contrasts representing the x and y variables.
 #'        Optionally add xp and yp columns to hold p-values or FDR values.
+#' @param colorBySigMeasure control categorizing plot points by signefencent values colors (default = TRUE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param xlab X-axis label (default = first column name)
 #' @param ylab Y-axis label (default = second column name)
 #' @param title Plot title (Optional)
-#' @param pThreshold Used to color points (default = 0.01)
+#' @param pThreshold signefencent values threshold (default = 0.01)
 #' @param symbolSize Size of symbols (default = c(7, 7, 7, 3))
 #' @param symbolShape Shape of the symbols (default = c("circle", "circle", "circle", "circle")).
 #'        For ggplot reference see \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
@@ -61,16 +62,6 @@
 #' \dontrun{
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
 #'   contrasts <- names(DGEobj::getType(DGEdata, "topTable"))[1:2]
-#'   contrastList <- lapply(contrasts, function(x){
-#'      getItems(DGEdata, x)
-#'    })
-#'    names(contrastList) <- contrasts
-#'
-#'   # Capture the default logFC and P.Value
-#'   compareDat <- comparePrep(contrastList)
-#'
-#'   # Switch to an FDR value for the significance measure
-#'   compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 #'
 #'   # Draw the plot
 #'   cPlot <- comparePlot(DGEdata, contrasts, title = "Plot Title")
@@ -108,7 +99,7 @@
 #' @export
 comparePlot <- function(DGEdata,
                         contrasts,
-                        sigMeasurePlot = TRUE,
+                        colorBySigMeasure = TRUE,
                         plotType = "canvasXpress",
                         pThreshold = 0.01,
                         xlab = NULL,
@@ -144,14 +135,14 @@ comparePlot <- function(DGEdata,
     })
     names(contrastList) <- contrasts
 
-    if (any(is.null(sigMeasurePlot),
-            !is.logical(sigMeasurePlot),
-            length(sigMeasurePlot) != 1)) {
-        warning("sigMeasurePlot must be a singular logical value. Assigning default value TRUE")
-        sigMeasurePlot <- TRUE
+    if (any(is.null(colorBySigMeasure),
+            !is.logical(colorBySigMeasure),
+            length(colorBySigMeasure) != 1)) {
+        warning("colorBySigMeasure must be a singular logical value. Assigning default value TRUE")
+        colorBySigMeasure <- TRUE
     }
 
-    if (sigMeasurePlot) {
+    if (colorBySigMeasure) {
         compareDF <- comparePrep(contrastList)
     } else {
         compareDF <- comparePrep(contrastList)[,1:2]
@@ -295,7 +286,7 @@ comparePlot <- function(DGEdata,
     }
 
     if (all(c("xp","yp") %in% colnames(compareDF))) {
-        sigMeasurePlot <- TRUE
+        colorBySigMeasure <- TRUE
         compareDF <- compareDF %>%
             dplyr::mutate(group = ifelse(xp <= pThreshold,
                                          ifelse(yp <= pThreshold, "Common", "X Unique"),
@@ -333,7 +324,7 @@ comparePlot <- function(DGEdata,
         cx.data <- compareDF %>%
             dplyr::select(c(xlabel, ylabel)) %>%
             dplyr::rename_with(~ c(xlab, ylab))
-        if (sigMeasurePlot) {
+        if (colorBySigMeasure) {
             cx.data   <- round(cx.data, digits = 2)
             var.annot <- compareDF %>%
                 dplyr::select(group) %>%
@@ -380,7 +371,7 @@ comparePlot <- function(DGEdata,
                           symbolFill  = symbolColor)
         # Used to set uniform square scale
         scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% magrittr::multiply_by(1.05)
-        if (!sigMeasurePlot) {
+        if (!colorBySigMeasure) {
             compPlot <- compareDF %>%
                 ggplot2::ggplot(ggplot2::aes_string(x = xlabel, y = ylabel)) +
                 ggplot2::geom_point(shape = 21,

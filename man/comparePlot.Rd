@@ -7,7 +7,7 @@
 comparePlot(
   DGEdata,
   contrasts,
-  sigMeasurePlot = TRUE,
+  colorBySigMeasure = TRUE,
   plotType = "canvasXpress",
   pThreshold = 0.01,
   xlab = NULL,
@@ -33,9 +33,11 @@ comparePlot(
 with logFC and P.Value. These two contrasts representing the x and y variables.
 Optionally add xp and yp columns to hold p-values or FDR values.}
 
+\item{colorBySigMeasure}{control categorizing plot points by signefencent values colors (default = TRUE)}
+
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{pThreshold}{Used to color points (default = 0.01)}
+\item{pThreshold}{signefencent values threshold (default = 0.01)}
 
 \item{xlab}{X-axis label (default = first column name)}
 
@@ -108,16 +110,6 @@ values are used.
 \dontrun{
   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
   contrasts <- names(DGEobj::getType(DGEdata, "topTable"))[1:2]
-  contrastList <- lapply(contrasts, function(x){
-     getItems(DGEdata, x)
-   })
-   names(contrastList) <- contrasts
-
-  # Capture the default logFC and P.Value
-  compareDat <- comparePrep(contrastList)
-
-  # Switch to an FDR value for the significance measure
-  compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 
   # Draw the plot
   cPlot <- comparePlot(DGEdata, contrasts, title = "Plot Title")
