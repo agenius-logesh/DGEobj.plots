@@ -136,8 +136,7 @@ comparePlot <- function(DGEdata,
                             !is.null(contrasts),
                             length(contrasts) == 2,
                             is.character(contrasts),
-                            contrasts[1] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            contrasts[2] %in% names(DGEobj::getType(DGEdata, type = "topTable")),
+                            all(contrasts %in% names(DGEobj::getType(DGEdata, type = "topTable"))),
                             msg = "contrasts must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns.")
 
     contrastList <- lapply(contrasts, function(x){
