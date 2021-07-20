@@ -5,190 +5,116 @@
 \title{Function obsPlot}
 \usage{
 obsPlot(
-  data,
-  plotByCol,
-  groupCol,
-  valueCol,
-  groupOrder = unique(as.character(data[groupCol, , drop = TRUE])),
-  boxLayer = TRUE,
+  DGEdata,
+  plotType = "canvasXpress",
+  countsMatrix = "counts",
+  convertCounts = NULL,
+  convert_geneLength,
+  convert_log = FALSE,
+  convert_normalize = "none",
+  convert_prior.count = NULL,
+  designTable = "design",
+  group = "ReplicateGroup",
   violinLayer = FALSE,
-  pointLayer = TRUE,
-  meanLayer = TRUE,
-  xlab = groupCol,
-  ylab = valueCol,
+  showPoints = TRUE,
+  xlab,
+  ylab,
   title,
-  boxColor = "grey30",
-  boxFill = "deepskyblue3",
-  boxAlpha = 0.5,
-  boxNotch = FALSE,
-  boxNotchWidth = 0.8,
-  violinColor = "grey30",
-  violinFill = "goldenrod1",
-  violinAlpha = 0.5,
-  pointColor = "grey30",
-  pointFill = "dodgerblue4",
-  pointShape = 21,
-  pointAlpha = 1,
-  pointSize = 2,
-  pointJitter = 0,
-  meanColor = "red2",
-  meanFill = "goldenrod1",
-  meanShape = 22,
-  meanAlpha = 0.7,
-  meanSize = 3,
-  baseFontSize = 12,
-  themeStyle = "grey",
+  color = "deepskyblue3",
   facet = TRUE,
-  facetRow,
-  xAngle = 30,
-  scales = "free_y"
+  axisFree = TRUE
 )
 }
 \arguments{
-\item{data}{A tidy dataframe of intensity data with row and colnames (required)}
+\item{plotType}{Can be canvasXpress or ggplot (default = canvasXpress)}
 
-\item{plotByCol}{Define the column name to separate plots (typically a gene ID column) (required)}
+\item{countsMatrix}{Name of the counts matrix in the DGEObj which will be used to render the plot.(default = counts)}
 
-\item{groupCol}{Define the column name to group boxplots by (typically a replicate group column) (required)}
+\item{convertCounts}{A flag to indicate if counts matrix need to be converted or taken as is. Default value is NULL. This indicates
+countsMatrix need to be taken as is. To convert the counts matrix, specify the desired unit. Supported units include CPM,FPKM, FPK and TPM.
+This parameter is passed to DGEobj.utils::convertCounts}
 
-\item{valueCol}{Define the column of values for plotting (typically a log intensity measure) (required)}
+\item{convert_geneLength}{Parameter to pass to DGEobj.utils::convertCounts.}
 
-\item{groupOrder}{Define the order for the groups in each plot.  Should
-contain values in unique(data$group) listed in the order that you want the
-groups to appear in the plot. (optional; default = unique(data[groupCol]))}
+\item{convert_log}{Parameter to pass to DGEobj.utils::convertCounts. (default = FALSE)}
 
-\item{boxLayer}{Adds a boxplot layer (Default = TRUE)}
+\item{convert_normalize}{Parameter to pass to DGEobj.utils::convertCounts. (default = none)}
 
-\item{violinLayer}{Adds a violin layer (Default = FALSE)}
+\item{convert_prior.count}{Parameter to pass to DGEobj.utils::convertCounts. (default = NULL)}
 
-\item{pointLayer}{Adds a point layer (Default = TRUE)}
+\item{designTable}{Name of the design table in the DGEObj from which the grouping column will be extracted. (default = design)}
 
-\item{meanLayer}{Adds a mean layer (Default = TRUE)}
+\item{group}{Define the column name to group boxplots by (typically a replicate group column) (required)}
 
-\item{xlab}{X axis label (defaults to groupCol)}
+\item{violinLayer}{Adds a violin layer (default = FALSE)}
 
-\item{ylab}{Y axis label (defaults to valueCol)}
+\item{showPoints}{Shows the datapoints on the plot (default = TRUE)}
+
+\item{xlab}{X axis label (defaults to group column name if not specified)}
+
+\item{ylab}{Y axis label (defaults to value column name if not specified)}
 
 \item{title}{Plot title (optional)}
 
-\item{boxColor}{Color for the boxplot layer (Default = "grey30")}
-
-\item{boxFill}{Fill Color for the boxplot layer (Default = "deepskyblue3")}
-
-\item{boxAlpha}{Transparency for the box layer (Default = 0.5)}
-
-\item{boxNotch}{Turn on/off confidence interval notches on boxplots (Default = FALSE)}
-
-\item{boxNotchWidth}{Set the width of box notches (0-1) (Default = 0.8)}
-
-\item{violinColor}{Color for the violin layer (Default = "grey30")}
-
-\item{violinFill}{Fill Color for the violin (Default = "yellow")}
-
-\item{violinAlpha}{Alpha value for the violin layer (Default = 0.5)}
-
-\item{pointColor}{Color for the point layer (Default = "grey30")}
-
-\item{pointFill}{Fill color for the point layer (Default = "dodgerblue4")}
-
-\item{pointShape}{Shape for the point layer (Default = 21; fillable circle)}
-
-\item{pointAlpha}{Transparency for the box layer (Default = 1)}
-
-\item{pointSize}{Size of the points (Default = 4)}
-
-\item{pointJitter}{Amount to jitter the points (Default = 0) Try 0.2 if you
-have a lot of points.}
-
-\item{meanColor}{Color for the mean layer (Default = "red2")}
-
-\item{meanFill}{Fill color for the mean layer (Default = "goldenrod1")}
-
-\item{meanShape}{Shape for the mean layer (Default = 21; fillable circle)}
-
-\item{meanAlpha}{Transparency for the mean layer (Default = 0.7)}
-
-\item{meanSize}{Size of the mean points (Default = 3)}
-
-\item{baseFontSize}{The smallest size font in the figure in points. (Default =
-12)}
-
-\item{themeStyle}{"bw" or "grey" which correspond to theme_bw or theme_grey
-respectively. Default = bw"}
+\item{color}{Color for the boxplot or the violin ploy (default = "deepskyblue3")}
 
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
-(FALSE)  (Default = TRUE)}
+(FALSE)  (default = TRUE)}
 
-\item{facetRow}{Explicitly set the number of rows for the facet plot.
-Default behavior will automatically set the columns. (Default = NULL)}
+\item{axisFree}{Specify same scale or independent scales for each subplot (default = TRUE;
+Allowed values: TRUE and FALSE)}
 
-\item{xAngle}{Angle to set the sample labels on the X axis. (Default =  30; Range = 0-90)}
-
-\item{scales}{Specify same scales or independent scales for each subplot (Default = "free_y";
-Allowed values: "fixed", "free_x", "free_y", "free")}
+\item{data}{A  DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)}
 }
 \value{
-ggplot. If Facet = TRUE (default) returns a faceted ggplot object. If
-  facet = FALSE, returns a list of ggplot objects indexed
+Plot of type canvasXpress or ggplot. If Facet = TRUE (default) returns a faceted object. If
+  facet = FALSE, returns a list of objects indexed
   by observation (gene) names.
 }
 \description{
-Provides a summary plot (box/violin/points) for each observation (gene), showing data for each
-experiment group. The plot can optionally include one or more of the
-following layers: boxplot, violin plot, individual points, and/or mean of all
-points.  The layers are built up in the order listed with user settable
-transparency, colors etc.  By default, the boxplot, point, and mean layers are
-active. Also, by default, the plots are faceted.  Faceting the plot can be turned
-off to return a list of individual ggplot graphics for each gene.
+Provides a summary plot (box/violin) for each observation (gene), showing data for each
+experiment group.
 }
 \details{
-Input is a tidy dataframe of intensity data.
+The plot can optionally include boxplot, violinplot or both and can additionally choose to display points on the plot.
+The boxLayer and the violin layer can be customized to have the desired transparency, colors etc.
+
+By default, the violinLayer is not displayed and only the boxplot, points and the mean on the plots can be seen.
+Also, by default, the plots are faceted.
+
+Faceting the plot can be turned off to return a list of individual plots for each gene. Input is a DGEobj with a
+Counts Matrix. User can also provide input parameters to convert the counts matrix to other desired units.
 }
 \examples{
 \dontrun{
-  # Simulate some data with row and colnames
-  groups <- paste("group", factor(rep(1:4, each = 100)), sep = "")
-  x <- matrix(rnorm(2400, mean = 10), ncol = length(groups))
-  colnames(x) <- paste("sample", 1:ncol(x), sep = "")
-  rownames(x) <- paste("gene", 1:nrow(x), sep="")
-  # Reformat into tidy dataframe
-  tidyInt <- tidyIntensity(x)
-
- # Or get data from a DGEobj with RNA-Seq data
- log2cpm <- convertCounts(dgeObj$counts, unit = "cpm", log = TRUE, normalize = "tmm")
- tidyInt <- tidyIntensity(log2cpm,
-                          rowidColname = "GeneID",
-                          keyColname = "Sample",
-                          valueColname = "Log2CPM",
-                          group = dgeObj$design$ReplicateGroup)
 
   # Faceted boxplot
-  obsPlot(tidyInt,
-           plotByCol = "GeneID",
-           groupCol = "group",
-           valueCol ="Log2CPM",
-           pointJitter = 0.1,
-           facetRow = 2)
+  obsPlot(DGEobj,
+          designTable = "design",
+          group = "replicategroup")
 
   # Faceted violin plot
-  obsPlot(tidyInt,
-           plotByCol = "GeneID",
+  obsPlot(DGEobj,
            violinLayer = TRUE,
-           boxLayer = FALSE,
-           groupCol="group",
-           valueCol = "Log2CPM",
-           pointJitter = 0.1,
-           facetRow = 2)
+           designTable = "design",
+           group = "replicategroup")
 
-  # Return a list of ggplots for each individual gene
-  myplots <- obsPlot(tidyInt,
-                      plotByCol="GeneID",
-                      groupCol = "group",
-                      valueCol ="Log2CPM",
-                      pointJitter = 0.1,
-                      facet = FALSE)
+  # Return a list of plot for each individual gene
+  myplots <- obsPlot(DGEobj,
+                     designTable = "design",
+                     group = "replicategroup"
+                     facet = FALSE)
   # Plot one from the list
   myplots[[2]]
+
+  #ggplot
+  obsPlot(DGEobj,
+          designTable = "design",
+          group = "replicategroup",
+          plotType = "ggplot")
 }
 
+}
+\seealso{
+\link[DGEobj.utils]{convertCounts}
 }

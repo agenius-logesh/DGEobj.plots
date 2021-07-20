@@ -1,274 +1,466 @@
 #' Function obsPlot
 #'
-#' Provides a summary plot (box/violin/points) for each observation (gene), showing data for each
-#' experiment group. The plot can optionally include one or more of the
-#' following layers: boxplot, violin plot, individual points, and/or mean of all
-#' points.  The layers are built up in the order listed with user settable
-#' transparency, colors etc.  By default, the boxplot, point, and mean layers are
-#' active. Also, by default, the plots are faceted.  Faceting the plot can be turned
-#' off to return a list of individual ggplot graphics for each gene.
+#' Provides a summary plot (box/violin) for each observation (gene), showing data for each
+#' experiment group.
 #'
-#' Input is a tidy dataframe of intensity data.
+#' The plot can optionally include boxplot, violinplot or both and can additionally choose to display points on the plot.
+#' The boxLayer and the violin layer can be customized to have the desired transparency, colors etc.
 #'
-#' @param data A tidy dataframe of intensity data with row and colnames (required)
-#' @param plotByCol Define the column name to separate plots (typically a gene ID column) (required)
-#' @param groupCol Define the column name to group boxplots by (typically a replicate group column) (required)
-#' @param valueCol Define the column of values for plotting (typically a log intensity measure) (required)
-#' @param groupOrder Define the order for the groups in each plot.  Should
-#'   contain values in unique(data$group) listed in the order that you want the
-#'   groups to appear in the plot. (optional; default = unique(data[groupCol]))
-#' @param boxLayer Adds a boxplot layer (Default = TRUE)
-#' @param violinLayer Adds a violin layer (Default = FALSE)
-#' @param pointLayer Adds a point layer (Default = TRUE)
-#' @param meanLayer Adds a mean layer (Default = TRUE)
-#' @param xlab X axis label (defaults to groupCol)
-#' @param ylab Y axis label (defaults to valueCol)
+#' By default, the violinLayer is not displayed and only the boxplot, points and the mean on the plots can be seen.
+#' Also, by default, the plots are faceted.
+#'
+#' Faceting the plot can be turned off to return a list of individual plots for each gene. Input is a DGEobj with a
+#' Counts Matrix. User can also provide input parameters to convert the counts matrix to other desired units.
+#'
+#' @param data A  DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)
+#' @param plotType Can be canvasXpress or ggplot (default = canvasXpress)
+#' @param designTable Name of the design table in the DGEObj from which the grouping column will be extracted. (default = design)
+#' @param countsMatrix Name of the counts matrix in the DGEObj which will be used to render the plot.(default = counts)
+#' @param convertCounts A flag to indicate if counts matrix need to be converted or taken as is. Default value is NULL. This indicates
+#'     countsMatrix need to be taken as is. To convert the counts matrix, specify the desired unit. Supported units include CPM,FPKM, FPK and TPM.
+#'     This parameter is passed to DGEobj.utils::convertCounts
+#' @param convert_geneLength Parameter to pass to DGEobj.utils::convertCounts.
+#' @param convert_log Parameter to pass to DGEobj.utils::convertCounts. (default = FALSE)
+#' @param convert_normalize Parameter to pass to DGEobj.utils::convertCounts. (default = none)
+#' @param convert_prior.count Parameter to pass to DGEobj.utils::convertCounts. (default = NULL)
+#' @seealso \link[DGEobj.utils]{convertCounts}
+#' @param group Define the column name to group boxplots by (typically a replicate group column) (required)
+#' @param violinLayer Adds a violin layer (default = FALSE)
+#' @param showPoints Shows the datapoints on the plot (default = TRUE)
+#' @param xlab X axis label (defaults to group column name if not specified)
+#' @param ylab Y axis label (defaults to value column name if not specified)
 #' @param title Plot title (optional)
-#' @param boxColor Color for the boxplot layer (Default = "grey30")
-#' @param boxFill Fill Color for the boxplot layer (Default = "deepskyblue3")
-#' @param boxAlpha Transparency for the box layer (Default = 0.5)
-#' @param violinColor Color for the violin layer (Default = "grey30")
-#' @param violinFill Fill Color for the violin (Default = "yellow")
-#' @param violinAlpha Alpha value for the violin layer (Default = 0.5)
-#' @param pointColor Color for the point layer (Default = "grey30")
-#' @param pointFill Fill color for the point layer (Default = "dodgerblue4")
-#' @param pointShape Shape for the point layer (Default = 21; fillable circle)
-#' @param pointAlpha Transparency for the box layer (Default = 1)
-#' @param boxNotch Turn on/off confidence interval notches on boxplots (Default = FALSE)
-#' @param boxNotchWidth Set the width of box notches (0-1) (Default = 0.8)
-#' @param pointSize Size of the points (Default = 4)
-#' @param pointJitter Amount to jitter the points (Default = 0) Try 0.2 if you
-#'   have a lot of points.
-#' @param meanColor Color for the mean layer (Default = "red2")
-#' @param meanFill Fill color for the mean layer (Default = "goldenrod1")
-#' @param meanShape Shape for the mean layer (Default = 21; fillable circle)
-#' @param meanAlpha Transparency for the mean layer (Default = 0.7)
-#' @param meanSize Size of the mean points (Default = 3)
-#' @param baseFontSize The smallest size font in the figure in points. (Default =
-#'   12)
-#' @param themeStyle "bw" or "grey" which correspond to theme_bw or theme_grey
-#'   respectively. Default = bw"
+#' @param color Color for the boxplot or the violin ploy (default = "deepskyblue3")
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
-#'   (FALSE)  (Default = TRUE)
-#' @param facetRow Explicitly set the number of rows for the facet plot.
-#'   Default behavior will automatically set the columns. (Default = NULL)
-#' @param xAngle Angle to set the sample labels on the X axis. (Default =  30; Range = 0-90)
-#' @param scales Specify same scales or independent scales for each subplot (Default = "free_y";
-#'   Allowed values: "fixed", "free_x", "free_y", "free")
+#'   (FALSE)  (default = TRUE)
+#' @param axisFree Specify same scale or independent scales for each subplot (default = TRUE;
+#'   Allowed values: TRUE and FALSE)
 #'
-#' @return ggplot. If Facet = TRUE (default) returns a faceted ggplot object. If
-#'   facet = FALSE, returns a list of ggplot objects indexed
+#' @return Plot of type canvasXpress or ggplot. If Facet = TRUE (default) returns a faceted object. If
+#'   facet = FALSE, returns a list of objects indexed
 #'   by observation (gene) names.
 #'
 #' @examples
 #' \dontrun{
-#'   # Simulate some data with row and colnames
-#'   groups <- paste("group", factor(rep(1:4, each = 100)), sep = "")
-#'   x <- matrix(rnorm(2400, mean = 10), ncol = length(groups))
-#'   colnames(x) <- paste("sample", 1:ncol(x), sep = "")
-#'   rownames(x) <- paste("gene", 1:nrow(x), sep="")
-#'   # Reformat into tidy dataframe
-#'   tidyInt <- tidyIntensity(x)
-#'
-#'  # Or get data from a DGEobj with RNA-Seq data
-#'  log2cpm <- convertCounts(dgeObj$counts, unit = "cpm", log = TRUE, normalize = "tmm")
-#'  tidyInt <- tidyIntensity(log2cpm,
-#'                           rowidColname = "GeneID",
-#'                           keyColname = "Sample",
-#'                           valueColname = "Log2CPM",
-#'                           group = dgeObj$design$ReplicateGroup)
 #'
 #'   # Faceted boxplot
-#'   obsPlot(tidyInt,
-#'            plotByCol = "GeneID",
-#'            groupCol = "group",
-#'            valueCol ="Log2CPM",
-#'            pointJitter = 0.1,
-#'            facetRow = 2)
+#'   obsPlot(DGEobj,
+#'           designTable = "design",
+#'           group = "replicategroup")
 #'
 #'   # Faceted violin plot
-#'   obsPlot(tidyInt,
-#'            plotByCol = "GeneID",
+#'   obsPlot(DGEobj,
 #'            violinLayer = TRUE,
-#'            boxLayer = FALSE,
-#'            groupCol="group",
-#'            valueCol = "Log2CPM",
-#'            pointJitter = 0.1,
-#'            facetRow = 2)
+#'            designTable = "design",
+#'            group = "replicategroup")
 #'
-#'   # Return a list of ggplots for each individual gene
-#'   myplots <- obsPlot(tidyInt,
-#'                       plotByCol="GeneID",
-#'                       groupCol = "group",
-#'                       valueCol ="Log2CPM",
-#'                       pointJitter = 0.1,
-#'                       facet = FALSE)
+#'   # Return a list of plot for each individual gene
+#'   myplots <- obsPlot(DGEobj,
+#'                      designTable = "design",
+#'                      group = "replicategroup"
+#'                      facet = FALSE)
 #'   # Plot one from the list
 #'   myplots[[2]]
+#'
+#'   #ggplot
+#'   obsPlot(DGEobj,
+#'           designTable = "design",
+#'           group = "replicategroup",
+#'           plotType = "ggplot")
 #' }
 #'
 #' @import ggplot2 magrittr
-#' @importFrom dplyr left_join
+#' @importFrom tidyr gather
+#' @importFrom dplyr left_join filter select count
 #' @importFrom assertthat assert_that
+#' @importFrom canvasXpress canvasXpress
+#' @importFrom stringr str_c
+#' @importFrom rlang sym
 #'
 #' @export
-obsPlot <- function(data,
-                     plotByCol,
-                     groupCol,
-                     valueCol,
-                     groupOrder = unique(as.character(data[groupCol, , drop = TRUE])),
-                     boxLayer = TRUE,
-                     violinLayer = FALSE,
-                     pointLayer = TRUE,
-                     meanLayer = TRUE,
-                     xlab = groupCol,
-                     ylab = valueCol,
-                     title,
-                     boxColor = "grey30",
-                     boxFill = "deepskyblue3",
-                     boxAlpha = 0.5,
-                     boxNotch = FALSE,
-                     boxNotchWidth = 0.8,
-                     violinColor = "grey30",
-                     violinFill = "goldenrod1",
-                     violinAlpha = 0.5,
-                     pointColor = "grey30",
-                     pointFill = "dodgerblue4",
-                     pointShape = 21,
-                     pointAlpha = 1,
-                     pointSize = 2,
-                     pointJitter = 0,
-                     meanColor = "red2",
-                     meanFill = "goldenrod1",
-                     meanShape = 22,
-                     meanAlpha = 0.7,
-                     meanSize = 3,
-                     baseFontSize = 12,
-                     themeStyle = "grey",
-                     facet = TRUE,
-                     facetRow,
-                     xAngle = 30,
-                     scales = "free_y")
-{
+obsPlot <- function(DGEdata,
+                    plotType            = "canvasXpress",
+                    countsMatrix        = "counts",
+                    convertCounts       = NULL,
+                    convert_geneLength,
+                    convert_log         = FALSE,
+                    convert_normalize   = "none",
+                    convert_prior.count = NULL,
+                    designTable         = "design",
+                    group               = "ReplicateGroup",
+                    violinLayer         = FALSE,
+                    showPoints          = TRUE,
+                    xlab,
+                    ylab,
+                    title,
+                    color               = "deepskyblue3",
+                    facet               = TRUE,
+                    axisFree            = TRUE) {
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified and should be of class DGEobj")
+    assertthat::assert_that(!is.null(getType(DGEdata,"counts")),
+                            msg = "counts matrix must be available in DGEdata to plot the data.")
+    assertthat::assert_that(!is.null(getType(DGEdata,"design")),
+                            msg = "design table must be available in DGEdata to plot the data.")
 
-    .addGeoms <- function(MyPlot) {
-        if (boxLayer == TRUE) {
-            MyPlot <- MyPlot + geom_boxplot(alpha = boxAlpha,
-                                            color = boxColor,
-                                            fill = boxFill,
-                                            notch = boxNotch,
-                                            notchwidth = boxNotchWidth,
-                                            outlier.shape = outlier.shape,
-                                            outlier.size = outlier.size)
-        }
-
-        if (violinLayer == TRUE) {
-            MyPlot <- MyPlot + geom_violin(alpha = violinAlpha,
-                                           color = violinColor,
-                                           fill = violinFill)
-        }
-
-        if (pointLayer == TRUE) {
-            if (pointJitter > 0) {
-                MyPlot <- MyPlot + geom_point(position = position_jitter(width = pointJitter),
-                                              alpha = pointAlpha,
-                                              color = pointColor,
-                                              fill = pointFill,
-                                              size = pointSize,
-                                              shape = pointShape)
-            } else {
-                MyPlot <- MyPlot + geom_point(alpha = pointAlpha,
-                                              color = pointColor,
-                                              fill = pointFill,
-                                              size = pointSize,
-                                              shape = pointShape)
-            }
-        }
-
-        if (meanLayer == TRUE) {
-            MyPlot <- MyPlot +
-                stat_summary(fun.y = mean,
-                             geom = "point",
-                             shape = meanShape,
-                             size = meanSize,
-                             color = "red",
-                             fill = "goldenrod1",
-                             alpha = meanAlpha)
-        }
-
-        return(MyPlot)
+    #plotType
+    plotType <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
     }
 
-    assertthat::assert_that(!missing(data),
-                            "data.frame" %in% class(data),
-                            msg = "data must be specified and should be of class 'data.frame'.")
-    assertthat::assert_that(plotByCol %in% colnames(data),
-                            msg = 'The plotByCol must be included in the colnames of the specified data.')
-    assertthat::assert_that(groupCol %in% colnames(data),
-                            msg = "The groupCol must be included in the colnames of the specified data.")
-    assertthat::assert_that(valueCol %in% colnames(data),
-                            msg = "The valueCol must be included in the colnames of the specified data.")
-    assertthat::assert_that(all(groupOrder %in% as.character(data[groupCol, , drop = TRUE])))
-
-    # Reduce box outliers to a dot if geom_points turned on
-    outlier.size <- 1.5
-    outlier.shape <- 19
-    if (pointLayer) {
-        outlier.size <- 1
-        outlier.shape <- "."
+    #countsMatrix
+    if (any(is.null(countsMatrix),
+            !is.character(countsMatrix),
+            !(countsMatrix %in% names(DGEdata)))) {
+        if ("counts" %in% names(DGEdata)) {
+            countsMatrix <- "counts"
+        } else if (!is.null(getType(DGEdata,"counts"))) {
+            countsMatrix <- names(getType(DGEdata,"counts"))
+        }
+        warning(paste0("countsMatrix specified is not present in DGEobj. Assigning default value '", countsMatrix,"'."))
     }
 
-    # Plot code here
-    if (facet == TRUE) {
-        # Set facet columns to sqrt of unique observations (rounded up)
-        if (missing(facetRow)) {
-            numcol <- data[plotByCol] %>% unique %>% length %>% sqrt %>% ceiling
-        } else {
-            numcol <- facetRow
+    #convertCounts
+    if (!is.null(convertCounts) &&
+        any(!is.character(convertCounts),
+            length(convertCounts) != 1,
+            !(toupper(convertCounts) %in% c("CPM", "FDPKM", "FPK", "TPM")))) {
+        warning("Invalid value specificed for convertCounts. It must be null if counts matrix need not be converted or must be one of CPM, FPKM, FPK, and TPM. Assigning default value 'NULL'.")
+        convertCounts <- NULL
+    }
+
+    if (!is.null(convertCounts)) {
+        if (any(length(convert_log) != 1,
+                is.null(convert_log),
+                !is.logical(convert_log))) {
+            warning("Invalid value specified for convert_log. Assigning default value FALSE.")
+            convert_log <- FALSE
         }
 
-        MyPlot <- ggplot2::ggplot(data, aes_string(x = groupCol, y = valueCol))
-        MyPlot <- .addGeoms(MyPlot)
-        facetFormula <- stringr::str_c("~", plotByCol, sep = " ")
-        MyPlot <- MyPlot + ggplot2::facet_wrap(facetFormula, nrow = numcol, scales = scales)
-
-        MyPlot <- MyPlot + ggplot2::xlab(xlab)
-        MyPlot <- MyPlot + ggplot2::ylab(ylab)
-        if (!missing(title)) {
-            MyPlot <- MyPlot + ggplot2::ggtitle(title)
-        }
-        if (tolower(themeStyle) == "bw") {
-            MyPlot <- MyPlot + theme_bw(baseFontSize)
-        } else {
-            MyPlot <- MyPlot + theme_grey(baseFontSize)
+        if (any(length(convert_normalize) != 1,
+                is.null(convert_normalize),
+                !is.character(convert_normalize),
+                !(toupper(convert_normalize) %in% c("TMM", "RLE", "UPPERQUARTILE", "TMMWZP", "NONE")))) {
+            warning("Invalid value specified for convert_normalize. Must be one of 'TMM', 'RLE', 'upperquartile', 'TMMwzp' or 'none'. Assigning default value 'none'.")
+            convert_normalize <- "none"
         }
 
-        # Rotate xaxis group labels
-        if (xAngle > 0) {
-            MyPlot <- MyPlot + theme(axis.text.x = element_text(angle = xAngle, hjust = 1))
+        if (!missing(convert_geneLength) && convertCounts != "CPM") {
+            assertthat::assert_that(length(convert_geneLength) == nrow(getItem(DGEdata, countsMatrix)),
+                                    msg = "geneLength must be the same length of the number of rows in countsMatrix.")
         }
 
+        if (!is.null(convert_prior.count) &&
+            any(length(convert_prior.count) != 1,
+                !is.numeric(convert_prior.count))) {
+            warning("Invalid value specified for convert_prior.count Assigning default value NULL.")
+            convert_prior.count <- NULL
+        }
+
+        data <- convertCounts(getItem(DGEdata, countsMatrix),
+                                      unit        = convertCounts,
+                                      geneLength  = convert_geneLength,
+                                      log         = convert_log,
+                                      normalize   = convert_normalize,
+                                      prior.count = convert_prior.count) %>%
+            as.data.frame()
     } else {
-        plotlist <- list()
-
-        for (obs in unique(data[[plotByCol]])) {
-            dat <- data[data[[plotByCol]] == obs, ]
-            aplot <- ggplot(dat, aes_string(x = groupCol, y = valueCol)) + # Samples vs Log2CPM
-                xlab(xlab) +
-                ylab(ylab) +
-                ggtitle(obs) +
-                theme_grey(baseFontSize)
-            aplot <- .addGeoms(aplot)
-
-            # Rotate xaxis group labels
-            if (xAngle > 0) {
-                aplot <- aplot + theme(axis.text.x = element_text(angle = xAngle, hjust = 1))
-            }
-            plotlist[[obs]] <- aplot
-        }
-
-        MyPlot <- plotlist
+        data <- getItem(DGEdata, countsMatrix) %>%
+            as.data.frame()
     }
 
-    return(MyPlot)
+        if (any(is.null(designTable),
+                !is.character(designTable),
+                length(designTable) != 1,
+                !(designTable %in% names(DGEdata)))) {
+            if ("design" %in% names(DGEdata)) {
+                designTable <- "design"
+            } else if (!is.null(getType(DGEdata,"design"))) {
+                designTable <- names(getType(DGEdata,"design"))
+            }
+            warning(paste0("designTable specified is not present in DGEobj. Assigning default value '", designTable,"'."))
+        }
+
+    design            <- DGEobj::getItem(DGEdata, designTable)
+    colnames(design)  <- tolower(colnames(design))
+    group_default     <- NULL
+    if ("replicategroup" %in% colnames(design)) {
+        group_default <- "replicategroup"
+    }
+
+    if (any(is.null(group),
+            !is.character(group),
+            length(group) != 1,
+            !(tolower(group) %in% colnames(design)))) {
+        if (!is.null(group_default)) {
+            warning("group must be specified and should be one of the columns in the design object in DGEdata. Assigning ",
+                    group_default,
+                    " as the default value.")
+            group <- group_default
+        } else {
+            stop("group must be specified and should be one of the columns in the designTable in DGEdata.")
+        }
+    }
+
+    # Create a rownames column
+    data$GeneID    <- rownames(data)
+    rownames(data) <- NULL
+    data           <- tidyr::gather(data, key = "sample", value = "value",-GeneID)
+    group          <- tolower(group)
+    group.data     <- design %>% dplyr::select(!!group)
+    colnames(group.data) <- "group"
+    group.data$sample    <- rownames(group.data);rownames(group.data) <- NULL
+    data <- dplyr::left_join(data, group.data, by = "sample" )
+
+    plotByCol <- "GeneID"
+    valueCol  <- "value"
+    groupCol  <- "group"
+
+    #input validations
+    facet_chart_limit <- 40
+
+    if (any(is.null(facet),
+            !is.logical(facet),
+            length(facet) != 1)) {
+        warning("facet must be a singular logical value. Assigning default value TRUE.")
+        facet <- TRUE
+    }
+
+    if (facet) {
+        #Number of charts to plot
+        if (nrow(unique(data[plotByCol])) > facet_chart_limit) {
+            warning(paste("A large number of charts/facets has/have been requested and may take significant time to generate.  It is suggested that less than",
+                          facet_chart_limit,
+                          "charts/facets are requested at a time."))
+        }
+
+        #facetRow
+        numrow <- data[plotByCol] %>%
+            unique %>%
+            dplyr::count() %>%
+            sqrt %>%
+            ceiling %>%
+            as.integer
+    }
+
+    if (missing(title)) {
+        title <- NULL
+    } else if ((!is.null(title)) &&
+               (!is.character(title) || length(title) != 1)) {
+        warning("Invalid title specificed. Title must be singular value of class character.")
+        title <- NULL
+    }
+
+    if ((!missing(xlab)) &&
+        (!is.null(xlab)) &&
+        ((!is.character(xlab)) || length(xlab) != 1)) {
+        warning("xlab value specified is not valid. Assigning groupCol name as the default value.")
+        xlab <- groupCol
+    } else if (missing(xlab)) {
+        xlab <- groupCol
+    }
+
+    if (!missing(ylab) &&
+        !is.null(ylab) &&
+        (!is.character(ylab) || length(ylab) != 1)) {
+        warning("ylab value specified is not valid. Assigning valueCol name as the default value.")
+        ylab <- valueCol
+    } else if (missing(ylab)) {
+        ylab <- valueCol
+    }
+
+    if (any(is.null(violinLayer),
+            length(violinLayer) != 1,
+            !is.logical(violinLayer))) {
+        warning("violinLayer must be a singular logical value. Assigning default value FALSE.")
+        violinLayer <- FALSE
+    }
+
+    #color Validations
+    if (any(is.null(color),
+            length(color) != 1,
+            !is.character(color))) {
+        warning("color must be of class character and must specify the name of the color or the rgb value. Assigning default value 'deepskyblue3'.")
+        color <- "deepskyblue3"
+    } else if (.rgbaConversion(color) == "invalid value") {
+        warning("color specified is not valid. Assigning default value 'deepskyblue3'.")
+        color <- "deepskyblue3"
+    }
+
+    if (violinLayer) {
+        violinColor <- color
+        boxColor <- NA
+    } else {
+        violinColor <- NA
+        boxColor <- color
+    }
+
+    #point validations
+    if (any(is.null(showPoints),
+            length(showPoints) != 1,
+            !is.logical(showPoints))) {
+        warning("showPoints must be a singular logical value. Assigning default value TRUE.")
+        showPoints <- TRUE
+    }
+
+    #axisFree
+    if (any(is.null(axisFree),
+            length(axisFree) != 1,
+            !is.logical(axisFree))) {
+        warning("axisFree must be a singular logical value. Assigning default value TRUE.")
+        axisFree <- TRUE
+    }
+
+    obsPlot <- NULL
+    if (plotType == "canvasxpress") {
+        if (facet) {
+            numcol   <- ((data[[plotByCol]] %>% unique %>% length) / numrow) %>% ceiling
+            cx_data  <- data %>% dplyr::select(!!rlang::sym(valueCol)) %>% t() %>% as.data.frame()
+            smp_data <- data %>% dplyr::select(-!!rlang::sym(valueCol))
+            rownames(smp_data) <- colnames(cx_data)
+            obsPlot  <- canvasXpress(data               = cx_data,
+                                    smpAnnot            = smp_data,
+                                    graphOrientation    = "vertical",
+                                    graphType           = "Boxplot",
+                                    groupingFactors     = groupCol,
+                                    boxplotColor        = boxColor,
+                                    boxplotMean         = TRUE,
+                                    boxplotWhiskersType = "single",
+                                    showViolinBoxplot   = violinLayer,
+                                    showBoxplotIfViolin = TRUE,
+                                    violinColor         = violinColor,
+                                    smpLabelRotate      = 30,
+                                    smpLabelScaleFontFactor = 0.5,
+                                    smpTitle            = xlab,
+                                    layoutAdjust        = axisFree,
+                                    showBoxplotOriginalData = showPoints,
+                                    theme               = "CanvasXpress",
+                                    xAxisTitle          = ylab,
+                                    xAxis2Show          = FALSE,
+                                    title               = title,
+                                    showLegend          = FALSE,
+                                    layoutTopology      = paste0(numrow, "X", numcol),
+                                    segregateSamplesBy  = plotByCol,
+                                    afterRender         = list(list('sortSamplesByCategory', list("group"))))
+        } else {
+            plotlist   <- list()
+            plotby_vec <- unique(data[[plotByCol]])
+            obsPlot    <- lapply(plotby_vec, function(x) {
+                data_subset <- data %>%
+                    filter(!!rlang::sym(plotByCol) == x)
+                cx_data <- data_subset %>%
+                    dplyr::select(!!rlang::sym(valueCol)) %>%
+                    t() %>%
+                    as.data.frame()
+                smp_data <- data_subset %>%
+                    dplyr::select(-!!rlang::sym(valueCol))
+                rownames(smp_data) <- colnames(cx_data)
+                title <- x
+
+                canvasXpress(data                = cx_data,
+                             smpAnnot            = smp_data,
+                             graphOrientation    = "vertical",
+                             graphType           = "Boxplot",
+                             groupingFactors     = groupCol,
+                             boxplotColor        = boxColor,
+                             boxplotMean         = TRUE,
+                             boxplotWhiskersType = "single",
+                             showViolinBoxplot   = violinLayer,
+                             showBoxplotIfViolin = TRUE,
+                             violinColor         = boxColor,
+                             smpLabelRotate      = 30,
+                             smpLabelScaleFontFactor = 0.5,
+                             smpTitle            = xlab,
+                             layoutAdjust        = axisFree,
+                             showBoxplotOriginalData = showPoints,
+                             theme               = "CanvasXpress",
+                             xAxisTitle          = ylab,
+                             title               = title,
+                             xAxis2Show          = FALSE,
+                             showLegend          = FALSE,
+                             afterRender         = list(list('sortSamplesByCategory', list("group"))))
+            })
+        }
+    } else {
+        .addGeoms <- function(obsPlot) {
+            obsPlot <- obsPlot + geom_boxplot(
+                alpha = 0.5,
+                color = "black",
+                fill  = boxColor,
+                outlier.shape = outlier.shape,
+                outlier.size  = outlier.size
+            ) + stat_summary(fun   = mean,
+                             geom  = "point",
+                             shape = "square",
+                             size  = 3,
+                             color = "goldenrod1",
+                             fill  = "red2",
+                             alpha = 0.7)
+
+            if (violinLayer) {
+                obsPlot <- obsPlot + geom_violin(alpha = 0.5,
+                                                 color = "black",
+                                                 fill  = violinColor)
+            }
+
+            if (showPoints) {
+                    obsPlot <-
+                        obsPlot + geom_point(position = position_jitter(width = 0.1),
+                                             alpha    = 0.5,
+                                             color    = "grey30",
+                                             fill     = "dodgerblue4",
+                                             size     = 2,
+                                             shape    = "circle")
+            }
+
+            obsPlot
+        }
+
+        # Reduce box outliers to a dot if geom_points turned on
+        outlier.size  <- 1.5
+        outlier.shape <- 19
+        if (showPoints) {
+            outlier.size  <- 1
+            outlier.shape <- "."
+        }
+
+        if (axisFree) {
+            axisFree <- "free"
+        } else {
+            axisFree <- "fixed"
+        }
+
+        # Plot code here
+        if (facet) {
+            obsPlot <- ggplot2::ggplot(data, aes_string(x = groupCol, y = valueCol))
+            obsPlot <- .addGeoms(obsPlot) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+            facetFormula <- stringr::str_c("~", plotByCol, sep = " ")
+            obsPlot <- obsPlot + ggplot2::facet_wrap(facetFormula, nrow = numrow, scales = axisFree)
+            obsPlot <- obsPlot + ggplot2::xlab(xlab)
+            obsPlot <- obsPlot + ggplot2::ylab(ylab)
+            if (!missing(title)) {
+                obsPlot <- obsPlot + ggplot2::ggtitle(title)
+            }
+        } else {
+            plotlist <- list()
+            for (obs in unique(data[[plotByCol]])) {
+                dat   <- data[data[[plotByCol]] == obs, ]
+                aplot <- ggplot(dat, aes_string(x = groupCol, y = valueCol)) +
+                    xlab(xlab) +
+                    ylab(ylab) +
+                    ggtitle(obs)
+                aplot <- .addGeoms(aplot) + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+                plotlist[[obs]] <- aplot
+            }
+            obsPlot <- plotlist
+        }
+    }
+    obsPlot
 }
