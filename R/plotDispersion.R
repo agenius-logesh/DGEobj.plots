@@ -55,12 +55,6 @@ plotDispersion <- function(DGEdata,
                            lineType     = "solid",
                            ...) {
 
-    plotType = tolower(plotType)
-    plotCategory = tolower(plotCategory)
-    if (!is.null(lineFit)) {
-        lineFit <- tolower(lineFit)
-    }
-
     assertthat::assert_that(!missing(DGEdata),
                             !missing(designMatrix),
                             msg = "Both DGEdata and designMatrix must be specified.")
@@ -69,89 +63,83 @@ plotDispersion <- function(DGEdata,
                             "matrix" %in% class(designMatrix),
                             msg = "DGEdata must be of class 'matrix' or 'DGEList' and designMatrix must be of class 'matrix'.")
 
-    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
-                            msg = "Plot type must either be canvasXpress or ggplot.")
+    plotType <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
+    }
 
-    assertthat::assert_that(plotCategory %in% c("dispersion", "bcv"),
-                            msg = "Plot Category must  either be dispersion or BCV.")
+    plotCategory <- tolower(plotCategory)
+    if (any(is.null(plotCategory),
+            !is.character(plotCategory),
+            length(plotCategory) != 1,
+            !plotCategory %in% c("dispersion", "bcv"))) {
+        warning("plotCategory must be either dispersion or bcv. Assigning default value 'dispersion'.")
+        plotCategory <- "dispersion"
+    }
+
+    if (!is.null(lineFit) &&
+        !all(is.character(lineFit),
+             length(lineFit) == 1,
+             tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam')))  {
+        warning("lineFit must be one value from 'glm', 'lm', 'loess', 'gam' or 'NULL' to disable. Assigning default value 'NULL'.")
+        lineFit <- NULL
+    }
 
     if (!is.null(lineFit)) {
-        if (!assertthat::see_if(is.character(linefitColor),
-                                length(linefitColor) == 1)) {
-            warning("linefitColor must be a singular value of class 'character' and must specify the name of the color or the rgb value. Assigning default value 'red'.")
+        if (any(is.null(linefitColor),
+                !is.character(linefitColor),
+                length(linefitColor) != 1,
+                length(.validate_colors(linefitColor)) != 1)) {
+            warning("linefitColor must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'red'.")
             linefitColor <- "red"
         }
-    }
 
-    if (plotType == "canvasxpress") {
-        if (!assertthat::see_if(is.numeric(symbolSize),
-                                length(symbolSize) == 1,
-                                symbolSize > 0)) {
-            warning("symbolSize must be a singular numeric value. Assigning a default value of 6.")
-            symbolSize <- 6
-        }
-
-        if (!assertthat::see_if(is.character(symbolColor),
-                                length(symbolColor) == 1)) {
-            warning("symbolColor must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'darkblue'.")
-            symbolColor <- "darkblue"
-        }
-
-        if (!assertthat::see_if(is.character(symbolShape),
-                                length(symbolShape) == 1)) {
-            warning("symbolShape must be a singular value of class 'character'. Assigning default value = 'circle'.")
-            symbolShape <- "circle"
-        }
-
-        if (!assertthat::see_if(is.numeric(symbolTransparency),
-                                length(symbolTransparency) == 1,
-                                all(symbolTransparency > 0 & symbolTransparency <= 1))) {
-            warning("symbolTransparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.5.")
-            symbolTransparency <- 0.5
-        }
-
-        if (!is.null(lineFit)) {
-            if (!assertthat::see_if(lineFit %in% c('glm', 'lm', 'loess', 'gam'),
-                                    length(lineFit) == 1)) {
-                warning("lineFit must be one of glm, lm, loess or gam. Assigning default value NULL")
-                lineFit <- NULL
-            }
-
-            if (!assertthat::see_if(is.character(lineType),
-                                    length(lineType) == 1)) {
-                warning("lineType must be a must be a singular value of class 'character'. Refer help section for the list of line types supported. Assigning default value 'solid'.")
-                lineType = "solid"
-            }
+        if (any(is.null(lineType),
+                !is.character(lineType),
+                length(lineType) != 1)) {
+            warning("lineType must be a singular value of class character. Refer help section for the list of line types supported. Assigning default value 'solid'.")
+            lineType <- "solid"
         }
     }
 
-    if (plotType == "ggplot") {
-        if (!assertthat::see_if(is.numeric(symbolSize))) {
-            warning("symbolSize must be of class numeric. Assigning a default value of 6.")
-            symbolSize <- 6
-        }
+    if (any(is.null(symbolSize),
+            !is.numeric(symbolSize),
+            length(symbolSize)  != 1,
+            !symbolSize >= 0)) {
+        warning("symbolSize must be a singular numeric value. Assigning a default value of 6.")
+        symbolSize  <-  6
 
-        if (!assertthat::see_if(is.character(symbolColor))) {
-            warning("symbolColor must be of class character and must specify the name of the color or the rgb value. Assigning default value 'darkblue'.")
-            symbolColor <- "darkblue"
-        }
+    }
 
-        if (!assertthat::see_if(is.numeric(symbolTransparency),
-                                symbolTransparency >= 0 & symbolTransparency <= 1)) {
-            warning("symbolTransparency must be a numeric value and must be between 0 and 1. Assigning default value 0.5.")
-            symbolTransparency <- 0.5
-        }
+    if (any(is.null(symbolShape),
+            !is.character(symbolShape),
+            length(symbolShape)  != 1,
+            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 1,
+            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 1)) {
+        warning("symbolShape must be a singular value of class 'character'. Assigning default value = 'circle'.")
+        symbolShape  <- "circle"
 
-        if (!assertthat::see_if(class(symbolShape) %in% c("character", "numeric"),
-                                length(symbolShape) == 1)) {
-            warning("symbolShape must be a numeric value between 0 and 25 or must be of class 'character'. Refer help section for the list of shapes supported. Assigning default value 'circle'.")
-            symbolShape <- "circle"
-        }
+    }
 
-        if ((!is.null(lineFit)) & (!assertthat::see_if(class(lineType) %in% c("character", "numeric"), length(lineType) == 1))) {
-                warning("lineType must be a singular numeric value between 0 and 6 or must be of class 'character'. Refer help section for the list of line types supported. Assigning default value 'solid'.")
-                lineType <- "solid"
-            }
+    if (any(is.null(symbolColor),
+            !is.character(symbolColor),
+            length(symbolColor)  != 1,
+            length(.validate_colors(symbolColor)) != 1)) {
+        warning("symbolColor must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'darkblue'.")
+        symbolColor <- "darkblue"
+    }
+
+    if (any(is.null(symbolTransparency),
+            !is.numeric(symbolTransparency),
+            length(symbolTransparency) != 1,
+            symbolTransparency <= 0,
+            symbolTransparency > 1)) {
+        warning("symbolTransparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
+        symbolTransparency <- 0.5
     }
 
     if (class(DGEdata)[[1]] == "DGEList") {

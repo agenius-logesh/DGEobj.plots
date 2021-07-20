@@ -4,7 +4,8 @@
 #' numbers. Intended to perform histogram analysis of p-value distributions,
 #' but should be useful for any dataframe of numeric columns.
 #'
-#' @param P.Val A matrix or dataframe of numeric data; col = samples
+#' @param DGEdata DGEobj with a class of DGEobj.
+#' @param P.Val A character vector of a topTable data in DGEobj. Default="P.Value".
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
 #' @param binWidth Value is always between 0 and 1. (default = 0.02)
@@ -16,11 +17,10 @@
 #' @examples
 #' \dontrun{
 #'    # Print to console using all defaults
-#'    MyPvalMatrix <- extractCol(getType(myDGEobj, "topTable"), "P.Value")
-#'    plotPvalHist(MyPvalMatrix)
+#'    plotPvalHist(DGEdata, P.Val)
 #'
 #'    # Use some custom arguments
-#'    myplot <- plotPvalHist(MyPValMatrix)
+#'    myplot <- plotPvalHist(DGEdata, P.Val)
 #' }
 #'
 #' @import ggplot2
@@ -28,51 +28,67 @@
 #' @importFrom canvasXpress canvasXpress
 #'
 #' @export
-plotPvalHist <- function(P.Val,
-                         plotType = "canvasXpress",
+plotPvalHist <- function(DGEdata,
+                         P.Val          = "P.Value",
+                         plotType       = "canvasXpress",
                          facet          = TRUE,
                          binWidth       = 0.02,
                          transparency   = 0.6,
                          color    = "dodgerblue3") {
 
-    plotType = tolower(plotType)
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            "DGEobj" %in% class(DGEdata),
+                            msg = "DGEdata must be specified and must belong to DGEobj class.")
 
-    assertthat::assert_that(!missing(P.Val),
-                            class(P.Val)[[1]] %in% c("matrix","data.frame"),
-                            all(sapply(data.frame(P.Val),is.numeric)),
-                            msg = "P.Val must be specified and must be of class matrix or dataframe and must contain only numeric values.")
+    if (any(is.null(P.Val),
+            !is.character(P.Val),
+            length(P.Val) != 1)) {
+        warning("P.Val must be a singular value of class character. Assigning default value 'P.Value'.")
+        P.Val <- "P.Value"
+    }
 
-    assertthat::assert_that(all(sapply(data.frame(P.Val),is.numeric)),
-                            msg = "P.Val must contain only numeric values.")
+    P.Val <- DGEobj.utils::extractCol(DGEobj::getType(DGEdata, "topTable"), colName = P.Val, robust = FALSE)
 
-    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
-                            msg = "Plot type must be either canvasXpress or ggplot.")
+    plotType <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
+    }
 
-    if (!assertthat::see_if(is.character(color),
-                            length(color) == 1)) {
+    if (any(is.null(color),
+            !is.character(color),
+            length(color)  != 1,
+            length(.validate_colors(color)) != 1)) {
         warning("color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
         color <- "dodgerblue3"
     }
 
-    if (!assertthat::see_if(is.logical(facet),
-                            length(facet) == 1)) {
+    if (any(is.null(facet),
+            !is.logical(facet),
+            length(facet) != 1)) {
         warning("facet must be a singular logical value. Assigning default value TRUE.")
         facet <- TRUE
     }
 
-    if (!assertthat::see_if(is.numeric(binWidth),
-                            length(binWidth) == 1,
-                            binWidth > 0,
-                            binWidth <= 1)) {
-        warning("binWidth must be a singular numeric value between 0 & 1. Assigning default value 0.02.")
+    if (any(is.null(binWidth),
+            !is.numeric(binWidth),
+            length(binWidth) != 1,
+            binWidth <= 0,
+            binWidth > 1)) {
+        warning("binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
         binWidth <- 0.02
     }
 
-    if (!assertthat::see_if(is.numeric(transparency),
-                            length(transparency) == 1,
-                            transparency > 0,
-                            transparency <= 1)) {
-        warning("Transparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.6.")
+    if (any(is.null(transparency),
+            !is.numeric(transparency),
+            length(transparency) != 1,
+            transparency <= 0,
+            transparency > 1)) {
+        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
         transparency <- 0.6
     }
 
@@ -91,7 +107,7 @@ plotPvalHist <- function(P.Val,
     title <- "P-value Histograms"
     plotlist <- list()
     if (plotType == "canvasxpress") {
-        events <- JS("{'mousemove' : function(o, e, t) {
+        events <- htmlwidgets::JS("{'mousemove' : function(o, e, t) {
                       if (o != null && o != false) {
                           count = o.y.data[0][0];
                           bin = o.y.data[0][1];
@@ -167,7 +183,7 @@ plotPvalHist <- function(P.Val,
                     ggplot2::ylab("Count") +
                     ggplot2::ggtitle(paste(title, "\n", sample))
 
-                 hist_pval
+                hist_pval
             })
         }
     }
