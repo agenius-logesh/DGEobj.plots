@@ -38,13 +38,13 @@
 tidyContrasts <- function(DGEdata,
                           rownameColumn = "rownames",
                           includeColumns) {
-
-    assertthat::assert_that(any(c("DGEobj", "list") %in% class(DGEdata)),
+    assertthat::assert_that(!missing(DGEdata),
+                            !is.null(DGEdata),
+                            any(c("DGEobj", "list") %in% class(DGEdata)),
                             msg = "DGEdata must be of class 'DGEobj' or 'list'.")
-
     if ("DGEobj" %in% class(DGEdata)) {
         DGEdata <- DGEobj::getType(DGEdata, "topTable")
-        assertthat::assert_that(!(length(DGEdata) == 0),
+        assertthat::assert_that(length(DGEdata) > 0,
                                 msg = "No topTable dataframes found in DGEdata. Please specify a DGEdata that contains topTable dataframes.")
 
     }
@@ -55,7 +55,7 @@ tidyContrasts <- function(DGEdata,
 
     # Make sure each df has a name
     minNameLen <- min(sapply(names(DGEdata), nchar))
-    assertthat::assert_that(!(minNameLen == 0),
+    assertthat::assert_that(minNameLen > 0,
                             msg = "All dataframes in DGEdata must be named (it must be a named list.)")
 
     # Set default columns
@@ -65,12 +65,12 @@ tidyContrasts <- function(DGEdata,
 
     # Find the common set of columns present in all dataframes
     commonColumns <- colnames(DGEdata[[1]])
-    for (i in 2:length(DGEdata))
+    for (i in 2:length(DGEdata)) {
         commonColumns <- intersect(commonColumns, colnames(DGEdata[[i]]))
-
-    # Make sure user-requested columns are present
-    if (!all(includeColumns %in% commonColumns)) {
-        warning("Some requested columns are not present in all dataframes.")
+        # Make sure user-requested columns are present
+        if (!all(includeColumns %in% commonColumns)) {
+            warning("Some requested columns are not present in all dataframes.")
+        }
     }
     commonColumns <- intersect(commonColumns, includeColumns)
 
@@ -91,7 +91,5 @@ tidyContrasts <- function(DGEdata,
     }
 
     # Now merge the dataframes vertically
-    DGEdata <- do.call(rbind, DGEdata)
-
-    return(DGEdata)
+    do.call(rbind, DGEdata)
 }

@@ -5,7 +5,9 @@
 \title{Create formatted scatterplot of first two cols of data.frame}
 \usage{
 comparePlot(
-  compareDF,
+  DGEdata,
+  contrasts,
+  colorBySigMeasure = TRUE,
   plotType = "canvasXpress",
   pThreshold = 0.01,
   xlab = NULL,
@@ -25,12 +27,17 @@ comparePlot(
 )
 }
 \arguments{
-\item{compareDF}{A dataframe with the first two columns representing the x and y variables.
+\item{DGEdata}{DGEobj with a class of DGEobj.}
+
+\item{contrasts}{A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
+with logFC and P.Value. These two contrasts representing the x and y variables.
 Optionally add xp and yp columns to hold p-values or FDR values.}
+
+\item{colorBySigMeasure}{control categorizing plot points by signefencent values colors (default = TRUE)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{pThreshold}{Used to color points (default = 0.01)}
+\item{pThreshold}{signefencent values threshold (default = 0.01)}
 
 \item{xlab}{X-axis label (default = first column name)}
 
@@ -102,20 +109,15 @@ values are used.
 \examples{
 \dontrun{
   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-  contrastList <- getType(DGEobj, "topTable")[1:2]
-
-  # Capture the default logFC and P.Value
-  compareDat <- comparePrep(contrastList)
-
-  # Switch to an FDR value for the significance measure
-  compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
+  contrasts <- names(DGEobj::getType(DGEdata, "topTable"))[1:2]
 
   # Draw the plot
-  cPlot <- comparePlot(compareDat, title = "Plot Title")
+  cPlot <- comparePlot(DGEdata, contrasts, title = "Plot Title")
   print(cPlot)
 
   # Deluxe Plot with bells and whistles.
-  myPlot <- comparePlot(compareDat,
+  myPlot <- comparePlot(DGEdata,
+                        contrasts,
                         pThreshold = 0.5,
                         xlab = "x Axis Label",
                         ylab = "y Axis Label",
@@ -123,6 +125,17 @@ values are used.
                         crosshair = "red",
                         referenceLine = "blue",
                         legendPosition = "right")
+
+                        myPlot <- comparePlot(DGEdata,
+                        contrasts,
+                        pThreshold = 0.5,
+                        xlab = "x Axis Label",
+                        ylab = "y Axis Label",
+                        title = "Plot Title",
+                        crosshair = "red",
+                        referenceLine = "blue",
+                        legendPosition = "right",
+                        plotType = "ggplot")
 }
 
 }

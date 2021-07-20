@@ -5,7 +5,8 @@
 \title{Create deluxe CDF Plots}
 \usage{
 cdfPlot(
-  contrastDF,
+  DGEdata,
+  contrast,
   plotType = "canvasXpress",
   pvalCol = "P.Value",
   pThreshold = 0.01,
@@ -27,7 +28,9 @@ cdfPlot(
 )
 }
 \arguments{
-\item{contrastDF}{A dataframe with LogRatio and LogIntensity columns and optionally a p-value or FDR column.}
+\item{DGEdata}{DGEobj with a class of DGEobj.}
+
+\item{contrast}{Name of a topTable item in DGEobj with LogRatio and LogIntensity columns and optionally a p-value or FDR column.}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
@@ -102,7 +105,11 @@ this order: Significant, Not Significant.
 }
 \examples{
 \dontrun{
-   # Plot to console (contrastDF is a topTable dataframe)
-   cdfPlot(contrastDF, title = "My CDF Plot")
+   # Plot to console (DGEdata is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
+   contrast <- names(DGEobj::getType(DGEdata, type = "topTable"))
+
+   cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot")
+
+   cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot", plotType = "ggplot")
 }
 }

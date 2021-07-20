@@ -6,130 +6,100 @@
 \usage{
 logRatioPlot(
   contrastsDF,
+  plotType = "canvasXpress",
   facetColname,
   xColname,
   yColname = "logFC",
   CI.R_colname = "CI.R",
   CI.L_colname = "CI.L",
-  xOrder = unique(as.character(contrastsDF[xColname, , drop = TRUE])),
-  plotType = "bar",
+  plotCategory = "bar",
   refLine = TRUE,
   refLineColor = "red",
   xlab = xColname,
   ylab = yColname,
-  title,
+  title = NULL,
   barColor = "dodgerblue4",
-  barFill = "dodgerblue3",
-  barSize = 0.1,
-  barAlpha = 1,
-  barWidth = 0.9,
-  pointColor = "grey30",
-  pointFill = "dodgerblue4",
-  pointShape = 21,
-  pointAlpha = 1,
+  barTransparency = 1,
+  pointColor = "dodgerblue4",
+  pointShape = "circle",
+  pointTransparency = 1,
   pointSize = 2,
-  lineLayer = FALSE,
-  lineColor = "dodgerblue4",
-  lineSize = 1,
-  lineType = "solid",
-  lineFit = "loess",
-  baseFontSize = 12,
-  themeStyle = "grey",
   facet = TRUE,
   facetCol,
-  xAngle = 45,
-  scales = "free_y"
+  labelAngle = 45,
+  axisFree = TRUE
 )
 }
 \arguments{
 \item{contrastsDF}{A tidy dataframe of data to plot (Required) (see ?tidyContrasts).}
 
+\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+
 \item{facetColname}{Define the column name to separate plots (Required) (e.g. GeneID).}
 
 \item{xColname}{Define the column name to group boxplots by (Required) (e.g. Contrast).}
 
-\item{yColname}{Define the column name for the output of the boxplots (Default = "logFC")}
+\item{yColname}{Define the column name for the output of the boxplots (default = "logFC")}
 
-\item{CI.R_colname}{Define name of the CI high value (Default = "CI.R")}
+\item{CI.R_colname}{Define name of the CI high value (default = "CI.R")}
 
-\item{CI.L_colname}{Define name of the CI low value (Default =  "CI.L")}
+\item{CI.L_colname}{Define name of the CI low value (default =  "CI.L")}
 
-\item{xOrder}{Define the order for the groups in each plot.  Should
-contain values in unique(contrastsDF$group) listed in the order that
-groups should appear in the plot. (Optional; Default = unique(contrastsDF[xColname]))}
+\item{plotCategory}{One of "bar" or "point" (default = "bar")}
 
-\item{plotType}{One of "bar" or "point" (Default = "bar")}
+\item{refLine}{Adds a horizontal line at y = 0 (default = TRUE)}
 
-\item{refLine}{Adds a horizontal line at y = 0 (Default = TRUE)}
+\item{refLineColor}{Color for the reference line (default = "red")}
 
-\item{refLineColor}{Color for the reference line (Default = "red")}
+\item{xlab}{X axis label (defaults to xColname)}
 
-\item{xlab}{X axis label (Defaults to xColname)}
+\item{ylab}{Y axis label (defaults to yColname)}
 
-\item{ylab}{Y axis label (Defaults to yColname)}
+\item{title}{Plot title, set to NULL to disable (Optional, default is NULL)}
 
-\item{title}{Plot title (Optional)}
+\item{barColor}{Color for the bar outline (default = "dodgerblue4")}
 
-\item{barColor}{Color for the bar outline (Default = "dodgerblue4")}
+\item{barTransparency}{Transparency for the bar layer (default = 1)}
 
-\item{barFill}{Color for the bar area (Default = "dodgerblue3")}
+\item{pointColor}{Color for the point layer (default = "grey30")}
 
-\item{barSize}{Set the bar size (thickness of each bar perimeter; Default = 0.1)}
+\item{pointShape}{Shape for the point layer, for ggplot plotType (default = "circle")}
 
-\item{barAlpha}{Transparency for the bar layer (Default = 1)}
+\item{pointTransparency}{Transparency for the box layer (default = 1)}
 
-\item{barWidth}{Set the bar width (Default = 0.8)}
-
-\item{pointColor}{Color for the point layer (Default = "grey30")}
-
-\item{pointFill}{Fill color for the point layer (Default = "dodgerblue4")}
-
-\item{pointShape}{Shape for the point layer (Default = 21; fillable circle)}
-
-\item{pointAlpha}{Transparency for the box layer (Default = 1)}
-
-\item{pointSize}{Size of the points (Default = 4)}
-
-\item{lineLayer}{Add a fitted line layer (Default = FALSE)}
-
-\item{lineColor}{Color of the line fit (Default = "dodgerblue4")}
-
-\item{lineSize}{Size of the line fit (Default = 1)}
-
-\item{lineType}{One of c("solid", "dashed", "dotted", "dotdash", "longdash",
-"twodash"). (Default = "solid")}
-
-\item{lineFit}{Type of fit to use.  One of c("auto", "lm", "glm", "gam",
-"loess"). (Default = "loess")}
-
-\item{baseFontSize}{The smallest size font in the figure in points. (Default =
-12)}
-
-\item{themeStyle}{"bw" or "grey" which correspond to theme_bw or theme_grey
-respectively. (Default = "bw")}
+\item{pointSize}{Size of the points, for ggplot plotType (default = 4)}
 
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
-(FALSE)  (Default = TRUE)}
+(FALSE)  (default = TRUE)}
 
-\item{facetCol}{Explicitly set the number of rows for the facet plot. Default
-behavior will automatically set the columns. (Default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))}
+\item{facetCol}{Explicitly set the number of rows for the facet plot. default
+behavior will automatically set the columns. (default = ceiling(sqrt(length(unique(contrastsDF[facetCol])))))}
 
-\item{xAngle}{Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)}
+\item{labelAngle}{Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)}
 
-\item{scales}{Specify same scales or independent scales for each subplot (Default = "free_y";
-Allowed values: "fixed", "free_x", "free_y", "free")}
+\item{axisFree}{Specify same scale or independent scales for each subplot (Default = TRUE;
+Allowed values: TRUE and FALSE)}
 }
 \value{
-ggplot object. If facet = TRUE (default), returns a faceted ggplot object. If
-  facet = FALSE, returns a list of ggplot objects indexed
-  by observation (gene) names.
+canvasXpress (the default) or a ggplot object:
+#' \itemize{
+  \item If \code{facet = TRUE} \emph{(default)}, returns a faceted canvasXpress or ggplot object.
+  \item If \code{facet = FALSE}, returns a list of canvasXpress or ggplot objects indexed by observation (gene) names.
+}
 }
 \description{
 Intended to plot a set of contrast results, one plot for each gene of
-interest. Input is a tidy datafile constructed from topTable output and
-requires logFC, CI.L, and CI.R columns as well as a gene identifier of choice.
-Outputs a ggplot2 object faceted by the facetColname or a list of individual
-ggplots, one for each facetColname value (typically gene).
+interest.
+}
+\details{
+Input is a tidy dataframe constructed from topTable output and
+requires \strong{logFC}, \strong{CI.L}, and \strong{CI.R} columns as well as a gene identifier of choice.
+
+Outputs a canvasXpress \emph{(the default)} or ggplot2 object faceted by the facetColname when
+ \code{facet} parameter is set to \strong{TRUE} \emph{(the default)}.
+
+If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
+ggplots, one for each facetColname value \emph{(typically gene)}.
 }
 \examples{
 \dontrun{
@@ -140,34 +110,30 @@ ggplots, one for each facetColname value (typically gene).
                            includeColumns = c("logFC", "CI.R", "CI.L"))
 
   # Add gene symbols from geneData
-  ens2genesym <- DGEobj$geneData \%>\%
-                 rownames_to_column(var = "EnsgID") \%>\%
-                 select(EnsgID, GeneSymbol = GeneName)
-  tidyDat <- left_join(tidyDat, ens2genesym)
+  # select small sample set
+  ens2genesym <- data.frame("EnsgID" = row.names(DGEobj$geneData), DGEobj$geneData, row.names = NULL)
+  ens2genesym <- ens2genesym[, c("EnsgID", "rgd_symbol")]
+  colnames(ens2genesym) <- c("EnsgID", "GeneSymbol")
+  tidyDat <- dplyr::left_join(tidyDat, ens2genesym) \%>\% dplyr::sample_n(10)
 
-  # Filter for a small set of genes of interest
-  idx <- stringr::str_detect(tidyDat$GeneSymbol, "^PPAR")
-  tidyDat <- tidyDat[idx,]
 
   # Simple barplot
-  logRatioPlot(tidyDat,
-               facetColname = "GeneSymbol",
-               xColname = "Contrast",
-               facetCol = 2)
+ logRatioPlot(tidyDat,
+             facetColname = "GeneSymbol",
+              xColname = "Contrast",
+              facetCol = 4)
 
   # Lineplot with some options
   logRatioPlot(tidyDat,
-               plotType = "point",
+               plotCategory = "point",
                facetColname = "GeneSymbol",
                xColname = "Contrast",
                facetCol = 4,
-               scales = "fixed",
+               axisFree = FALSE,
                facet = TRUE,
                title = "Test",
                pointSize = 4,
-               lineLayer = TRUE,
-               lineSize = 0.1,
-               xAngle = 60)
+               labelAngle = 60)
 }
 
 }

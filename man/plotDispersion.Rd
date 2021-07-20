@@ -6,7 +6,7 @@
 \usage{
 plotDispersion(
   DGEdata,
-  designMatrix,
+  matrixType = "design",
   plotType = "canvasXpress",
   plotCategory = "dispersion",
   symbolSize = 6,
@@ -20,9 +20,10 @@ plotDispersion(
 )
 }
 \arguments{
-\item{DGEdata}{Counts matrix or DGEList (required)}
+\item{DGEdata}{DGEobj.}
 
-\item{designMatrix}{A design matrix created by stats::model.matrix (required)}
+\item{matrixType}{design or counts. If matrixType is design it will take the DGEList data in DGEobj and
+if matrixType is counts it will take the counts data in DGEobj. (default = design)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
@@ -61,12 +62,10 @@ dispersion) against AveLogCPM.
 \examples{
 \dontrun{
    # canvasxpress plot
-   myCxplot <- plotDispersion(myDGElist, designMatrix )
-   myCxplot <- plotDispersion(myDGEobj, designMatrix)
+   myCxplot <- plotDispersion(myDGEobj, matrixType = "counts")
 
    # ggplot
-   myGgplot <- plotDispersion(myDGElist, designMatrix, plotType = "ggplot")
-   myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
+   myGgplot <- plotDispersion(myDGEobj, matrixType = "counts", plotType = "ggplot")
 }
 
 }
