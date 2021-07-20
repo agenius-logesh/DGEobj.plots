@@ -39,7 +39,6 @@ test_that("obsPlot.R: obsPlot()", {
                         xlab        = "value",
                         ylab        = "replicate_group",
                         title       = "obsPlot",
-                        color    = "deepskyblue3",
                         facet       = TRUE,
                         axisFree    = TRUE)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
@@ -101,7 +100,6 @@ test_that("obsPlot.R: obsPlot()", {
                         xlab          = "value",
                         ylab          = "replicate_group",
                         title         = "obsPlot",
-                        color      = "deepskyblue3",
                         facet         = TRUE,
                         axisFree      = FALSE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
@@ -390,28 +388,6 @@ test_that("obsPlot.R: obsPlot()", {
                         plotType = "ggplot",
                         ylab     = NULL)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
-
-    #color
-    msg <- "color must be of class character and must specify the name of the color or the rgb value. Assigning default value 'deepskyblue3'."
-    expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       color = NULL),
-                   regexp = msg)
-    expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       color = c("red","blue")),
-                   regexp = msg)
-    expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       color = 1),
-                   regexp = msg)
-    expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       color = "notavalidcolor"),
-                   regexp = "color specified is not valid. Assigning default value 'deepskyblue3'.")
-    expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     #violinLayer
     msg <- "violinLayer must be a singular logical value. Assigning default value FALSE."

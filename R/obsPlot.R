@@ -341,7 +341,7 @@ obsPlot <- function(DGEdata,
             plotby_vec <- unique(data[[plotByCol]])
             obsPlot    <- lapply(plotby_vec, function(x) {
                 data_subset <- data %>%
-                    filter(!!rlang::sym(plotByCol) == x)
+                    dplyr::filter(!!rlang::sym(plotByCol) == x)
                 cx_data <- data_subset %>%
                     dplyr::select(!!rlang::sym(valueCol)) %>%
                     t() %>%
