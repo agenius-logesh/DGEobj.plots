@@ -167,7 +167,7 @@ plotPvalHist <- function(P.Val,
                     ggplot2::ylab("Count") +
                     ggplot2::ggtitle(paste(title, "\n", sample))
 
-                hist_pval
+                 hist_pval
             })
         }
     }
