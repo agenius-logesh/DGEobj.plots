@@ -9,10 +9,10 @@ mapDGEobj(dgeObj, plotType = "canvasXpress", directed = TRUE)
 \arguments{
 \item{dgeObj}{DGEobj to find the parent/child relationships between data items.}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
 \item{directed}{Passed to igraph::graph_from_data_frame. Indicates if the graph should
-be directed or not. Default = TRUE.}
+be directed or not. (default = TRUE)}
 }
 \value{
 A class igraph network object for plotType ggplot and canvasxpress network plot for plotType canvasxpress.
@@ -23,45 +23,12 @@ data items in the DGEobj.
 }
 \examples{
 \dontrun{
-  library(igraph)
-  library(RColorBrewer)
-
   # Prepare canvasxpress network plot
   mynet <- mapDGEobj(dgeObj)
 
   # Prepare an iGraph object for plotting
   mynet <- mapDGEobj(dgeObj, plotType = "ggplot")
-
-  # Define a layout
-  lay.sug <- layout_with_sugiyama(mynet)
-
-  # 2D Plot
-  plot(mynet,
-       plotType = "ggplot",
-       edge.arrow.size = .3,
-       vertex.color = "dodgerblue2",
-       vertex.frame.color = "dodgerblue4",
-       layout = lay.sug$layout)
-
-  # 2D Plot; colorby the basetype attribute
-  pal <- brewer.pal(length(unique(V(mynet)$basetype)), "Set1")
-  myPallet <- pal[as.numeric(as.factor(vertex_attr(mynet, "basetype")))]
-
-  plot(mynet,
-       plotType = "ggplot",
-       edge.arrow.size = .3,
-       vertex.color = myPallet,
-       vertex.label.family = "Helvetica",
-       layout=lay.sug$layout)
-
-  # 2D Interactive plot
-  plotHandle <- tkplot(net,
-                       vertex.color = myPallet,
-                       vertex.frame.color = "dodgerblue4",
-                       canvas.width = 800,
-                       canvas.height = 800,
-                       layout = lay.sug$layout)
-  tk_close(plotHandle)
-}
+  plot(mynet)
+  }
 
 }
