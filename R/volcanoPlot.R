@@ -1,4 +1,4 @@
-#' Create volcano
+#' Create volcano plot
 #'
 #' A volcano plot shows Log Ratio data on the X axis and Negative Log P-values (NLP) on the
 #' Y axis. This function is intended to show the volcano plot created from a
