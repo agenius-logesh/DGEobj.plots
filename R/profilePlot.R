@@ -30,7 +30,8 @@
 #' required for these arguments which applies the attributes in this order:
 #' Increased, NoChange, Decreased.
 #'
-#' @param contrastDF dataframe with LogIntensity and LogRatio columns and optionally a p-value.
+#' @param dgeObj DGEobj.
+#' @param contrast Name of the contrast in dgeObj.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = "canvasXpress").
 #' @param logRatioCol Name of the LogRatio column (default = "logFC")
 #' @param logIntCol Name of the LogIntensity column (default = "AveExpr")
@@ -39,37 +40,16 @@
 #' @param ylab Y axis label (defaults = "LogRatio column name")
 #' @param title Plot title (optional)
 #' @param pthreshold Used to color points (default = 0.01)
-#' @param geneSymLabels Gene Symbols to be labeled. For canvasXpress, these information will
-#'        be displayed for each data point.
-#' @param geneSymCol Name of the gene symbol column in contrastDF.  The gene symbol is
-#'        not in topTable output by default so the user has to bind this column
-#'        to the dataframe in advance.  Then this column will be used to label
-#'        significantly changed points for ggplot type. For canvasXpress plot type,
-#'        gene information is displayed in the tooltip.
-#' @param symbolSize Size of symbols for Up, no change, and Down (default = c(10, 4, 10));
-#'        Note: All three cannot be the same size. Decimal values are acceptable to help offset that
-#'        (e.g. 4, 4.1, 4.2).
-#' @param symbolShape Shape of the symbols for Up, no change, and Down;
-#'        (default = c("circle", "circle", "circle").
-#'        See \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
-#' @param symbolColor c(Up, NoChange, Down) (default = c("red3", "grey25", "deepskyblue4"))
-#'        See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
-#'        Note: Colors cannot be duplicated.
-#' @param transparency Controls the transparency of the plotted points (0-1; default = 0.5)
+#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label
+#'    significantly changed points.
 #' @param sizeBySignificance Set to TRUE to size points by the negative Log10 of the
 #'        Significance measure (default = FALSE)
 #' @param referenceLine Color for an intercept = 0 horizontal reference line
 #'        (default = "darkgoldenrod1"; NULL disables)
-#' @param foldChangeLines Position of reference horizontal lines for fold change
-#'        (default = log2(1.5); NULL disables)
-#' @param refLineThickness Controls size of the horizontal reference line through geom_hline (default = 1)
+#' @param foldChangeThreshold Position of reference horizontal lines for fold change
+#'        (default = 1.5)
 #' @param lineFitType Enable a line fit through the data (default = "loess";
 #'        "lm" produces a linear fit. NULL disables)
-#' @param lineFitColor Color for the fit line (default = "goldenrod1")
-#' @param legendPosition One of "top", "bottom", "left", "right", "ne", "se", "nw", "sw", NULL.
-#'        top/bottom/left/right place the legend outside the figure.  ne/se/nw/sw place the figure
-#'        inside the figure. NULL disables the legend. Default = "right"
-#' @param footnote Optional string placed right justified at bottom of plot.
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
 #'
@@ -78,54 +58,63 @@
 #'    # Get DGEObj
 #'    t_obj1 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'    # Get Contrast Data to plot
-#'    contrastDF <- t_obj1$BDL_vs_Sham
-#'    myPlot <- profilePlot(contrastDF, title = "BDL_vs_Sham")
+#'    contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
+#'    myPlot <- volcanoPlot(dgeObj, contrast, title = "Plot Title")
 #'
 #'    # Some options with a custom datafile
-#'    myPlot <- profilePlot(contrastDF,
+#'    myPlot <- profilePlot(dgeObj,
+#'                          contrast,
+#'                          pthreshold = 0.1,
+#'                          title = "BDL_vs_Sham",
+#'                          referenceLine = "blue")
+#'
+#'    myPlot <- profilePlot(dgeObj,
+#'                          contrast,
 #'                          pthreshold = 0.1,
 #'                          title = "BDL_vs_Sham",
 #'                          referenceLine = "blue",
-#'                          legendPosition = "ne")
+#'                          plotType = "ggplot")
 #' }
 #'
 #' @import ggplot2 magrittr
-#' @importFrom dplyr left_join filter arrange mutate case_when
+#' @importFrom dplyr filter arrange mutate case_when
+#' @importFram rlang sym
 #' @importFrom assertthat assert_that
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom htmlwidgets JS
 #'
 #' @export
-profilePlot <- function(contrastDF,
+profilePlot <- function(dgeObj,
+                        contrast,
                         plotType = "canvasXpress",
                         logRatioCol = "logFC",
                         logIntCol = "AveExpr",
                         pvalCol = "P.Value",
                         pthreshold = 0.01,
-                        geneSymLabels,
-                        geneSymCol,
+                        geneNameCol,
                         xlab = NULL,
                         ylab = NULL,
                         title = NULL,
-                        symbolSize = c(10, 4, 10),
-                        symbolShape = c("circle", "circle", "circle"),
-                        symbolColor = c("red3", "grey25", "deepskyblue4"),
-                        transparency = 0.5,
                         sizeBySignificance = FALSE,
                         referenceLine = "darkgoldenrod1",
-                        foldChangeLines = log2(1.5),
-                        refLineThickness = 1,
-                        lineFitType = "loess",
-                        lineFitColor = "goldenrod1",
-                        legendPosition = "right",
-                        footnote) {
+                        foldChangeThreshold = 1.5,
+                        lineFitType = "loess") {
     ##### Asserts
-    assertthat::assert_that(!missing(contrastDF),
-                            !is.null(contrastDF),
-                            "data.frame" %in% class(contrastDF),
-                            nrow(contrastDF) > 0,
-                            msg = "contrastDF must be specified as dataframe with LogIntensity and LogRatio columns and optionally a p-value")
+    ##### Asserts
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj.")
+
+    assertthat::assert_that(!missing(contrast),
+                            !is.null(contrast),
+                            length(contrast) == 1,
+                            contrast %in% names(DGEobj::getType(dgeObj, type = "topTable")),
+                            msg = "contrast to be a singular value of class character and must be one of the topTables in dgeObj.")
+
+    contrastDF <- DGEobj::getItems(dgeObj, contrast)
+
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
             !is.character(plotType),
@@ -134,20 +123,28 @@ profilePlot <- function(contrastDF,
         warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
         plotType <- "canvasxpress"
     }
+
     # Make sure specified columns exist
     assertthat::assert_that(!is.null(logRatioCol),
+                            length(logRatioCol) == 1,
                             logRatioCol %in% colnames(contrastDF),
-                            msg = "logRatioCol column not found in contrastDF.")
+                            msg = "logRatioCol to be a singular value of class character and must be in contrast data.")
+
     assertthat::assert_that(!is.null(logIntCol),
+                            length(logIntCol) == 1,
                             logIntCol %in% colnames(contrastDF),
-                            msg = "logIntCol column not found in contrastDF.")
+                            msg = "logIntCol to be a singular value of class character and must be in contrast data.")
+
     assertthat::assert_that(!is.null(pvalCol),
+                            length(pvalCol) == 1,
                             pvalCol %in% colnames(contrastDF),
-                            msg = "pvalCol column not found in contrastDF.")
-    if (!missing(geneSymCol)) {
-        assertthat::assert_that(!is.null(geneSymCol),
-                                geneSymCol %in% colnames(contrastDF),
-                                msg = "geneSymCol column not found in contrastDF.")
+                            msg = "pvalCol to be a singular value of class character and must be in contrast data.")
+
+    if (!missing(geneNameCol)) {
+        assertthat::assert_that(!is.null(geneNameCol),
+                                length(geneNameCol) == 1,
+                                geneNameCol %in% names(DGEobj::getType(dgeObj, type = "geneData")[[1]]),
+                                msg = "geneNameCol to be a singular value of class character and must be in contrast data.")
     }
 
     if (any(is.null(pthreshold),
@@ -157,11 +154,11 @@ profilePlot <- function(contrastDF,
         pthreshold <- 0.01
     }
 
-    if (any(is.null(foldChangeLines),
-            !is.numeric(foldChangeLines),
-            length(foldChangeLines) != 1)) {
-        warning("foldChangeLines must be a singular numeric value. Assigning default value log2(1.5)")
-        foldChangeLines <- log2(1.5)
+    if (any(is.null(foldChangeThreshold),
+            !is.numeric(foldChangeThreshold),
+            length(foldChangeThreshold) != 1)) {
+        warning("foldChangeThreshold must be a singular numeric value. Assigning default value log2(1.5)")
+        foldChangeThreshold <- 1.5
     }
 
     if (!is.null(title) &&
@@ -189,54 +186,6 @@ profilePlot <- function(contrastDF,
         lineFitType <- "loess"
     }
 
-    if (!is.null(lineFitType) &&
-        any(is.null(lineFitColor),
-            !is.character(lineFitColor),
-            length(lineFitColor) != 1)) {
-        warning("lineFitColor must be a singular value of class character. Assigning default value 'goldenrod1'.")
-        lineFitColor <- "goldenrod1"
-    } else if (.rgbaConversion(lineFitColor) == "invalid value") {
-        warning("Color specified is not valid. Assigning default value 'goldenrod1'.")
-        lineFitColor <- "goldenrod1"
-    }
-
-    if (any(is.null(symbolSize),
-            !is.numeric(symbolSize),
-            length(symbolSize)  != 3,
-            length(unique(symbolSize)) < 2,
-            !all(symbolSize >= 0))) {
-        warning("symbolSize must be a vector of 3 integer values, at least 2 of them are different. Assigning default values 10, 4, 10.")
-        symbolSize  <-  c(10, 4, 10)
-
-    }
-
-    if (any(is.null(symbolShape),
-            !is.character(symbolShape),
-            length(symbolShape)  != 3,
-            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 3,
-            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 3)) {
-        warning("symbolShape must be a vector of 3 charcter values. Assigning default values 'circle', 'circle', 'circle'.")
-        symbolShape  <- c("circle", "circle", "circle")
-
-    }
-
-    if (any(is.null(symbolColor),
-            !is.character(symbolColor),
-            length(symbolColor)  != 3,
-            length(.validate_colors(symbolColor)) != 3)) {
-        warning("symbolColor must be a vector of 3 character values. Assigning default values 'red3', 'grey25', 'deepskyblue4'.")
-        symbolColor <- c("red3", "grey25", "deepskyblue4")
-    }
-
-    if (any(is.null(transparency),
-            !is.numeric(transparency),
-            length(transparency) != 1,
-            transparency <= 0,
-            transparency > 1)) {
-        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
-        transparency <- 0.5
-    }
-
     if (!is.null(referenceLine) &&
         !all(is.character(referenceLine), length(referenceLine) == 1)) {
         warning("referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'darkgoldenrod1'.")
@@ -246,36 +195,13 @@ profilePlot <- function(contrastDF,
         referenceLine <- "darkgoldenrod1"
     }
 
-    if (any(is.null(refLineThickness),
-            !is.numeric(refLineThickness),
-            length(refLineThickness) != 1,
-            refLineThickness < 0)) {
-        warning("refLineThickness must be a singular value of class numeric Assigning default value '1'.")
-        refLineThickness <- 1
-    }
-
-    if (!is.null(legendPosition) &&
-        !all(is.character(legendPosition),
-             length(legendPosition) == 1,
-             legendPosition %in% c("top", "bottom", "left", "right", "ne", "se", "nw", "sw"))) {
-        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'ne', 'se', 'nw', 'sw' or 'NULL' to disable. Assigning default value 'right'.")
-        legendPosition <- "right"
-    }
-
-    if (missing(footnote)) {
-        footnote <- NULL
-    } else if (!is.null(footnote) &&
-               !all(is.character(footnote), length(footnote) == 1)) {
-        warning("footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
-        footnote <- NULL
-    }
-
     if (any(is.null(sizeBySignificance),
             !is.logical(sizeBySignificance),
             length(sizeBySignificance) != 1)) {
         warning("sizeBySignificance must be a singular logical value. Assigning default value FALSE")
         sizeBySignificance = FALSE
     }
+
     # Columns to plot
     # Capture the labels from the colname
     xlabel <- make.names(logIntCol)
@@ -287,37 +213,47 @@ profilePlot <- function(contrastDF,
         contrastDF <- contrastDF %>%
             dplyr::mutate(negLog10P = -log10(!!sym(pvalCol)))
     }
+
     contrastDF <- contrastDF %>%
         dplyr::mutate(Group = dplyr::case_when(!!sym(pvalCol) > pthreshold ~ "No Change",
                                                !!sym(logRatioCol) > 0 ~ "Increased",
                                                TRUE ~"Decreased"),
                       Group = factor(Group,
                                      levels = c("Increased", "No Change", "Decreased")))
+
     if (plotType == "canvasxpress") {
-        symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
+
+        symbolColor <- sapply(c("deepskyblue4", "red3", "grey25"), .rgbaConversion, alpha = 0.5, USE.NAMES = FALSE)
+
         cx.data <- contrastDF %>%
             dplyr::select(c(xlabel, ylabel))
-        sizes   <- symbolSize[c(3,1,2)]
-        colors  <- symbolColor[c(3,1,2)]
-        shapes  <- symbolShape[c(3,1,2)]
+
+        group <- c("Decreased", "Increased", "No Change")
+
+        ssc <- data.frame(group, symbolColor, row.names = NULL) %>%
+            dplyr::filter(group %in% unique(contrastDF$Group))
+
         decorations <- list()
+
         if (!is.null(referenceLine)) {
-            referenceLine <- .rgbaConversion(referenceLine, alpha = transparency)
+            referenceLine <- .rgbaConversion(referenceLine, alpha = 0.5)
             decorations   <- .getCxPlotDecorations(decorations = decorations,
                                                    color = referenceLine,
-                                                   width = refLineThickness,
+                                                   width = 1,
                                                    y     = 0)
         }
-        if (!is.null(foldChangeLines)) {
+
+        if (!is.null(foldChangeThreshold)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = colors[2],
-                                                 width       = refLineThickness,
-                                                 y           = foldChangeLines)
+                                                 color       = symbolColor[2],
+                                                 width       = 1,
+                                                 y           = log2(foldChangeThreshold))
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = colors[1],
-                                                 width       = refLineThickness,
-                                                 y           = -1 * foldChangeLines)
+                                                 color       = symbolColor[1],
+                                                 width       = 1,
+                                                 y           = -log2(foldChangeThreshold))
         }
+
         events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
                                                 if (o != null && o != false) {
                                                   if (o.y != null &&
@@ -326,9 +262,9 @@ profilePlot <- function(contrastDF,
                                                       info = '<b>' + o.y.vars[0]  + '</b>' + '<br/>' +
                                                              '<b>' + o.y.smps[0]  + '</b>' + ': ' + o.y.data[0][0] + '<br/>' +
                                                              '<b>' + o.y.smps[1]  + '</b>' + ': ' + o.y.data[0][1] ;
-                                                      if (o.z != null && o.z['rgd_symbol'] != null) {
+                                                      if (o.z != null && o.z['GeneName'] != null) {
                                                         info  = info + '<br/>' +
-                                                              '<b> Symbol</b>' + ': ' + o.z['rgd_symbol'] ;
+                                                              '<b> Symbol</b>' + ': ' + o.z['GeneName'] ;
                                                       }
                                                     t.showInfoSpan(e, info);
 
@@ -337,28 +273,29 @@ profilePlot <- function(contrastDF,
         if (sizeBySignificance) {
             var.annot <- contrastDF %>%
                 dplyr::select(Group, negLog10P)
-            showSizeLegend <- TRUE
             sizeBy <- "negLog10P"
+            showSizeLegend <- TRUE
         } else {
             var.annot <- contrastDF %>%
                 dplyr::select(Group)
-            showSizeLegend <- FALSE
             sizeBy  <- "Group"
+            showSizeLegend <- FALSE
         }
 
-        if (!missing(geneSymCol)) {
-            var.annot <- merge(var.annot, contrastDF %>%
-                                   dplyr::select(!!dplyr::sym(geneSymCol)),
-                               by = 0)
-            rownames(var.annot) <- var.annot$Row.names
-            var.annot$Row.names <- NULL
+        if (!missing(geneNameCol)) {
+            gene_data <- DGEobj::getItem(dgeObj, "geneData") %>%
+                dplyr::select(all_of(geneNameCol))
+
+            var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
+                tibble::column_to_rownames(var = "Row.names") %>%
+                dplyr::rename(GeneName = all_of(geneNameCol))
         }
 
         showLoessFit <- FALSE
         afterRender  <- NULL
         if (!is.null(lineFitType)) {
             lineFitType  <- .cxSupportedLineFit(lineFitType)
-            lineFitColor <- .rgbaConversion(lineFitColor, alpha = transparency)
+            lineFitColor <- .rgbaConversion("goldenrod1", alpha = 0.5)
 
             if (lineFitType == "lm") {
                 afterRender <- list(list("addRegressionLine"))
@@ -371,9 +308,8 @@ profilePlot <- function(contrastDF,
                           decorations      = decorations,
                           graphType        = "Scatter2D",
                           colorBy          = "Group",
-                          colors           = colors,
-                          shapes           = shapes,
-                          legendPosition   = legendPosition,
+                          colors           = ssc$symbolColor,
+                          legendPosition   = "right",
                           showDecorations  = TRUE,
                           showLoessFit     = showLoessFit,
                           fitLineColor     = lineFitColor,
@@ -382,35 +318,33 @@ profilePlot <- function(contrastDF,
                           xAxisTitle       = xlab,
                           yAxisTitle       = ylab,
                           sizeBy           = sizeBy,
-                          citation         = footnote,
                           events           = events,
                           afterRender      = afterRender)
+
         if (sizeBy == "Group") {
-            cx_params <- c(cx_params, list(sizes = sizes))
+            cx_params <- c(cx_params, list(sizes = c(10, 10, 4)))
         }
         do.call(canvasXpress::canvasXpress, cx_params)
     } else {
-        groupNames <- c("Increased", "No Change", "Decreased")
-        names(symbolShape) <-  groupNames
-        names(symbolSize)  <-  groupNames
-        names(symbolColor) <-  groupNames
-        ssc  <-  data.frame(group = factor(groupNames, levels = groupNames),
-                            symbolShape = symbolShape,
-                            symbolSize = symbolSize,
-                            symbolColor = symbolColor,
-                            stringsAsFactors = FALSE)
+
+        group <- c( "Increased", "No Change", "Decreased")
+        symbolColor <- c( "red3", "grey25", "deepskyblue4")
+
+        ssc <- data.frame(group, symbolColor, row.names = NULL) %>%
+            dplyr::filter(group %in% unique(contrastDF$Group))
+
         profilePlot <- ggplot(contrastDF, aes_string(x = xlabel, y = ylabel)) +
             aes(shape = Group,
                 color = Group,
-                fill = Group) +
+                fill  = Group) +
             # Scale lines tell it to use the actual values, not treat them as factors
             scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group,
-                               values = ssc$symbolShape) +
+                               values = rep("circle", 3)) +
             scale_color_manual(name = "Group", guide = "legend", labels = ssc$group,
                                values = ssc$symbolColor) +
             scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group,
                               values = ssc$symbolColor) +
-            geom_point(alpha = transparency)
+            geom_point(alpha = 0.5)
         # Optional Decorations
         if (sizeBySignificance) {
             profilePlot <- profilePlot + aes(size = negLog10P) +
@@ -418,26 +352,26 @@ profilePlot <- function(contrastDF,
         } else {
             profilePlot <- profilePlot + aes(size = Group) +
                 scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = ssc$symbolSize)
+                                  values = c(4, 4, 2))
         }
 
         if (!is.null(referenceLine)) {
             profilePlot <- profilePlot +
                 geom_hline(yintercept = 0,
                            color = referenceLine,
-                           size = refLineThickness,
+                           size = 1,
                            alpha = 0.5)
         }
 
-        if (!is.null(foldChangeLines)) {
+        if (!is.null(foldChangeThreshold)) {
             profilePlot <- profilePlot +
-                geom_hline(yintercept = foldChangeLines,
-                           color = symbolColor["Increased"],
-                           size = refLineThickness,
+                geom_hline(yintercept = log2(foldChangeThreshold),
+                           color = symbolColor[2],
+                           size = 1,
                            alpha = 0.5) +
-                geom_hline(yintercept = -foldChangeLines,
-                           color = symbolColor["Decreased"],
-                           size = refLineThickness,
+                geom_hline(yintercept = -log2(foldChangeThreshold),
+                           color = symbolColor[1],
+                           size = 1,
                            alpha = 0.5)
         }
 
@@ -450,21 +384,11 @@ profilePlot <- function(contrastDF,
                                 color = NULL,
                                 fill = NULL),
                             method = tolower(lineFitType),
-                            size = refLineThickness,
-                            color = lineFitColor,
-                            alpha = transparency,
+                            size = 1,
+                            color = "goldenrod1",
+                            alpha = 0.5,
                             se = FALSE,
                             show.legend = FALSE)
-        }
-
-        # Add genesym labels to increased, decreased genes
-        if (!missing(geneSymLabels) && !missing(geneSymCol)) {
-            idx <- contrastDF[[geneSymCol]] %in% geneSymLabels
-            contrastDFsubset <- contrastDF[idx,]
-            profilePlot <- profilePlot +
-                geom_text_repel(data = contrastDFsubset,
-                                aes_string(x = xlabel, y = ylabel, label = geneSymCol),
-                                show.legend = FALSE)
         }
 
         # Add axis Labels
@@ -483,13 +407,6 @@ profilePlot <- function(contrastDF,
                 ggtitle(title)
         }
 
-        # Footnote
-        if (!missing(footnote)) {
-            profilePlot <- addFootnote(profilePlot,
-                                       footnoteText = footnote,
-                                       footnoteSize = 3,
-                                       footnoteColor = "black")
-        }
-        setLegendPosition(profilePlot, legendPosition)
+        profilePlot + theme(legend.position = "right")
     }
 }
