@@ -77,7 +77,7 @@
 #'
 #' @import ggplot2 magrittr
 #' @importFrom dplyr filter arrange mutate case_when
-#' @importFram rlang sym
+#' @importFrom rlang sym
 #' @importFrom assertthat assert_that
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom canvasXpress canvasXpress
