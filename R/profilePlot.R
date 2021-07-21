@@ -58,17 +58,16 @@
 #'    # Get DGEObj
 #'    t_obj1 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'    # Get Contrast Data to plot
-#'    contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
-#'    myPlot <- volcanoPlot(dgeObj, contrast, title = "Plot Title")
+#'    contrast <- names(DGEobj::getType(t_obj1, "topTable"))[1]
 #'
 #'    # Some options with a custom datafile
-#'    myPlot <- profilePlot(dgeObj,
+#'    myPlot <- profilePlot(t_obj1,
 #'                          contrast,
 #'                          pthreshold = 0.1,
 #'                          title = "BDL_vs_Sham",
 #'                          referenceLine = "blue")
 #'
-#'    myPlot <- profilePlot(dgeObj,
+#'    myPlot <- profilePlot(t_obj1,
 #'                          contrast,
 #'                          pthreshold = 0.1,
 #'                          title = "BDL_vs_Sham",
@@ -113,7 +112,7 @@ profilePlot <- function(dgeObj,
                             contrast %in% names(DGEobj::getType(dgeObj, type = "topTable")),
                             msg = "contrast to be a singular value of class character and must be one of the topTables in dgeObj.")
 
-    contrastDF <- DGEobj::getItems(dgeObj, contrast)
+    contrastDF <- DGEobj::getType(dgeObj, type = "topTable")[contrast][[1]]
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
