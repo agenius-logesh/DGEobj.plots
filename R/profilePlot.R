@@ -145,7 +145,7 @@ profilePlot <- function(dgeObj,
 
     if (!missing(geneNameCol)) {
 
-        assertthat::assert_that(length(names(getType(t_obj1, "geneData"))) == 1,
+        assertthat::assert_that(length(names(getType(dgeObj, "geneData"))) == 1,
                                 msg = "dgeObj must have exactly one gene object.")
 
         assertthat::assert_that(!is.null(geneNameCol),
