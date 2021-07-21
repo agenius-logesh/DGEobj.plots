@@ -85,6 +85,7 @@ plotDispersion <- function(dgeObj,
         plotCategory <- "dispersion"
     }
 
+
     if (!is.null(lineFit) &&
         !all(is.character(lineFit),
              length(lineFit) == 1,
