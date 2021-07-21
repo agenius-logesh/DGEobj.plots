@@ -76,6 +76,12 @@
     is_valid_shape
 }
 
+.is_valid_lineTypes <- function(linetype) {
+    valid_linetypes <- c("solid", "dotted", "dashed", "dotdash", "longdash", "twodash")
+    is_valid_linetype <- ifelse(linetype %in% valid_linetypes, TRUE, FALSE)
+    is_valid_linetype
+}
+
 .validate_colors <- function(colors) {
     valid_colors <- list()
     valid_colors <- lapply(colors, function(color){
