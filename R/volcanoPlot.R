@@ -22,7 +22,7 @@
 #' threshold are used to color code genes that are significantly increased or decreased.
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
-#' @param DGEdata DGEobj.
+#' @param dgeObj DGEobj.
 #' @param contrast Name of the contrast.
 #' @param plotType Plot type must be canvasXpress or ggplot. (default = canvasXpress)
 #' @param logRatioCol Name of the LogRatio column. (default = "logFC")
@@ -35,19 +35,19 @@
 #' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label significantly changed points.
 #' @param pthresholdLine Color for a horizontal line at the p-threshold. (default = NULL (disabled))
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (default = TRUE)
-#' @param foldChangeLines Position of reference vertical lines for fold change. (default = 1.5)
+#' @param foldChangethreshold Position of reference vertical lines for fold change. (default = 1.5)
 #' @return canvasxpress or ggplot object based on plotType selection.
 #'
 #' @examples
 #' \dontrun{
-#'    # Simple plot with custom title (DGEdata is a name of DGEobj and contrast is a name of topTable dataframe)
-#'    contrast <- names(DGEobj::getItems(DGEdata, "topTable"))[1]
-#'    myPlot <- volcanoPlot(DGEdata,
+#'    # Simple plot with custom title (dgeObj is a name of DGEobj and contrast is a name of topTable dataframe)
+#'    contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
+#'    myPlot <- volcanoPlot(dgeObj,
 #'                          contrast,
 #'                          title = "Plot Title")
 #'
 #'    # Some options with a custom datafile
-#'    myPlot <- volcanoPlot(DGEdata,
+#'    myPlot <- volcanoPlot(dgeObj,
 #'                          contrast,
 #'                          pthreshold     = 0.1,
 #'                          logRatioCol    = "logFC",
@@ -58,7 +58,7 @@
 #'                          title          = "Volcano Plot Title",
 #'                          pthresholdLine = "blue")
 #'
-#'    myPlot <- volcanoPlot(DGEdata,
+#'    myPlot <- volcanoPlot(dgeObj,
 #'                          contrast,
 #'                          pthreshold     = 0.1,
 #'                          logRatioCol    = "logFC",
@@ -80,7 +80,7 @@
 #' @importFrom htmlwidgets JS
 #'
 #' @export
-volcanoPlot <- function(DGEdata,
+volcanoPlot <- function(dgeObj,
                         contrast,
                         plotType        = "canvasXpress",
                         logRatioCol     = "logFC",
@@ -93,20 +93,20 @@ volcanoPlot <- function(DGEdata,
                         title           = NULL,
                         sizeByIntensity = TRUE,
                         pthresholdLine  = NULL,
-                        foldChangeLines = 1.5) {
+                        foldChangethreshold = 1.5) {
     ##### Asserts
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and must belong to DGEobj.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj.")
 
     assertthat::assert_that(!missing(contrast),
                             !is.null(contrast),
                             length(contrast) == 1,
-                            contrast %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrast to be a singular value of class character and must be one of the topTables in DGEdata.")
+                            contrast %in% names(DGEobj::getType(dgeObj, type = "topTable")),
+                            msg = "contrast to be a singular value of class character and must be one of the topTables in dgeObj.")
 
-    contrastDF <- DGEobj::getItems(DGEdata, contrast)
+    contrastDF <- DGEobj::getItems(dgeObj, contrast)
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -136,7 +136,7 @@ volcanoPlot <- function(DGEdata,
     if (!missing(geneNameCol)) {
         assertthat::assert_that(!is.null(geneNameCol),
                                 length(geneNameCol) == 1,
-                                geneNameCol %in% names(DGEobj::getType(DGEdata, type = "geneData")[[1]]),
+                                geneNameCol %in% names(DGEobj::getType(dgeObj, type = "geneData")[[1]]),
                                 msg = "geneNameCol to be a singular value of class character and must be in contrast data.")
     }
 
@@ -147,11 +147,11 @@ volcanoPlot <- function(DGEdata,
         pthreshold <- 0.01
     }
 
-    if (any(is.null(foldChangeLines),
-            !is.numeric(foldChangeLines),
-            length(foldChangeLines) != 1)) {
-        warning("foldChangeLines must be a singular numeric value. Assigning default value 1.5.")
-        foldChangeLines <- 1.5
+    if (any(is.null(foldChangethreshold),
+            !is.numeric(foldChangethreshold),
+            length(foldChangethreshold) != 1)) {
+        warning("foldChangethreshold must be a singular numeric value. Assigning default value 1.5.")
+        foldChangethreshold <- 1.5
     }
 
     if (!is.null(title) &&
@@ -203,8 +203,8 @@ volcanoPlot <- function(DGEdata,
     contrastDF <- contrastDF %>%
         dplyr::mutate(negLog10P = -log10(!!rlang::sym(pvalCol)),
                       Group = dplyr::case_when(
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -log2(foldChangeLines)) ~ "Decreased",
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > log2(foldChangeLines)) ~ "Increased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -log2(foldChangethreshold)) ~ "Decreased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > log2(foldChangethreshold)) ~ "Increased",
                           TRUE ~  "No Change")) %>%
             dplyr::arrange(Group)
 
@@ -227,15 +227,15 @@ volcanoPlot <- function(DGEdata,
                                                    y           = -log10(pthreshold))
         }
 
-        if (!is.null(foldChangeLines)) {
+        if (!is.null(foldChangethreshold)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                  color       = symbolColor[2],
                                                  width       = 2,
-                                                 x           = log2(foldChangeLines))
+                                                 x           = log2(foldChangethreshold))
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                  color       = symbolColor[1],
                                                  width       = 2,
-                                                 x           = -log2(foldChangeLines))
+                                                 x           = -log2(foldChangethreshold))
         }
 
         events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
@@ -272,7 +272,7 @@ volcanoPlot <- function(DGEdata,
         }
 
         if (!missing(geneNameCol)) {
-            gene_data <- DGEobj::getItem(DGEdata, "geneData") %>%
+            gene_data <- DGEobj::getItem(dgeObj, "geneData") %>%
                 dplyr::select(all_of(geneNameCol))
 
             var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
@@ -347,13 +347,13 @@ volcanoPlot <- function(DGEdata,
                            alpha      = 0.5)
         }
 
-        if (!is.null(foldChangeLines)) {
+        if (!is.null(foldChangethreshold)) {
             volcanoPlot <- volcanoPlot +
-                geom_vline(xintercept = log2(foldChangeLines),
+                geom_vline(xintercept = log2(foldChangethreshold),
                            color      = "red3",
                            size       = 2,
                            alpha      = 0.5) +
-                geom_vline(xintercept = -log2(foldChangeLines),
+                geom_vline(xintercept = -log2(foldChangethreshold),
                            color      = "deepskyblue4",
                            size       = 2,
                            alpha      = 0.5)

@@ -4,25 +4,25 @@ context("DGEobj.plots - tests for volcanoPlot.R functions")
 test_that("volcanoPlot.R: volcanoPlot()", {
     # testing contrast objects defualts (sizeByIntensity=TRUE and no geneNameCol)
     ## BDL_vs_Sham
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham")
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham",
                                 plotType = "ggplot")
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
 
     ### contrast objects defualts (with sizeByIntensity=False with symbolSize and no geneNameCol)
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham",
                                sizeByIntensity = FALSE)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham",
                                 plotType = "ggplot",
@@ -30,26 +30,56 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
 
     ### contrast objects defualts (without sizeByIntensity=False and with geneNameCol)-
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham",
                                 geneNameCol = "rgd_symbol")
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham",
                                 plotType = "ggplot",
                                 geneNameCol = "rgd_symbol")
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
 
+    ### contrast objects defualts (without sizeByIntensity=False and pthresholdLine)-
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
+                                contrast = "BDL_vs_Sham",
+                                title    = "BDL_vs_Sham",
+                                pthresholdLine = "red3")
+    expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
+
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
+                                contrast = "BDL_vs_Sham",
+                                title    = "BDL_vs_Sham",
+                                plotType = "ggplot",
+                                pthresholdLine = "red3")
+    expect_s3_class(volcano_plot, c("gg", "ggplot"))
+
+    ### contrast objects defualts (without sizeByIntensity=False and custom xlab & ylab)-
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
+                                contrast = "BDL_vs_Sham",
+                                title    = "BDL_vs_Sham",
+                                xlab     = "log2(Ratio)",
+                                ylab     = "-log10Pvalue")
+    expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
+
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
+                                contrast = "BDL_vs_Sham",
+                                title    = "BDL_vs_Sham",
+                                plotType = "ggplot",
+                                xlab     = "log2(Ratio)",
+                                ylab     = "-log10Pvalue")
+    expect_s3_class(volcano_plot, c("gg", "ggplot"))
+
     ## EXT1024_vs_BDL
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "EXT1024_vs_BDL",
                                 title    = "EXT1024_vs_BDL")
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "EXT1024_vs_BDL",
                                 title    = "EXT1024_vs_BDL",
                                 plotType = "ggplot",
@@ -57,13 +87,13 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
 
     # testing gene symbols
-    volcano_plot <- volcanoPlot(DGEdata     = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj      = t_obj1,
                                 contrast    = "BDL_vs_Sham",
                                 title       = "BDL_vs_Sham with Symbols",
                                 geneNameCol = "rgd_symbol")
     expect_s3_class(volcano_plot, c("canvasXpress","htmlwidget"))
 
-    volcano_plot <- volcanoPlot(DGEdata     = t_obj1,
+    volcano_plot <- volcanoPlot(dgeObj      = t_obj1,
                                 contrast    = "BDL_vs_Sham",
                                 plotType    = "ggplot",
                                 title       = "BDL_vs_Sham with Symbols",
@@ -71,8 +101,8 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     expect_s3_class(volcano_plot, c("gg","ggplot"))
 
     # testing asserts
-    ## DGEdata
-    msg <- "DGEdata must be specified and must belong to DGEobj"
+    ## dgeObj
+    msg <- "dgeObj must be specified and must belong to DGEobj"
     expect_error(volcanoPlot(),
                  regexp = msg)
     expect_error(volcanoPlot(NULL),
@@ -85,192 +115,192 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                  regexp = msg)
 
     ## contrast
-    msg = "contrast to be a singular value of class character and must be one of the topTables in DGEdata."
-    expect_error(volcanoPlot(DGEdata = t_obj1),
+    msg = "contrast to be a singular value of class character and must be one of the topTables in dgeObj."
+    expect_error(volcanoPlot(dgeObj = t_obj1),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = NULL),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "123"),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = 123),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = c(123,234)),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "xyz"),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = c("xyz","abc")),
                  regexp = msg)
 
     ## plotType
     msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
                                plotType = "xyz"),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
                                plotType = NULL),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
                                plotType = 123),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
                                plotType = c("canvasXpress", "ggplot")),
                    regexp = msg)
 
     ## logRatioCol
     msg <- "logRatioCol to be a singular value of class character and must be in contrast data."
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              logRatioCol = "xyz"),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              logRatioCol = NULL),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              logRatioCol = c("xyz","abc")),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              logRatioCol = 123),
                  regexp = msg)
 
     ## logIntCol
     msg <- "logIntCol to be a singular value of class character and must be in contrast data."
-    expect_error(volcanoPlot(DGEdata   = t_obj1,
+    expect_error(volcanoPlot(dgeObj    = t_obj1,
                              contrast  = "BDL_vs_Sham",
                              logIntCol = "xyz"),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata   = t_obj1,
+    expect_error(volcanoPlot(dgeObj    = t_obj1,
                              contrast  = "BDL_vs_Sham",
                              logIntCol = NULL),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata   = t_obj1,
+    expect_error(volcanoPlot(dgeObj    = t_obj1,
                              contrast  = "BDL_vs_Sham",
                              logIntCol = c("xyz","abc")),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata   = t_obj1,
+    expect_error(volcanoPlot(dgeObj    = t_obj1,
                              contrast  = "BDL_vs_Sham",
                              logIntCol = 123),
                  regexp = msg)
 
     ## pvalCol
     msg <- "pvalCol to be a singular value of class character and must be in contrast data."
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              pvalCol  = "xyz"),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              pvalCol  = NULL),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              pvalCol  = c("xyz","abc")),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              pvalCol  = 123),
                  regexp = msg)
 
     ## geneNameCol
     msg <- "geneNameCol to be a singular value of class character and must be in contrast data."
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              geneNameCol = NULL),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              geneNameCol = "xyz"),
                  regexp = msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              geneNameCol = c("xyz","abc")),
                  regexp =  msg)
 
-    expect_error(volcanoPlot(DGEdata  = t_obj1,
+    expect_error(volcanoPlot(dgeObj   = t_obj1,
                              contrast = "BDL_vs_Sham",
                              geneNameCol = 123),
                  regexp = msg)
 
     ## pthreshold
     msg <- "pthreshold must be a singular numeric value. Assigning default value 0.01"
-    expect_warning(volcanoPlot(DGEdata    = t_obj1,
+    expect_warning(volcanoPlot(dgeObj     = t_obj1,
                                contrast   = "BDL_vs_Sham",
                                pthreshold = NULL),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata    = t_obj1,
+    expect_warning(volcanoPlot(dgeObj     = t_obj1,
                                contrast   = "BDL_vs_Sham",
                                pthreshold = "0.1"),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata    = t_obj1,
+    expect_warning(volcanoPlot(dgeObj     = t_obj1,
                                contrast   = "BDL_vs_Sham",
                                pthreshold = c(0.1, 0.1)),
                    regexp = msg)
 
-    ## foldChangeLines
-    msg <- "foldChangeLines must be a singular numeric value. Assigning default value 1.5."
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    ## foldChangethreshold
+    msg <- "foldChangethreshold must be a singular numeric value. Assigning default value 1.5."
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
-                               foldChangeLines = NULL),
+                               foldChangethreshold = NULL),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
-                               foldChangeLines = "0.1"),
+                               foldChangethreshold = "0.1"),
                    regexp = msg)
 
-    expect_warning(volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
-                               foldChangeLines = c(0.1, 0.1)),
+                               foldChangethreshold = c(0.1, 0.1)),
                    regexp = msg)
     ## title
     msg <- "title must be a singular value of class character. Assigning default value 'NULL'."
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                title    = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                title    = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                title    = c(123, 456)),
                    regexp = msg)
@@ -278,39 +308,39 @@ test_that("volcanoPlot.R: volcanoPlot()", {
 
     ## xlab
     msg <- "xlab must be a singular value of class character. Assigning default value 'NULL'."
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                xlab     = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                xlab     = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
-                                               xlab    = c(123, 456)),
+                                               xlab     = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
     ## ylab
     msg <- "ylab must be a singular value of class character. Assigning default value 'NULL'."
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                ylab     = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                ylab     = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata  = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                                contrast = "BDL_vs_Sham",
                                                ylab     = c(123, 456)),
                    regexp = msg)
@@ -318,26 +348,26 @@ test_that("volcanoPlot.R: volcanoPlot()", {
 
     ## pthresholdLine
     msg <- "pthresholdLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata        = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj         = t_obj1,
                                                contrast       = "BDL_vs_Sham",
                                                pthresholdLine = 123),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata        = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj         = t_obj1,
                                                contrast       = "BDL_vs_Sham",
                                                pthresholdLine = c("123", "456")),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata        = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj         = t_obj1,
                                                contrast       = "BDL_vs_Sham",
                                                pthresholdLine = c(123, 456)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
     msg = "Color specified is not valid. Assigning default value 'NULL'."
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata        = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj         = t_obj1,
                                                contrast       = "BDL_vs_Sham",
                                                pthresholdLine = "abc"),
                    regexp = msg)
@@ -345,19 +375,19 @@ test_that("volcanoPlot.R: volcanoPlot()", {
 
     ## sizeByIntensity
     msg <- "sizeByIntensity must be a singular logical value. Assigning default value TRUE"
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata         = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj          = t_obj1,
                                                contrast        = "BDL_vs_Sham",
                                                sizeByIntensity = "123"),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata         = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj          = t_obj1,
                                                contrast        = "BDL_vs_Sham",
                                                sizeByIntensity = c(TRUE, TRUE)),
                    regexp = msg)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(volcano_plot <- volcanoPlot(DGEdata         = t_obj1,
+    expect_warning(volcano_plot <- volcanoPlot(dgeObj          = t_obj1,
                                                contrast        = "BDL_vs_Sham",
                                                sizeByIntensity = NULL),
                     regexp         = msg)
