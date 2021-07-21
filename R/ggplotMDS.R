@@ -13,7 +13,7 @@
 #' allows for selection of a number close the number of differential genes in the
 #' input data.
 #'
-#' @param DGEdata A DGEobj that contains a DGEList OR a log2cpm matrix. (Required)
+#' @param dgeObj DGEobj.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param designTable Name of the design table object
 #' @param colorBy A column name in the design table.Points are colored by the values in that column (Required)
@@ -22,19 +22,11 @@
 #' @param top Number of most variant genes to include (Default = Inf)
 #' @param labels A column name in the design table. Text labels for the samples. These should be short
 #'   abbreviations of the sample identifiers.
-#'   Default = ReplicateGroup or rownames of DGEdata. Set to NULL to disable
+#'   Default = ReplicateGroup or rownames of dgeObj. Set to NULL to disable
 #'   text labels.
-#' @param labelSize Control size for the text labels in the plot,
 #' @param title A title for the plot. (Optional)
 #' @param vlineIntercept X intercept of vertical line (Optional)
 #' @param hlineIntercept Y intercept of horizontal line (Optional)
-#' @param reflineColor Color for the horizontal and vertical reference lines
-#'   (default = "darkgoldenrod1")
-#' @param reflineSize Thickness of the reference lines (default = 0.5)
-#' @param symShape Set the default shape of the symbols if not mapped to a column (default = circle)
-#' @param symSize Set the default size of the symbols if not mapped to a column
-#'   (default = 10)
-#' @param transparency Set transparency (default = 0.7)
 #' @param dim.plot Define which dimension to plot. dim.plot should a numeric vector of
 #' length 2 and should be lesser than the number of columns in DGEobj. (default = c(1,2))
 #'
@@ -67,7 +59,7 @@
 #' @importFrom DGEobj getItem
 #'
 #' @export
-ggplotMDS <- function(DGEdata,
+ggplotMDS <- function(dgeObj,
                       plotType     = "canvasXpress",
                       designTable  = "design",
                       colorBy      = "ReplicateGroup",
@@ -75,20 +67,16 @@ ggplotMDS <- function(DGEdata,
                       sizeBy       = NULL,
                       top          = Inf,
                       labels       = "ReplicateGroup",
-                      labelSize    = 3,
                       title,
+                      xlab,
+                      ylab,
                       hlineIntercept,
-                      vlineIntercept,
-                      reflineColor = "red",
-                      reflineSize  = 0.5,
-                      symShape     = "circle",
-                      symSize      = 10,
-                      transparency = 0.7,
-                      dim.plot     = c(1, 2)) {
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            class(DGEdata)[1] %in% c("DGEobj"),
-                            msg = "DGEdata must be specified and must be of class 'DGEobj'.")
+                      vlineIntercept) {
+
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -104,21 +92,24 @@ ggplotMDS <- function(DGEdata,
     if (!is.null(designTable) &&
         length(designTable) == 1 &&
         is.character(designTable) &&
-        designTable %in% names(DGEdata)) {
+        designTable %in% names(dgeObj)) {
         design_default    <- FALSE
-        design            <- DGEobj::getItem(DGEdata, designTable)
+        design            <- DGEobj::getItem(dgeObj, designTable)
         colnames(design)  <- tolower(colnames(design))
+    } else {
+        warning("designTable is either missing or invalid. Assigning default object of type 'design'.")
+    }
+
+    if (design_default) {
+        design_names <- DGEobj::getType(dgeObj, "design")
+        if (length(design_names) == 1) {
+            design           <- DGEobj::getItem(dgeObj, "design")
+            colnames(design) <- tolower(colnames(design))
         }
-
-
-    if (design_default && ("design" %in% names(DGEdata))) {
-        warning("designTable is either missing or invalid. Assigning default value 'design'.")
-        design            <- DGEobj::getItem(DGEdata, "design")
-        colnames(design)  <- tolower(colnames(design))
     }
 
     if (is.null(design)) {
-        warning("designTable is either missing or invalid and the default value 'design' is not present in the DGEdata. Unable to color,size or shape points on the plot.")
+        warning("designTable is either missing or invalid and the default value 'design' is not present in the dgeObj. Unable to color,size or shape points on the plot.")
     }
 
     colorby_default <- TRUE
@@ -143,11 +134,10 @@ ggplotMDS <- function(DGEdata,
         warning(msg)
     }
 
-
     if (!is.null(design)) {
         if (!is.null(shapeBy) &&
         !(tolower(shapeBy) %in% colnames(design))) {
-        warning("shapeBy should be a column in the design attribute of DGEdata. Assigning NULL as default value.")
+        warning("shapeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value.")
         shapeBy <- NULL
         }
     } else {
@@ -157,7 +147,7 @@ ggplotMDS <- function(DGEdata,
     if (!is.null(design)) {
         if (!is.null(sizeBy) &&
         !(tolower(sizeBy) %in% colnames(design))) {
-        warning("sizeBy should be a column in the design attribute of DGEdata. Assigning NULL as default value.")
+        warning("sizeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value.")
         sizeBy <- NULL
         }
     } else {
@@ -167,11 +157,6 @@ ggplotMDS <- function(DGEdata,
     if (any(is.null(top), length(top) != 1, !is.numeric(top))) {
         warning("top should be a numeric value or Inf. Assigning default value 'Inf'.")
         top <- Inf
-    }
-
-    if (any(is.null(transparency),!is.numeric(transparency), length(transparency) != 1, transparency < 0, transparency > 1)) {
-        warning("transparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.7.")
-        symbolTransparency <- 0.7
     }
 
     # Validate labels
@@ -189,116 +174,39 @@ ggplotMDS <- function(DGEdata,
     if (addDefaultLabel) {
         labels <- NULL
         # Get labels from ReplicateGroup if present
-        if ("DGEobj" %in% class(DGEdata)) {
+        if ("DGEobj" %in% class(dgeObj)) {
             if (exists("design") && (with(design, exists("replicategroup")))) {
                     labels <- "replicategroup"
             }
         }
     }
 
-    if (missing(sizeBy) || is.null(sizeBy)) {
-        if (!missing(symSize) && any(is.null(symSize), length(symSize) != 1, !is.numeric(symSize))) {
-            warning("symSize must be a singular numeric value. Assigning default value 10.")
-            symSize <- 10
-        }
-    }
-
-    intercept_flag   <- FALSE
-    intercept_length <- 0
     if (!missing(hlineIntercept) && !is.null(hlineIntercept)) {
-        intercept_flag <- TRUE
         if (!is.numeric(hlineIntercept)) {
             warning("hlineIntercept must be numeric. Ignoring hlineIntercept.")
-            hlineIntercept   <- NULL
-        } else {
-            intercept_length <- length(hlineIntercept)
+            hlineIntercept <- NULL
         }
     }
 
     if (!missing(vlineIntercept) && !is.null(vlineIntercept)) {
-        intercept_flag <- TRUE
         if (!is.numeric(vlineIntercept)) {
             warning("vlineIntercept must be numeric. Ignoring vlineIntercept.")
-            vlineIntercept   <- NULL
-        } else {
-            intercept_length <- length(vlineIntercept)
+            vlineIntercept <- NULL
         }
     }
 
-    if (intercept_flag) {
-        if (!(missing(reflineColor))) {
-            if (!is.null(reflineColor) && !is.character(reflineColor)) {
-                warning("reflineColor must be a of class character and must specify the name of the color or the rgb value. Assigning default value 'red'.")
-                reflineColor <- "red"
-            } else if (.rgbaConversion(reflineColor) == "invalid value") {
-                warning("Color specified is not valid. Assigning default value 'red'.")
-                reflineColor <- "red"
-            } else if (!(length(reflineColor) == intercept_length || length(reflineColor) == 1)) {
-                warning("reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
-                reflineColor <- "red"
-            }
-        }
-
-        if (!missing(reflineSize)) {
-            if (any(is.null(reflineSize), !is.numeric(reflineSize), any(reflineSize < 0))) {
-                warning("reflineSize must be a numeric value greater than 0. Assigning default value '0.5'.")
-                reflineSize <- 0.5
-            }  else if (!(length(reflineSize) == intercept_length || length(reflineSize) == 1)) {
-                warning("reflineSize must be either length 1 or the same as the intercept. Assigning default value '0.5'.")
-                reflineSize <- 0.5
-            }
-        }
+    if ((!missing(xlab)) &&
+        (!is.null(xlab)) &&
+        ((!is.character(xlab)) || length(xlab) != 1)) {
+        warning("xlab value specified is not valid. Ignoring xlab.")
+        xlab <- NULL
     }
 
-    if (!missing(hlineIntercept) && !missing(vlineIntercept)) {
-        if (!length(hlineIntercept) == length(vlineIntercept)) {
-            if (length(reflineColor) != 1) {
-                warning("reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
-                reflineColor <- "red"
-            }
-            if (length(reflineSize) != 1) {
-                warning("reflineSize must be either length 1 or the same as the intercept. Assigning default value '0.5'.")
-                reflineSize <- 0.5
-            }
-        }
-    }
-
-    if (!missing(dim.plot)) {
-        if (any(is.null(dim.plot),!is.numeric(dim.plot), length(dim.plot) != 2, any(dim.plot > ncol(DGEdata) - 1))) {
-            warning("dim.plot should a numeric vector of length 2 and should be lesser than the number of columns in DGEobj.")
-            dim.plot <- c(1,2)
-        }
-    }
-
-    if (plotType == "canvasxpress") {
-        if (missing(shapeBy) || is.null(shapeBy)) {
-            if (!missing(symShape) && any(length(symShape) != 1, !.is_valid_symbolShapes_cxplot(symShape))) {
-                warning("symShape must be a singular value of class 'character'. Assigning default value 'circle'.")
-                symShape <- "circle"
-            }
-            shapes <- symShape
-        } else {
-            shapes <- .get_valid_symbolShapes_cxplot()[1:8]
-        }
-    }
-
-    if (plotType == "ggplot") {
-        if (addLabels) {
-            if (any(!is.numeric(labelSize), length(labelSize) != 1, labelSize < 0)) {
-                warning("labelSize should be singular numeric value and greater than zero. Assigning default value 3.")
-                labelSize <- 3
-            }
-        }
-
-        #add valid shapes
-        if ((missing(shapeBy) || is.null(shapeBy)) &&
-            !missing(symShape) &&
-            any(is.null(symShape),
-                length(symShape) != 1,
-                !.is_valid_symbolShapes_ggplot(symShape))) {
-            warning("symShape must be a singular value of class 'character' or numeric value. Refer help documentation for valid values. Assigning default value 'circle'.")
-            symShape <- "circle"
-            }
+    if (!missing(ylab) &&
+        !is.null(ylab) &&
+        (!is.character(ylab) || length(ylab) != 1)) {
+        warning("ylab value specified is not valid. Ignoring ylab.")
+        ylab <- NULL
     }
 
     # ColorBlind palette:
@@ -306,23 +214,21 @@ ggplotMDS <- function(DGEdata,
     cbbPalette <- c("#56B4E9", "#009E73", "#0072B2", "#D55E00", "#CC79A7", "#E69F00",  "#F0E442", "#000000")
     colors <- cbbPalette
 
-
     if (missing(title)) {
         title <- "MDS Plot"
     } else {
         if (!is.character(title) || length(title) != 1) {
-            warning("Invaldid value specified for Title. Assigning default values 'MDS plot'.")
+            warning("Invalid value specified for Title. Assigning default values 'MDS plot'.")
             title <- "MDS Plot"
         }
     }
 
-    if ("DGEobj" %in% class(DGEdata)) {
-        DGEdata <- DGEobj::getItem(DGEdata, "DGEList")
+    if ("DGEobj" %in% class(dgeObj)) {
+        dgeObj <- DGEobj::getItem(dgeObj, "DGEList")
     }
 
-    mds.data <- limma::plotMDS(DGEdata,
+    mds.data <- limma::plotMDS(dgeObj,
                           top = top,
-                          dim.plot = dim.plot,
                           plot = FALSE)
 
     # Pull the plotting data together
@@ -390,6 +296,14 @@ ggplotMDS <- function(DGEdata,
     shapeCol <- NULL
     sizeCol  <- NULL
 
+    if (missing(xlab) || is.null(xlab)) {
+        xlab <- xylab[[1]]
+    }
+
+    if (missing(ylab) || is.null(ylab)) {
+        ylab <- xylab[[2]]
+    }
+
     if (byColor) {
         colorCol <- "ColorCode"
     }
@@ -405,13 +319,13 @@ ggplotMDS <- function(DGEdata,
     # PlotType
     if (plotType == "canvasxpress") {
         colors   <- lapply(colors, .rgbaConversion)
-        reflineColor <- lapply(reflineColor, .rgbaConversion)
+        reflineColor <- "red"
         decorations  <- list()
         hlineIntercept_list <- list()
         if (!missing(hlineIntercept) && !is.null(hlineIntercept)) {
             hlineIntercept_list <- lapply(seq_along(hlineIntercept),function(i) {
-                list(color = ifelse(length(reflineColor) != 1, reflineColor[[i]], reflineColor),
-                     width = ifelse(length(reflineSize) != 1, reflineSize[[i]], reflineSize),
+                list(color = reflineColor,
+                     width = 0.5,
                      y     = hlineIntercept[[i]])
             })
         }
@@ -419,8 +333,8 @@ ggplotMDS <- function(DGEdata,
         vlineIntercept_list <- list()
         if (!missing(vlineIntercept) && !is.null(vlineIntercept)) {
             vlineIntercept_list <- lapply(seq_along(vlineIntercept), function(i) {
-                list(color = ifelse(length(reflineColor) != 1, reflineColor[[i]], reflineColor),
-                     width = ifelse(length(reflineSize) != 1, reflineSize[[i]], reflineSize),
+                list(color = reflineColor,
+                     width = 0.5,
                      x     = vlineIntercept[[i]])
             })
         }
@@ -448,13 +362,13 @@ ggplotMDS <- function(DGEdata,
                                               colorBy                 = colorCol,
                                               shapeBy                 = shapeCol,
                                               sizeBy                  = sizeCol,
-                                              dataPointSize           = symSize,
+                                              dataPointSize           = 10,
                                               showDecorations         = TRUE,
-                                              shapes                  = shapes,
+                                              shapes                  = "circle",
                                               colors                  = colors,
                                               title                   = title,
-                                              xAxisTitle              = xylab[[1]],
-                                              yAxisTitle              = xylab[[2]],
+                                              xAxisTitle              = xlab,
+                                              yAxisTitle              = ylab,
                                               citation                = citation,
                                               citationScaleFontFactor = 0.8,
                                               events                  = events)
@@ -462,73 +376,73 @@ ggplotMDS <- function(DGEdata,
         shapes <- .get_valid_symbolShapes_ggplot()[1:8]
         sizes <- c(1:8)
         symColor <- "blue"
-        mdsplot <- ggplot(plot_data, aes(x = x, y = y))
+        mdsplot <- ggplot2::ggplot(plot_data, ggplot2::aes(x = x, y = y))
         geom_point_params <- list()
 
         if (byColor) {
-            mdsplot <- mdsplot + aes(color = ColorCode)
+            mdsplot <- mdsplot + ggplot2::aes(color = ColorCode)
         } else {
             geom_point_params[["color"]] = symColor
         }
 
         if (byShape) {
-            mdsplot <- mdsplot + aes(shape = Shape) +  scale_shape_manual(values = shapes)
+            mdsplot <- mdsplot + ggplot2::aes(shape = Shape) +  ggplot2::scale_shape_manual(values = shapes)
         } else {
-            geom_point_params[["shape"]] = symShape
+            geom_point_params[["shape"]] = "circle"
         }
 
         if (bySize) {
-            mdsplot <- mdsplot + aes(size = Size) + scale_size_manual(values = sizes)
+            mdsplot <- mdsplot + ggplot2::aes(size = Size) + ggplot2::scale_size_manual(values = sizes)
         } else {
-            geom_point_params[["size"]] = symSize
+            geom_point_params[["size"]] = 10
         }
 
-        mdsplot <- mdsplot + layer(geom = "point",
-                                   stat = "identity",
-                                   position = "identity",
-                                   params = geom_point_params)
+        mdsplot <- mdsplot + ggplot2::layer(geom = "point",
+                                            stat = "identity",
+                                            position = "identity",
+                                            params = geom_point_params)
 
         if (addLabels) {
                 mdsplot <- mdsplot +
-                    ggrepel::geom_text_repel(aes(label = Labels), size = labelSize, max.overlaps = Inf)
+                    ggrepel::geom_text_repel(ggplot2::aes(label = Labels), size = 3, max.overlaps = Inf)
         }
 
         #For discrete color values
         if (length(unique(colorBy)) <= length(colors)) {
             mdsplot <- mdsplot +
-                scale_fill_manual(values = colors) +
-                scale_colour_manual(values = colors)
+                ggplot2::scale_fill_manual(values = colors) +
+                ggplot2::scale_colour_manual(values = colors)
         }
 
         # Add some other common elements
         mdsplot <- mdsplot +
-            coord_fixed() +
-            xlab(xylab[[1]]) +
-            ylab(xylab[[2]]) +
-            ggtitle(title)
+            ggplot2::coord_fixed() +
+            ggplot2::xlab(xlab) +
+            ggplot2::ylab(ylab) +
+            ggplot2::ggtitle(title)
 
         # Place an annotation on the bottom left of the plot
         xrange <- xrange(mdsplot)
         yrange <- yrange(mdsplot)
         # Put the annotation 10% from xmin
         xpos <- xrange[1] + ((xrange[2] - xrange[1]) * 0.1 )
-        mdsplot <- mdsplot + annotate("text",
-                                      x = xpos,
-                                      y = yrange[1],
-                                      label = citation,
-                                      hjust = 0,
-                                      size = rel(2.5),
-                                      color = "grey30")
+        mdsplot <- mdsplot + ggplot2::annotate("text",
+                                               x = xpos,
+                                               y = yrange[1],
+                                               label = citation,
+                                               hjust = 0,
+                                               size = ggplot2::rel(2.5),
+                                               color = "grey30")
 
         if (!missing(hlineIntercept)) {
-            mdsplot <- mdsplot + geom_hline(yintercept = hlineIntercept,
-                                            color = reflineColor,
-                                            size = reflineSize)
+            mdsplot <- mdsplot + ggplot2::geom_hline(yintercept = hlineIntercept,
+                                                     color = "red",
+                                                     size = 0.5)
         }
         if (!missing(vlineIntercept)) {
-            mdsplot <- mdsplot + geom_vline(xintercept = vlineIntercept,
-                                            color = reflineColor,
-                                            size = reflineSize)
+            mdsplot <- mdsplot + ggplot2::geom_vline(xintercept = vlineIntercept,
+                                                     color = "red",
+                                                     size = 0.5)
         }
     }
     list(plot = mdsplot, mdsobj = mds.data)
@@ -664,21 +578,21 @@ MDS_var_explained <- function(mds,
                                                         smpLabelRotate   = 90)
     } else {
         # Fraction variance for each dimension
-        resultList$varexp <- ggplot(plotdat) +
-            aes(x = dim, y = var) +
-            geom_col(color = barColor,
-                     fill = barColor,
-                     width = barWidth) +
-            labs(title = varexp_title,
-                 x = xlab,
-                 y = ylab_ve) +
-            scale_x_continuous(breaks = setBreaks)
+        resultList$varexp <- ggplot2::ggplot(plotdat) +
+            ggplot2::aes(x = dim, y = var) +
+            ggplot2::geom_col(color = barColor,
+                              fill = barColor,
+                              width = barWidth) +
+            ggplot2::labs(title = varexp_title,
+                          x = xlab,
+                          y = ylab_ve) +
+            ggplot2::scale_x_continuous(breaks = setBreaks)
 
         # Cumulative variance plot (change the y dimension and relabel)
-        resultList$cumvar <- resultList$varexp + aes(y = cumvar) +
-            labs(title = cumvar_title,
-                 y = ylab_cv) +
-            ylim(0,1)
+        resultList$cumvar <- resultList$varexp + ggplot2::aes(y = cumvar) +
+            ggplot2::labs(title = cumvar_title,
+                          y = ylab_cv) +
+            ggplot2::ylim(0,1)
     }
     # Return the full data table too
     resultList$var_explained <- var_explained

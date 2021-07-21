@@ -5,22 +5,14 @@
 #' the plot can instead be Biological Coefficient of Variation (BCV is the square root of
 #' dispersion) against AveLogCPM.
 #'
-#' @param DGEdata Counts matrix or DGEList (required)
-#' @param designMatrix A design matrix created by stats::model.matrix (required)
+#' @param dgeObj DGEobj.
+#' @param replicateGroupCol A singular value of class character and must be in design data. (default = "ReplicateGroup")
+#' @param countsMatrix If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = FALSE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param plotCategory One of "dispersion" or "BCV" (default = "dispersion")
-#' @param symbolSize (default = 6)
-#' @param symbolShape Any supported shape for the points (default = "circle")
-#' \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}
-#' @param symbolColor Fill color (default = "darkblue")
-#' @param symbolTransparency Transparency for the points. Value ranges from 0 to 1. Smaller
-#'   indicate more transparency (default = 0.5)
-#' @param linefitColor (default = "red")
 #' @param lineFit (default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
 #' one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
 #'   recommended.
-#' @param lineType Any supported style for the fitLine  (default = solid).
-#'  \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}
 #' @param ... Extra parameters to pass to edgeR::estimateDisp
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
@@ -28,11 +20,9 @@
 #' @examples
 #' \dontrun{
 #'    # canvasxpress plot
-#'    myCxplot <- plotDispersion(myDGElist, designMatrix )
-#'    myCxplot <- plotDispersion(myDGEobj, designMatrix)
+#'    myCxplot <- plotDispersion(myDGEobj)
 #'
 #'    # ggplot
-#'    myGgplot <- plotDispersion(myDGElist, designMatrix, plotType = "ggplot")
 #'    myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
 #' }
 #'
@@ -42,126 +32,76 @@
 #'
 #'
 #' @export
-plotDispersion <- function(DGEdata,
-                           designMatrix,
+plotDispersion <- function(dgeObj,
+                           countsMatrix = FALSE,
+                           replicateGroupCol = "ReplicateGroup",
                            plotType     = "canvasXpress",
                            plotCategory = "dispersion",
-                           symbolSize   = 6,
-                           symbolShape  = "circle",
-                           symbolColor  = "darkblue",
-                           symbolTransparency  = 0.5,
-                           linefitColor = "red",
                            lineFit      = NULL,
-                           lineType     = "solid",
                            ...) {
 
-    plotType = tolower(plotType)
-    plotCategory = tolower(plotCategory)
-    if (!is.null(lineFit)) {
-        lineFit <- tolower(lineFit)
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
+
+    design_names <- names(DGEobj::getType(dgeObj, type = "design"))
+    assertthat::assert_that(length(design_names) == 1,
+                            msg = "DGEobj must have exactly one design object.")
+    design <- DGEobj::getType(dgeObj, type = "design")[[1]]
+
+    if (any(is.null(replicateGroupCol),
+            !is.character(replicateGroupCol),
+            length(replicateGroupCol) != 1,
+            !replicateGroupCol %in% names(design))) {
+        warning("replicateGroupCol must be a singular value of class character and must be a column name in design data. Assigning default value 'ReplicateGroup'.")
+        replicateGroupCol <- "ReplicateGroup"
     }
 
-    assertthat::assert_that(!missing(DGEdata),
-                            !missing(designMatrix),
-                            msg = "Both DGEdata and designMatrix must be specified.")
+    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, design)
 
-    assertthat::assert_that(class(DGEdata)[[1]] %in% c("matrix","DGEList"),
-                            "matrix" %in% class(designMatrix),
-                            msg = "DGEdata must be of class 'matrix' or 'DGEList' and designMatrix must be of class 'matrix'.")
-
-    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
-                            msg = "Plot type must either be canvasXpress or ggplot.")
-
-    assertthat::assert_that(plotCategory %in% c("dispersion", "bcv"),
-                            msg = "Plot Category must  either be dispersion or BCV.")
-
-    if (!is.null(lineFit)) {
-        if (!assertthat::see_if(is.character(linefitColor),
-                                length(linefitColor) == 1)) {
-            warning("linefitColor must be a singular value of class 'character' and must specify the name of the color or the rgb value. Assigning default value 'red'.")
-            linefitColor <- "red"
-        }
+    if (any(is.null(countsMatrix),
+            !is.logical(countsMatrix),
+            length(countsMatrix) != 1)) {
+        warning("countsMatrix must be a singular logical value. Assigning default value FALSE.")
+        countsMatrix <- FALSE
     }
 
-    if (plotType == "canvasxpress") {
-        if (!assertthat::see_if(is.numeric(symbolSize),
-                                length(symbolSize) == 1,
-                                symbolSize > 0)) {
-            warning("symbolSize must be a singular numeric value. Assigning a default value of 6.")
-            symbolSize <- 6
-        }
-
-        if (!assertthat::see_if(is.character(symbolColor),
-                                length(symbolColor) == 1)) {
-            warning("symbolColor must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'darkblue'.")
-            symbolColor <- "darkblue"
-        }
-
-        if (!assertthat::see_if(is.character(symbolShape),
-                                length(symbolShape) == 1)) {
-            warning("symbolShape must be a singular value of class 'character'. Assigning default value = 'circle'.")
-            symbolShape <- "circle"
-        }
-
-        if (!assertthat::see_if(is.numeric(symbolTransparency),
-                                length(symbolTransparency) == 1,
-                                all(symbolTransparency > 0 & symbolTransparency <= 1))) {
-            warning("symbolTransparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.5.")
-            symbolTransparency <- 0.5
-        }
-
-        if (!is.null(lineFit)) {
-            if (!assertthat::see_if(lineFit %in% c('glm', 'lm', 'loess', 'gam'),
-                                    length(lineFit) == 1)) {
-                warning("lineFit must be one of glm, lm, loess or gam. Assigning default value NULL")
-                lineFit <- NULL
-            }
-
-            if (!assertthat::see_if(is.character(lineType),
-                                    length(lineType) == 1)) {
-                warning("lineType must be a must be a singular value of class 'character'. Refer help section for the list of line types supported. Assigning default value 'solid'.")
-                lineType = "solid"
-            }
-        }
+    plotType <- tolower(plotType)
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
     }
 
-    if (plotType == "ggplot") {
-        if (!assertthat::see_if(is.numeric(symbolSize))) {
-            warning("symbolSize must be of class numeric. Assigning a default value of 6.")
-            symbolSize <- 6
-        }
-
-        if (!assertthat::see_if(is.character(symbolColor))) {
-            warning("symbolColor must be of class character and must specify the name of the color or the rgb value. Assigning default value 'darkblue'.")
-            symbolColor <- "darkblue"
-        }
-
-        if (!assertthat::see_if(is.numeric(symbolTransparency),
-                                symbolTransparency >= 0 & symbolTransparency <= 1)) {
-            warning("symbolTransparency must be a numeric value and must be between 0 and 1. Assigning default value 0.5.")
-            symbolTransparency <- 0.5
-        }
-
-        if (!assertthat::see_if(class(symbolShape) %in% c("character", "numeric"),
-                                length(symbolShape) == 1)) {
-            warning("symbolShape must be a numeric value between 0 and 25 or must be of class 'character'. Refer help section for the list of shapes supported. Assigning default value 'circle'.")
-            symbolShape <- "circle"
-        }
-
-        if ((!is.null(lineFit)) & (!assertthat::see_if(class(lineType) %in% c("character", "numeric"), length(lineType) == 1))) {
-            warning("lineType must be a singular numeric value between 0 and 6 or must be of class 'character'. Refer help section for the list of line types supported. Assigning default value 'solid'.")
-            lineType <- "solid"
-        }
+    plotCategory <- tolower(plotCategory)
+    if (any(is.null(plotCategory),
+            !is.character(plotCategory),
+            length(plotCategory) != 1,
+            !plotCategory %in% c("dispersion", "bcv"))) {
+        warning("plotCategory must be either dispersion or bcv. Assigning default value 'dispersion'.")
+        plotCategory <- "dispersion"
     }
 
-    if (class(DGEdata)[[1]] == "DGEList") {
-        dgelist <- DGEdata %>%
+
+    if (!is.null(lineFit) &&
+        !all(is.character(lineFit),
+             length(lineFit) == 1,
+             tolower(lineFit) %in% c('glm', 'lm', 'loess', 'gam')))  {
+        warning("lineFit must be one value from 'glm', 'lm', 'loess', 'gam' or 'NULL' to disable. Assigning default value 'NULL'.")
+        lineFit <- NULL
+    }
+
+    if (countsMatrix) {
+        dgelist <- dgeObj$counts %>%  # Process a counts matrix
+            as.matrix %>%
+            edgeR::DGEList() %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     } else {
-        dgelist <- DGEdata %>%  # Process a counts matrix
-            as.matrix %>%
-            edgeR::DGEList() %>%
+        dgelist <- dgeObj$DGEList %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     }
@@ -190,33 +130,28 @@ plotDispersion <- function(DGEdata,
         }
         MyDispPlot <- canvasXpress::canvasXpress(data                    = plotdata,
                                                  graphType               = "Scatter2D",
-                                                 colors                  = symbolColor,
-                                                 dataPointSize           = symbolSize,
-                                                 shapes                  = symbolShape,
-                                                 transparency            = symbolTransparency,
+                                                 colors                  = "darkblue",
                                                  scatterOutlineThreshold = 0,
                                                  title                   = title,
                                                  yAxisTitle              = ylab,
                                                  showLoessFit            = showLoessFit,
-                                                 fitLineColor            = linefitColor,
-                                                 fitLineStyle            = lineType,
+                                                 fitLineColor            = "red",
+                                                 fitLineStyle            = "solid",
                                                  afterRender             = afterRender)
 
 
     } else {
         MyDispPlot <- ggplot(plotdata, aes(x = AveLogCPM, y = Dispersion)) +
-            geom_point(size  = symbolSize,
-                       shape = symbolShape,
-                       fill  = symbolColor,
-                       color = symbolColor,
-                       alpha = symbolTransparency)
+            geom_point(shape = "circle",
+                       fill  = "darkblue",
+                       color = "darkblue")
 
         if (!is.null(lineFit)) {
             MyDispPlot <- MyDispPlot +
                 geom_smooth(formula  = y ~ x,
                             method   = lineFit,
-                            color    = linefitColor,
-                            linetype = lineType)
+                            color    = "red",
+                            linetype = "solid")
         }
 
         MyDispPlot <- MyDispPlot +

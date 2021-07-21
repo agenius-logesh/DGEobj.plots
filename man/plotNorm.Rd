@@ -5,14 +5,14 @@
 \title{Plot log2CPM before and after normalization}
 \usage{
 plotNorm(
-  DGEdata,
+  dgeObj,
   plotType = "canvasXpress",
   plotCategory = "box",
   normalize = "tmm"
 )
 }
 \arguments{
-\item{DGEdata}{A DGEobj or counts matrix.}
+\item{dgeObj}{DGEobj with a class of DGEobj.}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
