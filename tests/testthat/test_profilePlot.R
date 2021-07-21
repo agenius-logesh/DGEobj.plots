@@ -64,6 +64,24 @@ test_that("profilePlot.R: profilePlot()", {
                  regexp = msg)
     expect_error(profilePlot("xyz"),
                  regexp = msg)
+    #topTables
+    #removing toptable items
+    t_obj <- DGEobj::rmItem(t_obj1, "BDL_vs_Sham")
+    t_obj <- DGEobj::rmItem(t_obj, "EXT1024_vs_BDL")
+    t_obj <- DGEobj::rmItem(t_obj, "Nint_vs_BDL")
+    t_obj <- DGEobj::rmItem(t_obj, "Sora_vs_BDL")
+
+    msg = "Plot cannot be rendered as dgeObj has no topTables."
+    expect_error(profilePlot(dgeObj = t_obj),
+                 regexp = msg)
+    #geneData
+    #removing geneData
+    t_obj <- DGEobj::rmItem(t_obj1, "geneData")
+
+    msg = "dgeObj must have exactly one geneData item."
+    expect_error(profilePlot(dgeObj = t_obj, contrast = "BDL_vs_Sham", geneNameCol = "rgd_symbol"),
+                 regexp = msg)
+
     ## contrast
     msg = "contrast to be a singular value of class character and must be one of the topTables in dgeObj."
     expect_error(profilePlot(dgeObj = t_obj1),

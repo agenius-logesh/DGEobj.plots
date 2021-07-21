@@ -100,11 +100,15 @@ profilePlot <- function(dgeObj,
                         foldChangeThreshold = 1.5,
                         lineFitType = "loess") {
     ##### Asserts
-    ##### Asserts
     assertthat::assert_that(!missing(dgeObj),
                             !is.null(dgeObj),
                             "DGEobj" %in% class(dgeObj),
                             msg = "dgeObj must be specified and must belong to DGEobj.")
+
+    toptable_names <- suppressWarnings(names(DGEobj::getType(dgeObj, "topTable")))
+
+    assertthat::assert_that(length(toptable_names) != 0,
+                            msg = "Plot cannot be rendered as dgeObj has no topTables.")
 
     assertthat::assert_that(!missing(contrast),
                             !is.null(contrast),
@@ -145,8 +149,10 @@ profilePlot <- function(dgeObj,
 
     if (!missing(geneNameCol)) {
 
-        assertthat::assert_that(length(names(getType(dgeObj, "geneData"))) == 1,
-                                msg = "dgeObj must have exactly one gene object.")
+        genedata_names <- suppressWarnings(names(DGEobj::getType(dgeObj, "geneData")))
+
+        assertthat::assert_that(length(genedata_names) == 1,
+                                msg = "dgeObj must have exactly one geneData item.")
 
         assertthat::assert_that(!is.null(geneNameCol),
                                 length(geneNameCol) == 1,
