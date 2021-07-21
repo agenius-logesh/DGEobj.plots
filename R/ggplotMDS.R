@@ -68,9 +68,10 @@ ggplotMDS <- function(dgeObj,
                       top          = Inf,
                       labels       = "ReplicateGroup",
                       title,
+                      xlab,
+                      ylab,
                       hlineIntercept,
-                      vlineIntercept,
-                      dim.plot     = c(1, 2)) {
+                      vlineIntercept) {
 
     assertthat::assert_that(!missing(dgeObj),
                             !is.null(dgeObj),
@@ -95,13 +96,16 @@ ggplotMDS <- function(dgeObj,
         design_default    <- FALSE
         design            <- DGEobj::getItem(dgeObj, designTable)
         colnames(design)  <- tolower(colnames(design))
+    } else {
+        warning("designTable is either missing or invalid. Assigning default object of type 'design'.")
+    }
+
+    if (design_default) {
+        design_names <- DGEobj::getType(dgeObj, "design")
+        if (length(design_names) == 1) {
+            design           <- DGEobj::getItem(dgeObj, "design")
+            colnames(design) <- tolower(colnames(design))
         }
-
-
-    if (design_default && ("design" %in% names(dgeObj))) {
-        warning("designTable is either missing or invalid. Assigning default value 'design'.")
-        design            <- DGEobj::getItem(dgeObj, "design")
-        colnames(design)  <- tolower(colnames(design))
     }
 
     if (is.null(design)) {
@@ -129,7 +133,6 @@ ggplotMDS <- function(dgeObj,
         }
         warning(msg)
     }
-
 
     if (!is.null(design)) {
         if (!is.null(shapeBy) &&
@@ -178,33 +181,32 @@ ggplotMDS <- function(dgeObj,
         }
     }
 
-    intercept_flag   <- FALSE
-    intercept_length <- 0
     if (!missing(hlineIntercept) && !is.null(hlineIntercept)) {
-        intercept_flag <- TRUE
         if (!is.numeric(hlineIntercept)) {
             warning("hlineIntercept must be numeric. Ignoring hlineIntercept.")
-            hlineIntercept   <- NULL
-        } else {
-            intercept_length <- length(hlineIntercept)
+            hlineIntercept <- NULL
         }
     }
 
     if (!missing(vlineIntercept) && !is.null(vlineIntercept)) {
-        intercept_flag <- TRUE
         if (!is.numeric(vlineIntercept)) {
             warning("vlineIntercept must be numeric. Ignoring vlineIntercept.")
-            vlineIntercept   <- NULL
-        } else {
-            intercept_length <- length(vlineIntercept)
+            vlineIntercept <- NULL
         }
     }
 
-    if (!missing(dim.plot)) {
-        if (any(is.null(dim.plot),!is.numeric(dim.plot), length(dim.plot) != 2, any(dim.plot > ncol(dgeObj) - 1))) {
-            warning("dim.plot should a numeric vector of length 2 and should be lesser than the number of columns in DGEobj.")
-            dim.plot <- c(1,2)
-        }
+    if ((!missing(xlab)) &&
+        (!is.null(xlab)) &&
+        ((!is.character(xlab)) || length(xlab) != 1)) {
+        warning("xlab value specified is not valid. Ignoring xlab.")
+        xlab <- NULL
+    }
+
+    if (!missing(ylab) &&
+        !is.null(ylab) &&
+        (!is.character(ylab) || length(ylab) != 1)) {
+        warning("ylab value specified is not valid. Ignoring ylab.")
+        ylab <- NULL
     }
 
     # ColorBlind palette:
@@ -212,12 +214,11 @@ ggplotMDS <- function(dgeObj,
     cbbPalette <- c("#56B4E9", "#009E73", "#0072B2", "#D55E00", "#CC79A7", "#E69F00",  "#F0E442", "#000000")
     colors <- cbbPalette
 
-
     if (missing(title)) {
         title <- "MDS Plot"
     } else {
         if (!is.character(title) || length(title) != 1) {
-            warning("Invaldid value specified for Title. Assigning default values 'MDS plot'.")
+            warning("Invalid value specified for Title. Assigning default values 'MDS plot'.")
             title <- "MDS Plot"
         }
     }
@@ -228,7 +229,6 @@ ggplotMDS <- function(dgeObj,
 
     mds.data <- limma::plotMDS(dgeObj,
                           top = top,
-                          dim.plot = dim.plot,
                           plot = FALSE)
 
     # Pull the plotting data together
@@ -296,6 +296,14 @@ ggplotMDS <- function(dgeObj,
     shapeCol <- NULL
     sizeCol  <- NULL
 
+    if (missing(xlab) || is.null(xlab)) {
+        xlab <- xylab[[1]]
+    }
+
+    if (missing(ylab) || is.null(ylab)) {
+        ylab <- xylab[[2]]
+    }
+
     if (byColor) {
         colorCol <- "ColorCode"
     }
@@ -311,12 +319,12 @@ ggplotMDS <- function(dgeObj,
     # PlotType
     if (plotType == "canvasxpress") {
         colors   <- lapply(colors, .rgbaConversion)
-        reflineColor <- lapply(rep("red",intercept_length), .rgbaConversion)
+        reflineColor <- "red"
         decorations  <- list()
         hlineIntercept_list <- list()
         if (!missing(hlineIntercept) && !is.null(hlineIntercept)) {
             hlineIntercept_list <- lapply(seq_along(hlineIntercept),function(i) {
-                list(color = ifelse(length(reflineColor) != 1, reflineColor[[i]], reflineColor),
+                list(color = reflineColor,
                      width = 0.5,
                      y     = hlineIntercept[[i]])
             })
@@ -325,7 +333,7 @@ ggplotMDS <- function(dgeObj,
         vlineIntercept_list <- list()
         if (!missing(vlineIntercept) && !is.null(vlineIntercept)) {
             vlineIntercept_list <- lapply(seq_along(vlineIntercept), function(i) {
-                list(color = ifelse(length(reflineColor) != 1, reflineColor[[i]], reflineColor),
+                list(color = reflineColor,
                      width = 0.5,
                      x     = vlineIntercept[[i]])
             })
@@ -359,8 +367,8 @@ ggplotMDS <- function(dgeObj,
                                               shapes                  = "circle",
                                               colors                  = colors,
                                               title                   = title,
-                                              xAxisTitle              = xylab[[1]],
-                                              yAxisTitle              = xylab[[2]],
+                                              xAxisTitle              = xlab,
+                                              yAxisTitle              = ylab,
                                               citation                = citation,
                                               citationScaleFontFactor = 0.8,
                                               events                  = events)
@@ -409,8 +417,8 @@ ggplotMDS <- function(dgeObj,
         # Add some other common elements
         mdsplot <- mdsplot +
             ggplot2::coord_fixed() +
-            ggplot2::xlab(xylab[[1]]) +
-            ggplot2::ylab(xylab[[2]]) +
+            ggplot2::xlab(xlab) +
+            ggplot2::ylab(ylab) +
             ggplot2::ggtitle(title)
 
         # Place an annotation on the bottom left of the plot

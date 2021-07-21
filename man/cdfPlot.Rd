@@ -5,29 +5,26 @@
 \title{Create deluxe CDF Plots}
 \usage{
 cdfPlot(
-  contrastDF,
+  dgeObj,
+  contrast,
   plotType = "canvasXpress",
   pvalCol = "P.Value",
   pThreshold = 0.01,
   xlab,
   ylab,
   title = NULL,
-  insetTitle = NULL,
-  symbolSize = c(4, 3),
-  symbolShape = c("circle", "circle"),
-  symbolColor = c("red3", "deepskyblue4"),
-  transparency = 0.7,
+  viewportTitle = NULL,
   referenceLine = NULL,
-  refLineThickness = 3,
   viewportX = 0.15,
   viewportY = 0.85,
   viewportWidth = 0.35,
-  pvalMax = 0.1,
-  footnote
+  pvalMax = 0.1
 )
 }
 \arguments{
-\item{contrastDF}{A dataframe with LogRatio and LogIntensity columns and optionally a p-value or FDR column.}
+\item{dgeObj}{DGEobj with a class of DGEobj.}
+
+\item{contrast}{Name of a topTable item in DGEobj with LogRatio and LogIntensity columns and optionally a p-value or FDR column.}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
@@ -41,22 +38,10 @@ cdfPlot(
 
 \item{title}{Plot title (Optional)}
 
-\item{insetTitle}{Title for the inset plot (Optional)}
-
-\item{symbolSize}{Size of symbols for Not Significant and  Significant points (default = c(2,1);}
-
-\item{symbolShape}{Shape of the symbols for Not Significant and Significant points (default = c("circle", "circle")
-See \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}}
-
-\item{symbolColor}{Color of symbols for Not Significant and Significant points (default = c("red3", "deepskyblue4"))
-See \url{http://research.stowers-institute.org/efg/R/Color/Chart}}
-
-\item{transparency}{Controls the transparency of the plotted points. Value ranges between 0 -1 (default = 0.5)}
+\item{viewportTitle}{Title for the inset plot (Optional)}
 
 \item{referenceLine}{Color for an horizontal line drawn at the p-threshold
 (default = NULL; NULL disables, set to desired color to enable)}
-
-\item{refLineThickness}{Set thickness of the reference line (default = 1)}
 
 \item{viewportX}{x-location for the inset plot(default = 0.15)}
 
@@ -65,8 +50,6 @@ See \url{http://research.stowers-institute.org/efg/R/Color/Chart}}
 \item{viewportWidth}{width of the inset plot (default = 0.35)}
 
 \item{pvalMax}{Limit the range of the main plot (default = 0.10)}
-
-\item{footnote}{Optional string placed right justified at bottom of plot.}
 }
 \value{
 A list containing main plot, inset plot for both plotType. For plotType ="ggplot" list contains a combined plot which
@@ -83,7 +66,7 @@ appear as a break in the line at the low end of the curve.
 \details{
 This function is designed to take topTable dataframes and display the
 corresponding CDF plot. Data for the p-values below 0.1 (configurable via
-pvalMax argument) are shown in a full size plot. An inset figure shows the
+pvalMax argument) are shown in a full size plot. An viewport figure shows the
 whole p-value scale. Points below 0.01 are a different color by default
 (threshold set by pThreshold argument; shape/color attributes customizable
 through other arguments).
@@ -102,7 +85,11 @@ this order: Significant, Not Significant.
 }
 \examples{
 \dontrun{
-   # Plot to console (contrastDF is a topTable dataframe)
-   cdfPlot(contrastDF, title = "My CDF Plot")
+   # Plot to console (dgeObj is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
+   contrast <- names(DGEobj::getType(dgeObj, type = "topTable"))
+
+   cdfPlot(dgeObj, contrast = contrast[1], title = "My CDF Plot")
+
+   cdfPlot(dgeObj, contrast = contrast[1], title = "My CDF Plot", plotType = "ggplot")
 }
 }

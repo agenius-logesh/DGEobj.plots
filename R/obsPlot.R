@@ -1,4 +1,4 @@
-#' Function obsPlot
+#' obsPlot: Plots a summary (box/violin) plot the for given gene
 #'
 #' Provides a summary plot (box/violin) for each observation (gene), showing data for each
 #' experiment group.

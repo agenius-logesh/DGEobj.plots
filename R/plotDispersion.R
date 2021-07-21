@@ -6,8 +6,8 @@
 #' dispersion) against AveLogCPM.
 #'
 #' @param dgeObj DGEobj.
-#' @param ReplicateGroupCol A singular value of class character and must be in design data. (default = "ReplicateGroup")
-#' @param counts If TRUE, takes a counts data in DGEobj. (default = FALSE)
+#' @param replicateGroupCol A singular value of class character and must be in design data. (default = "ReplicateGroup")
+#' @param countsMatrix If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = FALSE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param plotCategory One of "dispersion" or "BCV" (default = "dispersion")
 #' @param lineFit (default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
@@ -20,11 +20,9 @@
 #' @examples
 #' \dontrun{
 #'    # canvasxpress plot
-#'    myCxplot <- plotDispersion(myDGElist, designMatrix )
-#'    myCxplot <- plotDispersion(myDGEobj, designMatrix)
+#'    myCxplot <- plotDispersion(myDGEobj)
 #'
 #'    # ggplot
-#'    myGgplot <- plotDispersion(myDGElist, designMatrix, plotType = "ggplot")
 #'    myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
 #' }
 #'
@@ -35,8 +33,8 @@
 #'
 #' @export
 plotDispersion <- function(dgeObj,
-                           counts   = FALSE,
-                           ReplicateGroupCol = "ReplicateGroup",
+                           countsMatrix = FALSE,
+                           replicateGroupCol = "ReplicateGroup",
                            plotType     = "canvasXpress",
                            plotCategory = "dispersion",
                            lineFit      = NULL,
@@ -47,21 +45,26 @@ plotDispersion <- function(dgeObj,
                             "DGEobj" %in% class(dgeObj),
                             msg = "dgeObj must be specified and must belong to DGEobj class.")
 
-    if (any(is.null(ReplicateGroupCol),
-            !is.character(ReplicateGroupCol),
-            length(ReplicateGroupCol) != 1,
-            !ReplicateGroupCol %in% names(DGEobj::getType(dgeObj, type = "design")[[1]]))) {
-        warning("ReplicateGroupCol to be a singular value of class character and must be in design data. Assigning default value 'ReplicateGroup'.")
-        ReplicateGroupCol <- "ReplicateGroup"
+    design_names <- names(DGEobj::getType(dgeObj, type = "design"))
+    assertthat::assert_that(length(design_names) == 1,
+                            msg = "DGEobj must have exactly one design object.")
+    design <- DGEobj::getType(dgeObj, type = "design")[[1]]
+
+    if (any(is.null(replicateGroupCol),
+            !is.character(replicateGroupCol),
+            length(replicateGroupCol) != 1,
+            !replicateGroupCol %in% names(design))) {
+        warning("replicateGroupCol must be a singular value of class character and must be a column name in design data. Assigning default value 'ReplicateGroup'.")
+        replicateGroupCol <- "ReplicateGroup"
     }
 
-    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, getItem(dgeObj, "design"))
+    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, design)
 
-    if (any(is.null(counts),
-            !is.logical(counts),
-            length(counts) != 1)) {
-        warning("counts must be a singular logical value. Assigning default value FALSE.")
-        counts <- FALSE
+    if (any(is.null(countsMatrix),
+            !is.logical(countsMatrix),
+            length(countsMatrix) != 1)) {
+        warning("countsMatrix must be a singular logical value. Assigning default value FALSE.")
+        countsMatrix <- FALSE
     }
 
     plotType <- tolower(plotType)
@@ -90,7 +93,7 @@ plotDispersion <- function(dgeObj,
         lineFit <- NULL
     }
 
-    if (counts) {
+    if (countsMatrix) {
         dgelist <- dgeObj$counts %>%  # Process a counts matrix
             as.matrix %>%
             edgeR::DGEList() %>%

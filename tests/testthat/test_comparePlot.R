@@ -15,10 +15,10 @@ test_that("comparePlot.R: comparePlot()", {
     expect_s3_class(cPlot , c("gg", "ggplot"))
 
     # testing plot without significance measures supplied and default parameters
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = FALSE)
+    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), colorBySigMeasure = FALSE)
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
 
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = FALSE,
+    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), colorBySigMeasure = FALSE,
                           plotType = "ggplot")
     expect_s3_class(cPlot , c("gg", "ggplot"))
 
@@ -45,7 +45,7 @@ test_that("comparePlot.R: comparePlot()", {
     # testing aesthetics of plots without significance measures
     cPlot <- comparePlot(dgeObj = t_obj1,
                          contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
-                         sigMeasurePlot = FALSE,
+                         colorBySigMeasure = FALSE,
                          pThreshold = 0.001,
                          title    = "MyPlot",
                          xlab     = "xaxis-title",
@@ -54,7 +54,7 @@ test_that("comparePlot.R: comparePlot()", {
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
     cPlot <- comparePlot(dgeObj = t_obj1,
                          contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
-                         sigMeasurePlot = FALSE,
+                         colorBySigMeasure = FALSE,
                          plotType = "ggplot",
                          pThreshold = 0.001,
                          title    = "MyPlot",
@@ -105,24 +105,24 @@ test_that("comparePlot.R: comparePlot()", {
                    regexp = msg)
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
 
-    ## sigMeasurePlot
-    msg <- "sigMeasurePlot must be a singular logical value. Assigning default value TRUE"
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = "123"),
+    ## colorBySigMeasure
+    msg <- "colorBySigMeasure must be a singular logical value. Assigning default value TRUE"
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), colorBySigMeasure = "123"),
                    regexp = msg)
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", sigMeasurePlot = "123"),
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", colorBySigMeasure = "123"),
                    regexp = msg)
     expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = c(TRUE, TRUE)),
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), colorBySigMeasure = c(TRUE, TRUE)),
                    regexp = msg)
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", sigMeasurePlot = c(TRUE, TRUE)),
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", colorBySigMeasure = c(TRUE, TRUE)),
                    regexp = msg)
     expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = NULL),
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), colorBySigMeasure = NULL),
                    regexp = msg)
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", sigMeasurePlot = NULL),
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", colorBySigMeasure = NULL),
                    regexp = msg)
     expect_s3_class(cPlot , c("gg", "ggplot"))
     ## pThreshold

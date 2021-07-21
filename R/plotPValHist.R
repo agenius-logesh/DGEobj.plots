@@ -5,7 +5,7 @@
 #' but should be useful for any dataframe of numeric columns.
 #'
 #' @param dgeObj DGEobj with a class of DGEobj.
-#' @param P.Val A character vector of a topTable data in DGEobj. Default="P.Value".
+#' @param P.Val p-value column name in the topTables in DGEobj. Default="P.Value".
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
 #' @param binWidth Value is always between 0 and 1. (default = 0.02)

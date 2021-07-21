@@ -11,7 +11,7 @@ test_that("plotPValHist.R: plotPvalHist()", {
     expect_s3_class(pval_plot, c("gg","ggplot"))
 
     # testing plotPvalHist with facet = FALSE
-    pval_plot <- plotPvalHist(dgeObj = t_obj1, facet     = FALSE)
+    pval_plot <- plotPvalHist(dgeObj = t_obj1, facet = FALSE)
     expect_length(pval_plot, 4)
     expect_s3_class(pval_plot[[1]], c("canvasXpress", "htmlwidget"))
 

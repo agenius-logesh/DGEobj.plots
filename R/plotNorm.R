@@ -43,6 +43,9 @@ plotNorm <- function(dgeObj,
                             !is.null(dgeObj),
                             "DGEobj" %in% class(dgeObj),
                             msg = "dgeObj must be specified and must belong to DGEobj class.")
+    countsmatrix_names <- names(DGEobj::getType(dgeObj, "counts"))
+    assertthat::assert_that(length(countsmatrix_names) == 1,
+                            msg = "Counts matrix should be present in dgeObj.dgeObj should not have more than one counts matrix.")
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -71,8 +74,7 @@ plotNorm <- function(dgeObj,
         normalize <- "tmm"
     }
 
-    counts <- DGEobj::getItem(dgeObj, "counts")
-
+    counts <- DGEobj::getItem(dgeObj, countsmatrix_names[[1]])
     tall <- build_normalized_data(counts)
 
     if (normalize != "none") {
