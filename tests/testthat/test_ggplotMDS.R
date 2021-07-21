@@ -2,13 +2,13 @@ context("DGEobj.plots - tests for ggplotMDS.R functions")
 
 
 test_that("ggplotMDS.R: ggplotMDS()", {
-    mds_plot <- ggplotMDS(DGEdata = t_obj1)
+    mds_plot <- ggplotMDS(dgeObj = t_obj1)
     expect_length(mds_plot, 2)
     expect_named(mds_plot, c("plot", "mdsobj"))
     expect_type(mds_plot, "list")
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj = t_obj1,
                           plotType = "ggplot")
     expect_length(mds_plot, 2)
     expect_named(mds_plot, c("plot", "mdsobj"))
@@ -16,7 +16,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     #Testing optional parameters
-    mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                           designTable    = "design",
                           colorBy        = "ReplicateGroup",
                           shapeBy        = "ReplicateGroup",
@@ -32,12 +32,12 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                           dim.plot       = c(1,2))
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                           symShape = "square",
                           symSize  = 30)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                           shapeBy        = "ReplicateGroup",
                           plotType       = "ggplot",
                           sizeBy         = "ReplicateGroup",
@@ -52,7 +52,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                           dim.plot       = c(1,2))
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                           designTable = "design",
                           colorBy     =  "ReplicateGroup",
                           plotType    = "ggplot",
@@ -61,7 +61,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                           symSize     = 3)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                           designTable = "design",
                           colorBy     =  "ReplicateGroup",
                           shapeBy     =  "ReplicateGroup",
@@ -71,7 +71,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                           symSize     = 3)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                           designTable = "design",
                           colorBy     =  "ReplicateGroup",
                           sizeBy      = "ReplicateGroup",
@@ -81,7 +81,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                           symSize     = 3)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                           designTable = "design",
                           colorBy     =  "ReplicateGroup",
                           plotType    = "ggplot",
@@ -91,10 +91,10 @@ test_that("ggplotMDS.R: ggplotMDS()", {
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     # testing assert statements
-    msg <- "DGEdata must be specified and must be of class 'DGEobj'."
-    expect_error(ggplotMDS(DGEdata = 1:10),
+    msg <- "dgeObj must be specified and must be of class 'DGEobj'."
+    expect_error(ggplotMDS(dgeObj = 1:10),
                  regexp = msg)
-    expect_error(ggplotMDS(DGEdata = NULL),
+    expect_error(ggplotMDS(dgeObj = NULL),
                  regexp = msg)
     expect_error(ggplotMDS(),
                  regexp = msg)
@@ -103,31 +103,31 @@ test_that("ggplotMDS.R: ggplotMDS()", {
 
     #plotType
     msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
-    expect_warning(ggplotMDS(DGEdata = t_obj1,
+    expect_warning(ggplotMDS(dgeObj = t_obj1,
                            plotType  = "cx"),
                  regexp = msg)
-    expect_warning(ggplotMDS(DGEdata = t_obj1,
+    expect_warning(ggplotMDS(dgeObj = t_obj1,
                            plotType  = NULL),
                  regexp = msg)
     #designTable
     msg <- "designTable is either missing or invalid. Assigning default value 'design'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                                          designTable = "not a valid value"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                                          designTable = 1),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                                          designTable = c("abc", "def")),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     msg <- "designTable is either missing or invalid. Assigning default value 'design'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata     = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj     = t_obj1,
                                          designTable = NULL,
                                          colorBy     = NULL),
                    regexp = msg)
@@ -135,71 +135,71 @@ test_that("ggplotMDS.R: ggplotMDS()", {
 
     missing_design_obj <- t_obj1
     missing_design_obj[["design"]] <- NULL
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = missing_design_obj),
-                   regexp = "designTable is either missing or invalid and the default value 'design' is not present in the DGEdata. Unable to color,size or shape points on the plot")
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = missing_design_obj),
+                   regexp = "designTable is either missing or invalid and the default value 'design' is not present in the dgeObj. Unable to color,size or shape points on the plot")
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     #colorBy
     msg <- "colorBy value specified is invalid or missing. Assigning default value 'ReplicateGroup'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          colorBy = c(1,2)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     missing_repgroup <- t_obj1
     missing_repgroup[["design"]][["ReplicateGroup"]] <- NULL
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = missing_repgroup,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = missing_repgroup,
                                          colorBy = "ReplicateGroup"),
                    regexp = "colorBy value specified is invalid or missing. Assigning default value 'NULL'.")
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     #shapeBy
-    msg <- "shapeBy should be a column in the design attribute of DGEdata. Assigning NULL as default value."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    msg <- "shapeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value."
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          shapeBy = "Replicate"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          shapeBy = "1"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          shapeBy = c("value1", "value2")),
                    regexp = msg)
 
     #sizeBy
-    msg <- "sizeBy should be a column in the design attribute of DGEdata. Assigning NULL as default value."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    msg <- "sizeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value."
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          sizeBy  = "Replicate"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          sizeBy  = "1"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          sizeBy  = c("value1", "value2")),
                    regexp = msg)
 
     #labels
     msg <- "label specifed is either missing or invalid. Assigning default values."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          labels   = "Replicate",
                                          plotType = "ggplot"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          labels   = c("va1", "val2"),
                                          plotType = "ggplot"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          labels   = 1,
                                          plotType = "ggplot"),
                    regexp = msg)
@@ -207,136 +207,136 @@ test_that("ggplotMDS.R: ggplotMDS()", {
 
     missing_repgroup_obj <- t_obj1
     missing_repgroup_obj[["design"]][["ReplicateGroup"]] <- NULL
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = missing_repgroup_obj,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = missing_repgroup_obj,
                                          plotType = "ggplot"),
                    regexp = "label specifed is either missing or invalid. Assigning default values.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     missing_design_obj <- t_obj1
     missing_design_obj[["design"]] <- NULL
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = missing_design_obj,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = missing_design_obj,
                                          labels   = "ReplicateGroup",
                                          plotType = "ggplot"),
-                   msg <- "designTable is either missing or invalid and the default value 'design' is not present in the DGEdata. Unable to color,size or shape points on the plot.")
+                   msg <- "designTable is either missing or invalid and the default value 'design' is not present in the dgeObj. Unable to color,size or shape points on the plot.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     #top
     msg <- "top should be a numeric value or Inf. Assigning default value 'Inf'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          top     = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          top     = c(1,2)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     #transparency
     msg <- "transparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.7."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata      = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj      = t_obj1,
                                          transparency = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata      = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj      = t_obj1,
                                          transparency = c(1,2)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     #ggplot specific validations
     msg <- "labelSize should be singular numeric value and greater than zero. Assigning default value 3."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata   = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj   = t_obj1,
                                          plotType  = "ggplot",
                                          labels    = t_obj1$design$ReplicateGroup,
                                          labelSize = "a"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata   = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj   = t_obj1,
                                          plotType  = "ggplot",
                                          labels    = t_obj1$design$ReplicateGroup,
                                          labelSize = -2),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata   = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj   = t_obj1,
                                          plotType  = "ggplot",
                                          labels    = t_obj1$design$ReplicateGroup,
                                          labelSize = c(1,2)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata   = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj   = t_obj1,
                                          plotType  = "ggplot",
                                          labelSize = c(1,2)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     msg <- "hlineIntercept must be numeric. Ignoring hlineIntercept."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = c("a","b")),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     msg <- "vlineIntercept must be numeric. Ignoring vlineIntercept."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          vlineIntercept = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     msg <- "reflineSize must be a numeric value greater than 0. Assigning default value '0.5'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          reflineSize    = "a"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          vlineIntercept = 1,
                                          reflineSize    = -1),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          vlineIntercept = 1,
                                          reflineSize    = c(1,2)),
                    regexp = "reflineSize must be either length 1 or the same as the intercept. Assigning default value '0.5'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          reflineColor   = 1),
                    regexp = "reflineColor must be a of class character and must specify the name of the color or the rgb value. Assigning default value 'red'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          reflineColor   = "abc"),
                    regexp = "Color specified is not valid. Assigning default value 'red'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          reflineColor   = c("red", "blue")),
                    regexp = "reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          vlineIntercept = 1,
@@ -344,7 +344,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                    regexp = "reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          vlineIntercept = c(1,2),
@@ -352,7 +352,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                    regexp = "reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          vlineIntercept = 1,
@@ -360,7 +360,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                    regexp = "reflineSize must be either length 1 or the same as the intercept. Assigning default value '0.5'.")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata        = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj        = t_obj1,
                                          plotType       = "ggplot",
                                          hlineIntercept = 1,
                                          vlineIntercept = c(1,2),
@@ -369,64 +369,64 @@ test_that("ggplotMDS.R: ggplotMDS()", {
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     msg <- "symShape must be a singular value of class 'character' or numeric value. Refer help documentation for valid values. Assigning default value 'circle'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          plotType = "ggplot",
                                          symShape = 32),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          plotType = "ggplot",
                                          symShape = c(1,32)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          symShape = c(1,32)),
                    regexp = "symShape must be a singular value of class 'character'. Assigning default value 'circle'.")
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     msg <- "symShape must be a singular value of class 'character'. Assigning default value 'circle'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          symShape = 32),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     msg <- "symSize must be a singular numeric value. Assigning default value 10."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          plotType = "ggplot",
                                          symSize  = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          symSize = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     msg <- "dim.plot should a numeric vector of length 2 and should be lesser than the number of columns in DGEobj."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          dim.plot = "abc"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          dim.plot = c(1)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          dim.plot = c(1,49)),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     msg <- "Invaldid value specified for Title. Assigning default values 'MDS plot'."
-    expect_warning(mds_plot <- ggplotMDS(DGEdata = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
                                          title   = 32),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(DGEdata  = t_obj1,
+    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
                                          title    = c('title1', 'title2')),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
@@ -434,7 +434,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
 
 
 test_that("ggplotMDS.R: MDS_var_explained()", {
-    mds_plot <- ggplotMDS(DGEdata     = t_obj1)
+    mds_plot <- ggplotMDS(dgeObj = t_obj1)
     var_result <- MDS_var_explained(mds_plot$mdsobj)
     expect_length(var_result, 3)
     expect_named(var_result, c("varexp", "cumvar", "var_explained"))

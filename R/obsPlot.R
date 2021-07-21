@@ -77,7 +77,7 @@
 #' @importFrom rlang sym
 #'
 #' @export
-obsPlot <- function(DGEdata,
+obsPlot <- function(dgeObj,
                     plotType            = "canvasXpress",
                     countsMatrix        = "counts",
                     convertCounts       = NULL,
@@ -94,14 +94,17 @@ obsPlot <- function(DGEdata,
                     title,
                     facet               = TRUE,
                     axisFree            = TRUE) {
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and should be of class DGEobj")
-    assertthat::assert_that(!is.null(getType(DGEdata,"counts")),
-                            msg = "counts matrix must be available in DGEdata to plot the data.")
-    assertthat::assert_that(!is.null(getType(DGEdata,"design")),
-                            msg = "design table must be available in DGEdata to plot the data.")
+
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
+
+    assertthat::assert_that(!is.null(getType(dgeObj,"counts")),
+                            msg = "counts matrix must be available in dgeObj to plot the data.")
+
+    assertthat::assert_that(!is.null(getType(dgeObj,"design")),
+                            msg = "design table must be available in dgeObj to plot the data.")
 
     #plotType
     plotType <- tolower(plotType)
@@ -116,11 +119,11 @@ obsPlot <- function(DGEdata,
     #countsMatrix
     if (any(is.null(countsMatrix),
             !is.character(countsMatrix),
-            !(countsMatrix %in% names(DGEdata)))) {
-        if ("counts" %in% names(DGEdata)) {
+            !(countsMatrix %in% names(dgeObj)))) {
+        if ("counts" %in% names(dgeObj)) {
             countsMatrix <- "counts"
-        } else if (!is.null(getType(DGEdata,"counts"))) {
-            countsMatrix <- names(getType(DGEdata,"counts"))
+        } else if (!is.null(getType(dgeObj,"counts"))) {
+            countsMatrix <- names(getType(dgeObj,"counts"))
         }
         warning(paste0("countsMatrix specified is not present in DGEobj. Assigning default value '", countsMatrix,"'."))
     }
@@ -151,7 +154,7 @@ obsPlot <- function(DGEdata,
         }
 
         if (!missing(convert_geneLength) && convertCounts != "CPM") {
-            assertthat::assert_that(length(convert_geneLength) == nrow(getItem(DGEdata, countsMatrix)),
+            assertthat::assert_that(length(convert_geneLength) == nrow(getItem(dgeObj, countsMatrix)),
                                     msg = "geneLength must be the same length of the number of rows in countsMatrix.")
         }
 
@@ -162,7 +165,7 @@ obsPlot <- function(DGEdata,
             convert_prior.count <- NULL
         }
 
-        data <- convertCounts(getItem(DGEdata, countsMatrix),
+        data <- convertCounts(getItem(dgeObj, countsMatrix),
                                       unit        = convertCounts,
                                       geneLength  = convert_geneLength,
                                       log         = convert_log,
@@ -170,23 +173,23 @@ obsPlot <- function(DGEdata,
                                       prior.count = convert_prior.count) %>%
             as.data.frame()
     } else {
-        data <- getItem(DGEdata, countsMatrix) %>%
+        data <- getItem(dgeObj, countsMatrix) %>%
             as.data.frame()
     }
 
         if (any(is.null(designTable),
                 !is.character(designTable),
                 length(designTable) != 1,
-                !(designTable %in% names(DGEdata)))) {
-            if ("design" %in% names(DGEdata)) {
+                !(designTable %in% names(dgeObj)))) {
+            if ("design" %in% names(dgeObj)) {
                 designTable <- "design"
-            } else if (!is.null(getType(DGEdata,"design"))) {
-                designTable <- names(getType(DGEdata,"design"))
+            } else if (!is.null(getType(dgeObj,"design"))) {
+                designTable <- names(getType(dgeObj,"design"))
             }
             warning(paste0("designTable specified is not present in DGEobj. Assigning default value '", designTable,"'."))
         }
 
-    design            <- DGEobj::getItem(DGEdata, designTable)
+    design            <- DGEobj::getItem(dgeObj, designTable)
     colnames(design)  <- tolower(colnames(design))
     group_default     <- NULL
     if ("replicategroup" %in% colnames(design)) {
@@ -198,12 +201,12 @@ obsPlot <- function(DGEdata,
             length(group) != 1,
             !(tolower(group) %in% colnames(design)))) {
         if (!is.null(group_default)) {
-            warning("group must be specified and should be one of the columns in the design object in DGEdata. Assigning ",
+            warning("group must be specified and should be one of the columns in the design object in dgeObj. Assigning ",
                     group_default,
                     " as the default value.")
             group <- group_default
         } else {
-            stop("group must be specified and should be one of the columns in the designTable in DGEdata.")
+            stop("group must be specified and should be one of the columns in the designTable in dgeObj.")
         }
     }
 
@@ -377,13 +380,13 @@ obsPlot <- function(DGEdata,
         }
     } else {
         .addGeoms <- function(obsPlot) {
-            obsPlot <- obsPlot + ggplot2::geom_boxplot(
+            obsPlot <- obsPlot + geom_boxplot(
                 alpha = 0.5,
                 color = "black",
                 fill  = boxColor,
                 outlier.shape = outlier.shape,
                 outlier.size  = outlier.size
-            ) + ggplot2::stat_summary(fun   = mean,
+            ) + stat_summary(fun   = mean,
                              geom  = "point",
                              shape = "square",
                              size  = 3,
@@ -392,14 +395,14 @@ obsPlot <- function(DGEdata,
                              alpha = 0.7)
 
             if (violinLayer) {
-                obsPlot <- obsPlot + ggplot2::geom_violin(alpha = 0.5,
+                obsPlot <- obsPlot + geom_violin(alpha = 0.5,
                                                  color = "black",
                                                  fill  = violinColor)
             }
 
             if (showPoints) {
                     obsPlot <-
-                        obsPlot +  ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.1),
+                        obsPlot +  geom_point(position = position_jitter(width = 0.1),
                                                        alpha    = 0.5,
                                                        color    = "grey30",
                                                        fill     = "dodgerblue4",
@@ -426,24 +429,24 @@ obsPlot <- function(DGEdata,
 
         # Plot code here
         if (facet) {
-            obsPlot <- ggplot2::ggplot(data,  ggplot2::aes_string(x = groupCol, y = valueCol))
-            obsPlot <- .addGeoms(obsPlot) +  ggplot2::theme(axis.text.x =  ggplot2::element_text(angle = 30, hjust = 1))
+            obsPlot <- ggplot(data,  aes_string(x = groupCol, y = valueCol))
+            obsPlot <- .addGeoms(obsPlot) +  theme(axis.text.x =  element_text(angle = 30, hjust = 1))
             facetFormula <- stringr::str_c("~", plotByCol, sep = " ")
-            obsPlot <- obsPlot + ggplot2::facet_wrap(facetFormula, nrow = numrow, scales = axisFree)
-            obsPlot <- obsPlot + ggplot2::xlab(xlab)
-            obsPlot <- obsPlot + ggplot2::ylab(ylab)
+            obsPlot <- obsPlot + facet_wrap(facetFormula, nrow = numrow, scales = axisFree)
+            obsPlot <- obsPlot + xlab(xlab)
+            obsPlot <- obsPlot + ylab(ylab)
             if (!missing(title)) {
-                obsPlot <- obsPlot + ggplot2::ggtitle(title)
+                obsPlot <- obsPlot + ggtitle(title)
             }
         } else {
             plotlist <- list()
             for (obs in unique(data[[plotByCol]])) {
                 dat   <- data[data[[plotByCol]] == obs, ]
-                aplot <-  ggplot2::ggplot(dat,  ggplot2::aes_string(x = groupCol, y = valueCol)) +
-                    ggplot2::xlab(xlab) +
-                    ggplot2::ylab(ylab) +
-                    ggplot2::ggtitle(obs)
-                aplot <- .addGeoms(aplot) +  ggplot2::theme(axis.text.x =  ggplot2::element_text(angle = 30, hjust = 1))
+                aplot <-  ggplot(dat,  aes_string(x = groupCol, y = valueCol)) +
+                    xlab(xlab) +
+                    ylab(ylab) +
+                    ggtitle(obs)
+                aplot <- .addGeoms(aplot) +  theme(axis.text.x =  element_text(angle = 30, hjust = 1))
                 plotlist[[obs]] <- aplot
             }
             obsPlot <- plotlist

@@ -26,7 +26,7 @@
 #' is required for these arguments which applies the attributes in
 #' this order: Significant, Not Significant.
 #'
-#' @param DGEdata DGEobj with a class of DGEobj.
+#' @param dgeObj DGEobj with a class of DGEobj.
 #' @param contrast Name of a topTable item in DGEobj with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
@@ -55,12 +55,12 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Plot to console (DGEdata is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
-#'    contrast <- names(DGEobj::getType(DGEdata, type = "topTable"))
+#'    # Plot to console (dgeObj is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
+#'    contrast <- names(DGEobj::getType(dgeObj, type = "topTable"))
 #'
-#'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot")
+#'    cdfPlot(dgeObj, contrast = contrast[1], title = "My CDF Plot")
 #'
-#'    cdfPlot(DGEdata, contrast = contrast[1], title = "My CDF Plot", plotType = "ggplot")
+#'    cdfPlot(dgeObj, contrast = contrast[1], title = "My CDF Plot", plotType = "ggplot")
 #' }
 #' @import ggplot2 magrittr
 #' @importFrom dplyr arrange mutate case_when select filter
@@ -68,7 +68,7 @@
 #' @importFrom canvasXpress canvasXpress
 #'
 #' @export
-cdfPlot <- function(DGEdata,
+cdfPlot <- function(dgeObj,
                     contrast,
                     plotType       = "canvasXpress",
                     pvalCol        = "P.Value",
@@ -89,18 +89,18 @@ cdfPlot <- function(DGEdata,
                     pvalMax        = 0.10,
                     footnote) {
 
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and must belong to DGEobj class.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
     assertthat::assert_that(!missing(contrast),
                             !is.null(contrast),
                             length(contrast) == 1,
-                            contrast %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrast must be a singular value of class character and must be one of the top tables in the DGEdata.")
+                            contrast %in% names(DGEobj::getType(dgeObj, type = "topTable")),
+                            msg = "contrast must be a singular value of class character and must be one of the top tables in the dgeObj.")
 
-    contrastDF <- DGEobj::getItems(DGEdata, contrast)
+    contrastDF <- DGEobj::getItems(dgeObj, contrast)
 
     assertthat::assert_that(nrow(contrastDF) > 0,
                             "data.frame" %in% class(contrastDF),
@@ -116,9 +116,9 @@ cdfPlot <- function(DGEdata,
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
-                            !is.character(plotType),
-                            length(plotType) != 1,
-                            !tolower(plotType) %in% c("canvasxpress", "ggplot"))) {
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
         warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
         plotType <- "canvasxpress"
     }
@@ -357,53 +357,53 @@ cdfPlot <- function(DGEdata,
         names(symbolColor) <- groupNames
 
         # Plot subset percent of the data for the main plot
-        cdfMain <- ggplot2::ggplot(contrastDF_subset, ggplot2::aes_string(x = x, y = y)) +
-            ggplot2::aes(shape = group, size = group, color = group, fill = group) +
+        cdfMain <- ggplot(contrastDF_subset, aes_string(x = x, y = y)) +
+            aes(shape = group, size = group, color = group, fill = group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            ggplot2::scale_shape_manual(values = symbolShape) +
-            ggplot2::scale_size_manual( values =  symbolSize) +
-            ggplot2::scale_color_manual(values = symbolColor,  aesthetics = c("colour", "fill")) +
-            ggplot2::geom_point(alpha = transparency)
+            scale_shape_manual(values = symbolShape) +
+            scale_size_manual( values =  symbolSize) +
+            scale_color_manual(values = symbolColor,  aesthetics = c("colour", "fill")) +
+            geom_point(alpha = transparency)
 
         # Optional Decorations
         if (!is.null(referenceLine)) {
             cdfMain <- cdfMain +
-                ggplot2::geom_hline(yintercept = pThreshold, color = referenceLine,
+                geom_hline(yintercept = pThreshold, color = referenceLine,
                                     size = refLineThickness, alpha = 0.5)
         }
 
         # Add Labels
         cdfMain <- cdfMain +
-            ggplot2::xlab(xlab) +
-            ggplot2::ylab(ylab) +
-            ggplot2::ggtitle(title)
+            xlab(xlab) +
+            ylab(ylab) +
+            ggtitle(title)
 
 
 
         # Set up the inset plot with All Data
-        cdfInset <- ggplot2::ggplot(contrastDF, ggplot2::aes_string(x = x, y = y)) +
-            ggplot2::aes(shape = group, size = group, color = group, fill = group) +
+        cdfInset <- ggplot(contrastDF, aes_string(x = x, y = y)) +
+            aes(shape = group, size = group, color = group, fill = group) +
             # Scale lines tell it to use the actual values, not treat them as factors
-            ggplot2::scale_shape_manual(values = symbolShape) +
-            ggplot2::scale_size_manual( values = symbolSize) +
-            ggplot2::scale_color_manual(values = symbolColor, aesthetics = c("colour", "fill")) +
-            ggplot2::geom_rect(xmin = 0, xmax = nrow(contrastDF),
+            scale_shape_manual(values = symbolShape) +
+            scale_size_manual( values = symbolSize) +
+            scale_color_manual(values = symbolColor, aesthetics = c("colour", "fill")) +
+            geom_rect(xmin = 0, xmax = nrow(contrastDF),
                                ymin = 0, ymax = max(contrastDF[[y]]), color = "lightblue",
                                fill = "lightblue", alpha = 0.2) +
-            ggplot2::geom_point(alpha = transparency)
+            geom_point(alpha = transparency)
 
         #remove the legends for the inset plot
-        cdfInset <- cdfInset + ggplot2::theme(legend.position = "none")
+        cdfInset <- cdfInset + theme(legend.position = "none")
 
         # Add Labels and title
         cdfInset <- cdfInset +
-            ggplot2::xlab(xlab) +
-            ggplot2::ylab(ylab) +
-            ggplot2::ggtitle(insetTitle)
+            xlab(xlab) +
+            ylab(ylab) +
+            ggtitle(insetTitle)
 
         plot_limits <- get_plot_limits(cdfMain, viewportX, viewportY, viewportWidth)
         vp_plot <- cdfMain +
-            ggplot2::annotation_custom(grob =  ggplot2::ggplotGrob(cdfInset),
+            annotation_custom(grob =  ggplotGrob(cdfInset),
                                        ymin = plot_limits[["ymin"]],
                                        ymax = plot_limits[["ymax"]],
                                        xmin = plot_limits[["xmin"]],
@@ -416,7 +416,7 @@ cdfPlot <- function(DGEdata,
 }
 
 get_plot_limits <- function(main_plot, viewportX, viewportY, viewportWidth) {
-    main_plot_build <- ggplot2::ggplot_build(main_plot)
+    main_plot_build <- ggplot_build(main_plot)
     xrange <- main_plot_build$layout$panel_params[[1]]$x.range
     yrange <- main_plot_build$layout$panel_params[[1]]$y.range
 

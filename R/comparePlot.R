@@ -29,7 +29,7 @@
 #' Note: if p-values or FDR values are not used to color the plot, the X Unique color
 #' values are used.
 #'
-#' @param DGEdata DGEobj with a class of DGEobj.
+#' @param dgeObj DGEobj with a class of DGEobj.
 #' @param contrasts A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
 #'        with logFC and P.Value. These two contrasts representing the x and y variables.
 #'        Optionally add xp and yp columns to hold p-values or FDR values.
@@ -60,9 +60,9 @@
 #' @examples
 #' \dontrun{
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-#'   contrasts <- names(DGEobj::getType(DGEdata, "topTable"))[1:2]
+#'   contrasts <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
 #'   contrastList <- lapply(contrasts, function(x){
-#'      getItems(DGEdata, x)
+#'      getItems(dgeObj, x)
 #'    })
 #'    names(contrastList) <- contrasts
 #'
@@ -73,11 +73,11 @@
 #'   compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 #'
 #'   # Draw the plot
-#'   cPlot <- comparePlot(DGEdata, contrasts, title = "Plot Title")
+#'   cPlot <- comparePlot(dgeObj, contrasts, title = "Plot Title")
 #'   print(cPlot)
 #'
 #'   # Deluxe Plot with bells and whistles.
-#'   myPlot <- comparePlot(DGEdata,
+#'   myPlot <- comparePlot(dgeObj,
 #'                         contrasts,
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
@@ -87,7 +87,7 @@
 #'                         referenceLine = "blue",
 #'                         legendPosition = "right")
 #'
-#'                         myPlot <- comparePlot(DGEdata,
+#'                         myPlot <- comparePlot(dgeObj,
 #'                         contrasts,
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
@@ -106,7 +106,7 @@
 #' @importFrom magrittr set_rownames multiply_by
 #'
 #' @export
-comparePlot <- function(DGEdata,
+comparePlot <- function(dgeObj,
                         contrasts,
                         sigMeasurePlot = TRUE,
                         plotType = "canvasXpress",
@@ -127,20 +127,20 @@ comparePlot <- function(DGEdata,
                         footnoteColor = "black") {
 
     ##### Asserts
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and must belong to DGEobj class.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
     assertthat::assert_that(!missing(contrasts),
                             !is.null(contrasts),
                             length(contrasts) == 2,
                             is.character(contrasts),
-                            all(contrasts %in% names(DGEobj::getType(DGEdata, type = "topTable"))),
-                            msg = "contrasts must be a class of character and must be two of the top tables in the DGEdata. with logFC and P.value columns.")
+                            all(contrasts %in% names(DGEobj::getType(dgeObj, type = "topTable"))),
+                            msg = "contrasts must be a class of character and must be two of the top tables in the dgeObj. with logFC and P.value columns.")
 
     contrastList <- lapply(contrasts, function(x){
-        getItems(DGEdata, x)
+        getItems(dgeObj, x)
     })
     names(contrastList) <- contrasts
 
@@ -158,8 +158,13 @@ comparePlot <- function(DGEdata,
     }
 
     plotType <- tolower(plotType)
-    assertthat::assert_that(plotType %in% c("canvasxpress", "ggplot"),
-                            msg = "Plot type must be either canvasXpress or ggplot.")
+    if (any(is.null(plotType),
+            !is.character(plotType),
+            length(plotType) != 1,
+            !plotType %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+        plotType <- "canvasxpress"
+    }
 
     if (any(is.null(pThreshold),
             !is.numeric(pThreshold),
@@ -169,19 +174,22 @@ comparePlot <- function(DGEdata,
     }
 
     if (!is.null(title) &&
-        !all(is.character(title), length(title) == 1)) {
+        !all(is.character(title),
+             length(title) == 1)) {
         warning("title must be a singular value of class character. Assigning default value 'NULL'.")
         title <- NULL
     }
 
     if (!is.null(xlab) &&
-        !all(is.character(xlab), length(xlab) == 1)) {
+        !all(is.character(xlab),
+             length(xlab) == 1)) {
         warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
         xlab <- NULL
     }
 
     if (!is.null(ylab) &&
-        !all(is.character(ylab), length(ylab) == 1)) {
+        !all(is.character(ylab),
+             length(ylab) == 1)) {
         warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
         ylab <- NULL
     }
@@ -382,42 +390,42 @@ comparePlot <- function(DGEdata,
         scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% magrittr::multiply_by(1.05)
         if (!sigMeasurePlot) {
             compPlot <- compareDF %>%
-                ggplot2::ggplot(ggplot2::aes_string(x = xlabel, y = ylabel)) +
-                ggplot2::geom_point(shape = 21,
+                ggplot(aes_string(x = xlabel, y = ylabel)) +
+                geom_point(shape = 21,
                                     size  = ssc$symbolSize[ssc$group == "X Unique"],
                                     color = ssc$symbolFill[ssc$group == "X Unique"],
                                     fill  = ssc$symbolFill[ssc$group == "X Unique"],
                                     alpha = transparency) +
-                ggplot2::coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
+                coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
         } else {
             compPlot <- compareDF %>%
-                ggplot2::ggplot(ggplot2::aes_string(x = xlabel, y = ylabel)) +
-                ggplot2::aes(shape = group, size = group,
+                ggplot(aes_string(x = xlabel, y = ylabel)) +
+                aes(shape = group, size = group,
                              color = group, fill = group) +
-                ggplot2::scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolShape) +
-                ggplot2::scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
-                ggplot2::scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +
-                ggplot2::scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolFill) +
-                ggplot2::geom_point(alpha = transparency) +
+                scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolShape) +
+                scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
+                scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +
+                scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolFill) +
+                geom_point(alpha = transparency) +
                 # Make it square with same axis scales
-                ggplot2::coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax)) +
+                coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax)) +
                 # Box around the legend
-                ggplot2::theme(legend.background = ggplot2::element_rect(fill = "gray95", size = .5, linetype = "dotted"))
+                theme(legend.background = element_rect(fill = "gray95", size = .5, linetype = "dotted"))
         }
         if (!is.null(crosshair)) {
             compPlot <- compPlot +
-                ggplot2::geom_hline(yintercept = 0,
+                geom_hline(yintercept = 0,
                                     color = crosshair,
                                     size = refLineThickness,
                                     alpha = 0.5) +
-                ggplot2::geom_vline(xintercept = 0,
+                geom_vline(xintercept = 0,
                                     color = crosshair,
                                     size = refLineThickness,
                                     alpha = 0.5)
         }
         if (!is.null(referenceLine)) {
             compPlot <- compPlot +
-                ggplot2::geom_abline(slope = 1,
+                geom_abline(slope = 1,
                                      intercept = 0,
                                      color = referenceLine,
                                      size = refLineThickness,
@@ -425,10 +433,10 @@ comparePlot <- function(DGEdata,
         }
 
         compPlot +
-            ggplot2::theme(legend.position = "right") +
-            ggplot2::xlab(xlab) +
-            ggplot2::ylab(ylab) +
-            ggplot2::ggtitle(title)
+            theme(legend.position = "right") +
+            xlab(xlab) +
+            ylab(ylab) +
+            ggtitle(title)
     }
 }
 

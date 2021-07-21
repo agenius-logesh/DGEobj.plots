@@ -4,7 +4,7 @@
 #' numbers. Intended to perform histogram analysis of p-value distributions,
 #' but should be useful for any dataframe of numeric columns.
 #'
-#' @param DGEdata DGEobj with a class of DGEobj.
+#' @param dgeObj DGEobj with a class of DGEobj.
 #' @param P.Val A character vector of a topTable data in DGEobj. Default="P.Value".
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
@@ -16,10 +16,10 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Plot to console (DGEdata is a DGEobj and P.Val is a name of topTable data in DGEobj.)
-#'    myplot <- plotPvalHist(DGEdata, P.Val = "P.Value")
+#'    # Plot to console (dgeObj is a DGEobj and P.Val is a name of topTable data in DGEobj.)
+#'    myplot <- plotPvalHist(dgeObj, P.Val = "P.Value")
 #'
-#'    myplot <- plotPvalHist(DGEdata, P.Val = "P.Value", plotType = "ggplot")
+#'    myplot <- plotPvalHist(dgeObj, P.Val = "P.Value", plotType = "ggplot")
 #' }
 #'
 #' @import ggplot2
@@ -27,7 +27,7 @@
 #' @importFrom canvasXpress canvasXpress
 #'
 #' @export
-plotPvalHist <- function(DGEdata,
+plotPvalHist <- function(dgeObj,
                          P.Val          = "P.Value",
                          plotType       = "canvasXpress",
                          facet          = TRUE,
@@ -35,10 +35,10 @@ plotPvalHist <- function(DGEdata,
                          transparency   = 0.6,
                          color    = "dodgerblue3") {
 
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and must belong to DGEobj class.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
     if (any(is.null(P.Val),
             !is.character(P.Val),
@@ -47,7 +47,7 @@ plotPvalHist <- function(DGEdata,
         P.Val <- "P.Value"
     }
 
-    P.Val <- DGEobj.utils::extractCol(DGEobj::getType(DGEdata, "topTable"), colName = P.Val, robust = FALSE)
+    P.Val <- DGEobj.utils::extractCol(DGEobj::getType(dgeObj, "topTable"), colName = P.Val, robust = FALSE)
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),

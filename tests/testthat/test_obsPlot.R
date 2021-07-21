@@ -118,8 +118,8 @@ test_that("obsPlot.R: obsPlot()", {
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     # testing assert statements
-    msg <- "DGEdata must be specified and should be of class DGEobj"
-    expect_error(obsPlot(DGEdata = 1:10),
+    msg <- "dgeObj must be specified and must belong to DGEobj class."
+    expect_error(obsPlot(dgeObj = 1:10),
                  regexp = msg)
     expect_error(obsPlot(),
                  regexp = msg)
@@ -128,13 +128,13 @@ test_that("obsPlot.R: obsPlot()", {
     expect_error(suppressWarnings(obs_plot <- obsPlot(obj_no_counts,
                                      designTable = "design",
                                      group       = "replicategroup")),
-                 regexp = "counts matrix must be available in DGEdata to plot the data.")
+                 regexp = "counts matrix must be available in dgeObj to plot the data.")
 
     expect_warning(obs_plot <- obsPlot(t_obj1),
                    regexp = "A large number of charts/facets has/have been requested and may take significant time to generate.  It is suggested that less than 40 charts/facets are requested at a time.")
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
-    msg <- "group must be specified and should be one of the columns in the design object in DGEdata. Assigning replicategroup as the default value."
+    msg <- "group must be specified and should be one of the columns in the design object in dgeObj. Assigning replicategroup as the default value."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        group = "notavalidname"),
                  regexp = msg)
@@ -154,13 +154,13 @@ test_that("obsPlot.R: obsPlot()", {
     obj_no_rep_group$design$ReplicateGroup <- NULL
     expect_error(obsPlot(obj_no_rep_group,
                          group = "notavalidgroup"),
-                 regexp = "group must be specified and should be one of the columns in the designTable in DGEdata.")
+                 regexp = "group must be specified and should be one of the columns in the designTable in dgeObj.")
 
     obj_no_design <- rmItem(t_obj1_subset, "design")
     expect_error(suppressWarnings(obsPlot(obj_no_design,
                          designTable = "design",
                          group       = "replicategroup")),
-                 regexp = "design table must be available in DGEdata to plot the data.")
+                 regexp = "design table must be available in dgeObj to plot the data.")
 
     msg <- "designTable specified is not present in DGEobj. Assigning default value 'design'."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
@@ -193,22 +193,22 @@ test_that("obsPlot.R: obsPlot()", {
     obj_no_rep_group <- t_obj1_subset
     obj_no_rep_group$design$ReplicateGroup <- NULL
     expect_error(obsPlot(obj_no_rep_group),
-                 regexp = "group must be specified and should be one of the columns in the designTable in DGEdata.")
+                 regexp = "group must be specified and should be one of the columns in the designTable in dgeObj.")
 
     #Testing optional parameters
     #plotType
     msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
-    expect_warning(obs_plot <- obsPlot(DGEdata  = t_obj1_subset,
+    expect_warning(obs_plot <- obsPlot(dgeObj  = t_obj1_subset,
                                        plotType = "cx"),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(obs_plot <- obsPlot(DGEdata   = t_obj1_subset,
+    expect_warning(obs_plot <- obsPlot(dgeObj   = t_obj1_subset,
                                         plotType = NULL),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(obs_plot <- obsPlot(DGEdata  = t_obj1_subset,
+    expect_warning(obs_plot <- obsPlot(dgeObj  = t_obj1_subset,
                                        plotType = c("canvasXpress", "ggplot")),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))

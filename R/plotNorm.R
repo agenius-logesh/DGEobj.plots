@@ -8,7 +8,7 @@
 #' Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored to count-based
 #' data.  Thus this function is only appropriate for count-based data.
 #'
-#' @param DGEdata DGEobj with a class of DGEobj.
+#' @param dgeObj DGEobj with a class of DGEobj.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param plotCategory  One of "box" or "density." (Default = "box")
 #' @param normalize Default = "TMM" and invokes TMM normalization. Other allowed
@@ -34,17 +34,17 @@
 #' @importFrom dplyr mutate bind_rows select
 #'
 #' @export
-plotNorm <- function(DGEdata,
+plotNorm <- function(dgeObj,
                      plotType = "canvasXpress",
                      plotCategory = "box",
                      normalize = "tmm") {
 
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and must belong to DGEobj class.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
-    plotType     <- tolower(plotType)
+    plotType <- tolower(plotType)
     if (any(is.null(plotType),
             !is.character(plotType),
             length(plotType) != 1,
@@ -71,7 +71,7 @@ plotNorm <- function(DGEdata,
         normalize <- "tmm"
     }
 
-    counts <- DGEobj::getItem(DGEdata, "counts")
+    counts <- DGEobj::getItem(dgeObj, "counts")
 
     tall <- build_normalized_data(counts)
 
