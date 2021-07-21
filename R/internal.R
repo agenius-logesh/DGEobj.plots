@@ -115,3 +115,16 @@
     }
     list(line = append(decorations$line, list(line)))
 }
+
+.cxSupportedLineFit <- function(linefit) {
+    if (!(linefit %in% c("lm", "loess"))) {
+        if (linefit == "glm") {
+            linefit <- "lm"
+        } else if (linefit == "gam") {
+            linefit <- "loess"
+        }
+        warning("Model type is not supported for canvasXpress charts and ", linefit," is being used")
+    }
+
+    return(linefit)
+}
