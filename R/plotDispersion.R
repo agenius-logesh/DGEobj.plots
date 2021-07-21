@@ -5,9 +5,9 @@
 #' the plot can instead be Biological Coefficient of Variation (BCV is the square root of
 #' dispersion) against AveLogCPM.
 #'
-#' @param DGEdata DGEobj.
-#' @param matrixType design or counts. If matrixType is design it will take the DGEList data in DGEobj and
-#'        if matrixType is counts it will take the counts data in DGEobj. (default = design)
+#' @param dgeObj DGEobj.
+#' @param ReplicateGroupCol A singular value of class character and must be in design data. (default = "ReplicateGroup")
+#' @param counts If TRUE, takes a counts data in DGEobj. (default = FALSE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param plotCategory One of "dispersion" or "BCV" (default = "dispersion")
 #' @param symbolSize (default = 6)
@@ -43,8 +43,9 @@
 #'
 #'
 #' @export
-plotDispersion <- function(DGEdata,
-                           matrixType   = "design",
+plotDispersion <- function(dgeObj,
+                           counts   = FALSE,
+                           ReplicateGroupCol = "ReplicateGroup",
                            plotType     = "canvasXpress",
                            plotCategory = "dispersion",
                            symbolSize   = 6,
@@ -56,20 +57,26 @@ plotDispersion <- function(DGEdata,
                            lineType     = "solid",
                            ...) {
 
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified and must belong to DGEobj class.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
-    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, getItem(DGEdata, "design"))
+    if (any(is.null(ReplicateGroupCol),
+            !is.character(ReplicateGroupCol),
+            length(ReplicateGroupCol) != 1,
+            !ReplicateGroupCol %in% names(DGEobj::getType(dgeObj, type = "design")[[1]]))) {
+        warning("ReplicateGroupCol to be a singular value of class character and must be in design data. Assigning default value 'ReplicateGroup'.")
+        ReplicateGroupCol <- "ReplicateGroup"
+    }
 
-    matrixType <- tolower(matrixType)
-    if (any(is.null(matrixType),
-            !is.character(matrixType),
-            length(matrixType) != 1,
-            !matrixType %in% c("design", "counts"))) {
-        warning("matrixType must be either design or counts. Assigning default value 'design'.")
-        matrixType <- "design"
+    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, getItem(dgeObj, "design"))
+
+    if (any(is.null(counts),
+            !is.logical(counts),
+            length(counts) != 1)) {
+        warning("counts must be a singular logical value. Assigning default value FALSE.")
+        counts <- FALSE
     }
 
     plotType <- tolower(plotType)
@@ -151,14 +158,14 @@ plotDispersion <- function(DGEdata,
         symbolTransparency <- 0.5
     }
 
-    if (matrixType == "design") {
-        dgelist <- DGEdata$DGEList %>%
+    if (counts) {
+        dgelist <- dgeObj$counts %>%  # Process a counts matrix
+            as.matrix %>%
+            edgeR::DGEList() %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     } else {
-        dgelist <- DGEdata$counts %>%  # Process a counts matrix
-            as.matrix %>%
-            edgeR::DGEList() %>%
+        dgelist <- dgeObj$DGEList %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     }
