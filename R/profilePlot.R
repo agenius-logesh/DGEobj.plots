@@ -112,7 +112,11 @@ profilePlot <- function(dgeObj,
                             contrast %in% names(DGEobj::getType(dgeObj, type = "topTable")),
                             msg = "contrast to be a singular value of class character and must be one of the topTables in dgeObj.")
 
-    contrastDF <- DGEobj::getType(dgeObj, type = "topTable")[contrast][[1]]
+    contrastDF <- DGEobj::getItem(dgeObj, contrast)
+
+    assertthat::assert_that(nrow(contrastDF) > 0,
+                            "data.frame" %in% class(contrastDF),
+                            msg = "The specified contrast does not have a valid topTable associated with it. Re-run the function with a valid contrast.")
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
