@@ -24,17 +24,9 @@
 #'   abbreviations of the sample identifiers.
 #'   Default = ReplicateGroup or rownames of DGEdata. Set to NULL to disable
 #'   text labels.
-#' @param labelSize Control size for the text labels in the plot,
 #' @param title A title for the plot. (Optional)
 #' @param vlineIntercept X intercept of vertical line (Optional)
 #' @param hlineIntercept Y intercept of horizontal line (Optional)
-#' @param reflineColor Color for the horizontal and vertical reference lines
-#'   (default = "darkgoldenrod1")
-#' @param reflineSize Thickness of the reference lines (default = 0.5)
-#' @param symShape Set the default shape of the symbols if not mapped to a column (default = circle)
-#' @param symSize Set the default size of the symbols if not mapped to a column
-#'   (default = 10)
-#' @param transparency Set transparency (default = 0.7)
 #' @param dim.plot Define which dimension to plot. dim.plot should a numeric vector of
 #' length 2 and should be lesser than the number of columns in DGEobj. (default = c(1,2))
 #'
@@ -75,15 +67,9 @@ ggplotMDS <- function(DGEdata,
                       sizeBy       = NULL,
                       top          = Inf,
                       labels       = "ReplicateGroup",
-                      labelSize    = 3,
                       title,
                       hlineIntercept,
                       vlineIntercept,
-                      reflineColor = "red",
-                      reflineSize  = 0.5,
-                      symShape     = "circle",
-                      symSize      = 10,
-                      transparency = 0.7,
                       dim.plot     = c(1, 2)) {
     assertthat::assert_that(!missing(DGEdata),
                             !is.null(DGEdata),
@@ -169,11 +155,6 @@ ggplotMDS <- function(DGEdata,
         top <- Inf
     }
 
-    if (any(is.null(transparency),!is.numeric(transparency), length(transparency) != 1, transparency < 0, transparency > 1)) {
-        warning("transparency must be a singular numeric value and must be between 0 and 1. Assigning default value 0.7.")
-        symbolTransparency <- 0.7
-    }
-
     # Validate labels
     addLabels       <- TRUE
     addDefaultLabel <- TRUE
@@ -193,13 +174,6 @@ ggplotMDS <- function(DGEdata,
             if (exists("design") && (with(design, exists("replicategroup")))) {
                     labels <- "replicategroup"
             }
-        }
-    }
-
-    if (missing(sizeBy) || is.null(sizeBy)) {
-        if (!missing(symSize) && any(is.null(symSize), length(symSize) != 1, !is.numeric(symSize))) {
-            warning("symSize must be a singular numeric value. Assigning default value 10.")
-            symSize <- 10
         }
     }
 
@@ -225,80 +199,11 @@ ggplotMDS <- function(DGEdata,
         }
     }
 
-    if (intercept_flag) {
-        if (!(missing(reflineColor))) {
-            if (!is.null(reflineColor) && !is.character(reflineColor)) {
-                warning("reflineColor must be a of class character and must specify the name of the color or the rgb value. Assigning default value 'red'.")
-                reflineColor <- "red"
-            } else if (.rgbaConversion(reflineColor) == "invalid value") {
-                warning("Color specified is not valid. Assigning default value 'red'.")
-                reflineColor <- "red"
-            } else if (!(length(reflineColor) == intercept_length || length(reflineColor) == 1)) {
-                warning("reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
-                reflineColor <- "red"
-            }
-        }
-
-        if (!missing(reflineSize)) {
-            if (any(is.null(reflineSize), !is.numeric(reflineSize), any(reflineSize < 0))) {
-                warning("reflineSize must be a numeric value greater than 0. Assigning default value '0.5'.")
-                reflineSize <- 0.5
-            }  else if (!(length(reflineSize) == intercept_length || length(reflineSize) == 1)) {
-                warning("reflineSize must be either length 1 or the same as the intercept. Assigning default value '0.5'.")
-                reflineSize <- 0.5
-            }
-        }
-    }
-
-    if (!missing(hlineIntercept) && !missing(vlineIntercept)) {
-        if (!length(hlineIntercept) == length(vlineIntercept)) {
-            if (length(reflineColor) != 1) {
-                warning("reflineColor must be either length 1 or the same as the intercept. Assigning default value 'red'.")
-                reflineColor <- "red"
-            }
-            if (length(reflineSize) != 1) {
-                warning("reflineSize must be either length 1 or the same as the intercept. Assigning default value '0.5'.")
-                reflineSize <- 0.5
-            }
-        }
-    }
-
     if (!missing(dim.plot)) {
         if (any(is.null(dim.plot),!is.numeric(dim.plot), length(dim.plot) != 2, any(dim.plot > ncol(DGEdata) - 1))) {
             warning("dim.plot should a numeric vector of length 2 and should be lesser than the number of columns in DGEobj.")
             dim.plot <- c(1,2)
         }
-    }
-
-    if (plotType == "canvasxpress") {
-        if (missing(shapeBy) || is.null(shapeBy)) {
-            if (!missing(symShape) && any(length(symShape) != 1, !.is_valid_symbolShapes_cxplot(symShape))) {
-                warning("symShape must be a singular value of class 'character'. Assigning default value 'circle'.")
-                symShape <- "circle"
-            }
-            shapes <- symShape
-        } else {
-            shapes <- .get_valid_symbolShapes_cxplot()[1:8]
-        }
-    }
-
-    if (plotType == "ggplot") {
-        if (addLabels) {
-            if (any(!is.numeric(labelSize), length(labelSize) != 1, labelSize < 0)) {
-                warning("labelSize should be singular numeric value and greater than zero. Assigning default value 3.")
-                labelSize <- 3
-            }
-        }
-
-        #add valid shapes
-        if ((missing(shapeBy) || is.null(shapeBy)) &&
-            !missing(symShape) &&
-            any(is.null(symShape),
-                length(symShape) != 1,
-                !.is_valid_symbolShapes_ggplot(symShape))) {
-            warning("symShape must be a singular value of class 'character' or numeric value. Refer help documentation for valid values. Assigning default value 'circle'.")
-            symShape <- "circle"
-            }
     }
 
     # ColorBlind palette:
@@ -405,13 +310,13 @@ ggplotMDS <- function(DGEdata,
     # PlotType
     if (plotType == "canvasxpress") {
         colors   <- lapply(colors, .rgbaConversion)
-        reflineColor <- lapply(reflineColor, .rgbaConversion)
+        reflineColor <- lapply(rep("red",intercept_length), .rgbaConversion)
         decorations  <- list()
         hlineIntercept_list <- list()
         if (!missing(hlineIntercept) && !is.null(hlineIntercept)) {
             hlineIntercept_list <- lapply(seq_along(hlineIntercept),function(i) {
                 list(color = ifelse(length(reflineColor) != 1, reflineColor[[i]], reflineColor),
-                     width = ifelse(length(reflineSize) != 1, reflineSize[[i]], reflineSize),
+                     width = 0.5,
                      y     = hlineIntercept[[i]])
             })
         }
@@ -420,7 +325,7 @@ ggplotMDS <- function(DGEdata,
         if (!missing(vlineIntercept) && !is.null(vlineIntercept)) {
             vlineIntercept_list <- lapply(seq_along(vlineIntercept), function(i) {
                 list(color = ifelse(length(reflineColor) != 1, reflineColor[[i]], reflineColor),
-                     width = ifelse(length(reflineSize) != 1, reflineSize[[i]], reflineSize),
+                     width = 0.5,
                      x     = vlineIntercept[[i]])
             })
         }
@@ -448,9 +353,9 @@ ggplotMDS <- function(DGEdata,
                                               colorBy                 = colorCol,
                                               shapeBy                 = shapeCol,
                                               sizeBy                  = sizeCol,
-                                              dataPointSize           = symSize,
+                                              dataPointSize           = 10,
                                               showDecorations         = TRUE,
-                                              shapes                  = shapes,
+                                              shapes                  = "circle",
                                               colors                  = colors,
                                               title                   = title,
                                               xAxisTitle              = xylab[[1]],
@@ -462,73 +367,73 @@ ggplotMDS <- function(DGEdata,
         shapes <- .get_valid_symbolShapes_ggplot()[1:8]
         sizes <- c(1:8)
         symColor <- "blue"
-        mdsplot <- ggplot(plot_data, aes(x = x, y = y))
+        mdsplot <- ggplot2::ggplot(plot_data, ggplot2::aes(x = x, y = y))
         geom_point_params <- list()
 
         if (byColor) {
-            mdsplot <- mdsplot + aes(color = ColorCode)
+            mdsplot <- mdsplot + ggplot2::aes(color = ColorCode)
         } else {
             geom_point_params[["color"]] = symColor
         }
 
         if (byShape) {
-            mdsplot <- mdsplot + aes(shape = Shape) +  scale_shape_manual(values = shapes)
+            mdsplot <- mdsplot + ggplot2::aes(shape = Shape) +  ggplot2::scale_shape_manual(values = shapes)
         } else {
-            geom_point_params[["shape"]] = symShape
+            geom_point_params[["shape"]] = "circle"
         }
 
         if (bySize) {
-            mdsplot <- mdsplot + aes(size = Size) + scale_size_manual(values = sizes)
+            mdsplot <- mdsplot + ggplot2::aes(size = Size) + ggplot2::scale_size_manual(values = sizes)
         } else {
-            geom_point_params[["size"]] = symSize
+            geom_point_params[["size"]] = 10
         }
 
-        mdsplot <- mdsplot + layer(geom = "point",
-                                   stat = "identity",
-                                   position = "identity",
-                                   params = geom_point_params)
+        mdsplot <- mdsplot + ggplot2::layer(geom = "point",
+                                            stat = "identity",
+                                            position = "identity",
+                                            params = geom_point_params)
 
         if (addLabels) {
                 mdsplot <- mdsplot +
-                    ggrepel::geom_text_repel(aes(label = Labels), size = labelSize, max.overlaps = Inf)
+                    ggrepel::geom_text_repel(ggplot2::aes(label = Labels), size = 3, max.overlaps = Inf)
         }
 
         #For discrete color values
         if (length(unique(colorBy)) <= length(colors)) {
             mdsplot <- mdsplot +
-                scale_fill_manual(values = colors) +
-                scale_colour_manual(values = colors)
+                ggplot2::scale_fill_manual(values = colors) +
+                ggplot2::scale_colour_manual(values = colors)
         }
 
         # Add some other common elements
         mdsplot <- mdsplot +
-            coord_fixed() +
-            xlab(xylab[[1]]) +
-            ylab(xylab[[2]]) +
-            ggtitle(title)
+            ggplot2::coord_fixed() +
+            ggplot2::xlab(xylab[[1]]) +
+            ggplot2::ylab(xylab[[2]]) +
+            ggplot2::ggtitle(title)
 
         # Place an annotation on the bottom left of the plot
         xrange <- xrange(mdsplot)
         yrange <- yrange(mdsplot)
         # Put the annotation 10% from xmin
         xpos <- xrange[1] + ((xrange[2] - xrange[1]) * 0.1 )
-        mdsplot <- mdsplot + annotate("text",
-                                      x = xpos,
-                                      y = yrange[1],
-                                      label = citation,
-                                      hjust = 0,
-                                      size = rel(2.5),
-                                      color = "grey30")
+        mdsplot <- mdsplot + ggplot2::annotate("text",
+                                               x = xpos,
+                                               y = yrange[1],
+                                               label = citation,
+                                               hjust = 0,
+                                               size = ggplot2::rel(2.5),
+                                               color = "grey30")
 
         if (!missing(hlineIntercept)) {
-            mdsplot <- mdsplot + geom_hline(yintercept = hlineIntercept,
-                                            color = reflineColor,
-                                            size = reflineSize)
+            mdsplot <- mdsplot + ggplot2::geom_hline(yintercept = hlineIntercept,
+                                                     color = "red",
+                                                     size = 0.5)
         }
         if (!missing(vlineIntercept)) {
-            mdsplot <- mdsplot + geom_vline(xintercept = vlineIntercept,
-                                            color = reflineColor,
-                                            size = reflineSize)
+            mdsplot <- mdsplot + ggplot2::geom_vline(xintercept = vlineIntercept,
+                                                     color = "red",
+                                                     size = 0.5)
         }
     }
     list(plot = mdsplot, mdsobj = mds.data)
@@ -664,21 +569,21 @@ MDS_var_explained <- function(mds,
                                                         smpLabelRotate   = 90)
     } else {
         # Fraction variance for each dimension
-        resultList$varexp <- ggplot(plotdat) +
-            aes(x = dim, y = var) +
-            geom_col(color = barColor,
-                     fill = barColor,
-                     width = barWidth) +
-            labs(title = varexp_title,
-                 x = xlab,
-                 y = ylab_ve) +
-            scale_x_continuous(breaks = setBreaks)
+        resultList$varexp <- ggplot2::ggplot(plotdat) +
+            ggplot2::aes(x = dim, y = var) +
+            ggplot2::geom_col(color = barColor,
+                              fill = barColor,
+                              width = barWidth) +
+            ggplot2::labs(title = varexp_title,
+                          x = xlab,
+                          y = ylab_ve) +
+            ggplot2::scale_x_continuous(breaks = setBreaks)
 
         # Cumulative variance plot (change the y dimension and relabel)
-        resultList$cumvar <- resultList$varexp + aes(y = cumvar) +
-            labs(title = cumvar_title,
-                 y = ylab_cv) +
-            ylim(0,1)
+        resultList$cumvar <- resultList$varexp + ggplot2::aes(y = cumvar) +
+            ggplot2::labs(title = cumvar_title,
+                          y = ylab_cv) +
+            ggplot2::ylim(0,1)
     }
     # Return the full data table too
     resultList$var_explained <- var_explained
