@@ -5,32 +5,29 @@
 \title{Create formatted scatterplot of first two cols of data.frame}
 \usage{
 comparePlot(
-  compareDF,
+  dgeObj,
+  contrasts,
+  colorBySigMeasure = TRUE,
   plotType = "canvasXpress",
   pThreshold = 0.01,
   xlab = NULL,
   ylab = NULL,
   title = NULL,
-  symbolSize = c(7, 7, 7, 3),
-  symbolShape = c("circle", "circle", "circle", "circle"),
-  symbolColor = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
-  transparency = 0.5,
-  crosshair = "grey50",
-  referenceLine = "darkgoldenrod1",
-  refLineThickness = 1,
-  legendPosition = "right",
-  footnote,
-  footnoteSize = 3,
-  footnoteColor = "black"
+  referenceLine = "darkgoldenrod1"
 )
 }
 \arguments{
-\item{compareDF}{A dataframe with the first two columns representing the x and y variables.
+\item{dgeObj}{DGEobj with a class of DGEobj.}
+
+\item{contrasts}{A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
+with logFC and P.Value. These two contrasts representing the x and y variables.
 Optionally add xp and yp columns to hold p-values or FDR values.}
+
+\item{colorBySigMeasure}{Colors points by significance measures.  (default = TRUE)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{pThreshold}{Used to color points (default = 0.01)}
+\item{pThreshold}{Significant value threshold (default = 0.01)}
 
 \item{xlab}{X-axis label (default = first column name)}
 
@@ -38,32 +35,8 @@ Optionally add xp and yp columns to hold p-values or FDR values.}
 
 \item{title}{Plot title (Optional)}
 
-\item{symbolSize}{Size of symbols (default = c(7, 7, 7, 3))}
-
-\item{symbolShape}{Shape of the symbols (default = c("circle", "circle", "circle", "circle")).
-For ggplot reference see \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}}
-
-\item{symbolColor}{c(Common, xUnique, yUnique, NoChange) symbols colors (default = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"))}
-
-\item{transparency}{Controls the transparency of the plotted points (0-1; default = 0.5)}
-
-\item{crosshair}{Color for the crosshair (default = "grey50">, NULL disables)
-See \url{http://research.stowers-institute.org/efg/R/Color/Chart}}
-
 \item{referenceLine}{Color for a slope=1, intercept=0 reference line
 (default = "darkgoldenrod1"; NULL disables)}
-
-\item{refLineThickness}{Set thickness for crosshair and referenceLine (default = 1)}
-
-\item{legendPosition}{One of "top", "bottom", "left", "right", "ne", "se", "nw", "sw", NULL.
-top/bottom/left/right place the legend outside the figure.  ne/se/nw/sw place the figure
-inside the figure. NULL disables the legend (default = "right")}
-
-\item{footnote}{Optional string placed right justified at bottom of plot.}
-
-\item{footnoteSize}{Applies to footnote (default = 3)}
-
-\item{footnoteColor}{Applies to footnote (default = "black")}
 }
 \value{
 canvasXpress or ggplot object based on plotType selection
@@ -102,7 +75,11 @@ values are used.
 \examples{
 \dontrun{
   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-  contrastList <- getType(DGEobj, "topTable")[1:2]
+  contrasts <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
+  contrastList <- lapply(contrasts, function(x){
+     getItems(dgeObj, x)
+   })
+   names(contrastList) <- contrasts
 
   # Capture the default logFC and P.Value
   compareDat <- comparePrep(contrastList)
@@ -111,18 +88,17 @@ values are used.
   compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 
   # Draw the plot
-  cPlot <- comparePlot(compareDat, title = "Plot Title")
+  cPlot <- comparePlot(dgeObj, contrasts, title = "Plot Title")
   print(cPlot)
 
   # Deluxe Plot with bells and whistles.
-  myPlot <- comparePlot(compareDat,
+  myPlot <- comparePlot(dgeObj,
+                        contrasts,
                         pThreshold = 0.5,
                         xlab = "x Axis Label",
                         ylab = "y Axis Label",
                         title = "Plot Title",
-                        crosshair = "red",
-                        referenceLine = "blue",
-                        legendPosition = "right")
+                        referenceLine = "blue")
 }
 
 }

@@ -5,26 +5,23 @@
 \title{Plot histogram analysis of p-value distributions}
 \usage{
 plotPvalHist(
-  P.Val,
+  dgeObj,
+  P.Val = "P.Value",
   plotType = "canvasXpress",
   facet = TRUE,
-  binWidth = 0.02,
-  transparency = 0.6,
-  color = "dodgerblue3"
+  binWidth = 0.02
 )
 }
 \arguments{
-\item{P.Val}{A matrix or dataframe of numeric data; col = samples}
+\item{dgeObj}{DGEobj with a class of DGEobj.}
+
+\item{P.Val}{p-value column name in the topTables in DGEobj. Default="P.Value".}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
 \item{facet}{Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)}
 
 \item{binWidth}{Value is always between 0 and 1. (default = 0.02)}
-
-\item{transparency}{Set the transparency. (default = 0.6)}
-
-\item{color}{Fill & Outline color for the histogram (default = "dodgerblue3")}
 }
 \value{
 A canvasXpress or a ggplot2 object if facet = TRUE or a list of plots if facet = FALSE. (default = TRUE)
@@ -36,12 +33,10 @@ but should be useful for any dataframe of numeric columns.
 }
 \examples{
 \dontrun{
-   # Print to console using all defaults
-   MyPvalMatrix <- extractCol(getType(myDGEobj, "topTable"), "P.Value")
-   plotPvalHist(MyPvalMatrix)
+   # Plot to console (dgeObj is a DGEobj and P.Val is a name of topTable data in DGEobj.)
+   myplot <- plotPvalHist(dgeObj, P.Val = "P.Value")
 
-   # Use some custom arguments
-   myplot <- plotPvalHist(MyPValMatrix)
+   myplot <- plotPvalHist(dgeObj, P.Val = "P.Value", plotType = "ggplot")
 }
 
 }

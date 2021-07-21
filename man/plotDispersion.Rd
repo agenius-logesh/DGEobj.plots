@@ -5,47 +5,29 @@
 \title{Plot edgeR dispersion from a DGEobj}
 \usage{
 plotDispersion(
-  DGEdata,
-  designMatrix,
+  dgeObj,
+  countsMatrix = FALSE,
+  replicateGroupCol = "ReplicateGroup",
   plotType = "canvasXpress",
   plotCategory = "dispersion",
-  symbolSize = 6,
-  symbolShape = "circle",
-  symbolColor = "darkblue",
-  symbolTransparency = 0.5,
-  linefitColor = "red",
   lineFit = NULL,
-  lineType = "solid",
   ...
 )
 }
 \arguments{
-\item{DGEdata}{Counts matrix or DGEList (required)}
+\item{dgeObj}{DGEobj.}
 
-\item{designMatrix}{A design matrix created by stats::model.matrix (required)}
+\item{countsMatrix}{If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = FALSE)}
+
+\item{replicateGroupCol}{A singular value of class character and must be in design data. (default = "ReplicateGroup")}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
 \item{plotCategory}{One of "dispersion" or "BCV" (default = "dispersion")}
 
-\item{symbolSize}{(default = 6)}
-
-\item{symbolShape}{Any supported shape for the points (default = "circle")
-\url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}}
-
-\item{symbolColor}{Fill color (default = "darkblue")}
-
-\item{symbolTransparency}{Transparency for the points. Value ranges from 0 to 1. Smaller
-indicate more transparency (default = 0.5)}
-
-\item{linefitColor}{(default = "red")}
-
 \item{lineFit}{(default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
 one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
   recommended.}
-
-\item{lineType}{Any supported style for the fitLine  (default = solid).
-\url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}}
 
 \item{...}{Extra parameters to pass to edgeR::estimateDisp}
 }
@@ -61,11 +43,9 @@ dispersion) against AveLogCPM.
 \examples{
 \dontrun{
    # canvasxpress plot
-   myCxplot <- plotDispersion(myDGElist, designMatrix )
-   myCxplot <- plotDispersion(myDGEobj, designMatrix)
+   myCxplot <- plotDispersion(myDGEobj)
 
    # ggplot
-   myGgplot <- plotDispersion(myDGElist, designMatrix, plotType = "ggplot")
    myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
 }
 
