@@ -42,14 +42,7 @@ test_that("plotPValHist.R: plotPvalHist()", {
     expect_warning(plotPvalHist(dgeObj = t_obj1, P.Val = 123),
                  regexp = msg)
 
-    pval_plot <- plotPvalHist(dgeObj = t_obj1, binWidth = 0.2, color = "red", transparency = 0.2)
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    pval_plot <- plotPvalHist(dgeObj = t_obj1, plotType = "ggplot", binWidth = 0.2, color = "red", transparency = 0.2)
-    expect_s3_class(pval_plot, c("gg","ggplot"))
-
     #testing invalid optional parameters
-
     #binWidth
     expect_warning(pval_plot <- plotPvalHist(dgeObj = t_obj1, binWidth = 1.2),
                    regexp = "binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
@@ -57,15 +50,6 @@ test_that("plotPValHist.R: plotPvalHist()", {
 
     expect_warning(pval_plot <- plotPvalHist(dgeObj = t_obj1, binWidth = c(1,2)),
                    regexp = "binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    #color
-    expect_warning(pval_plot <- plotPvalHist(dgeObj = t_obj1, color = c(1,2)),
-                   regexp = "color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(pval_plot <- plotPvalHist(dgeObj = t_obj1, color = 1),
-                   regexp = "color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
     expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
 
     #facet
@@ -77,12 +61,4 @@ test_that("plotPValHist.R: plotPvalHist()", {
                    regexp = "facet must be a singular logical value. Assigning default value TRUE.")
     expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
 
-    #transparency
-    expect_warning(pval_plot <- plotPvalHist(dgeObj = t_obj1, transparency = 1.2),
-                   regexp = "transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(pval_plot <- plotPvalHist(dgeObj = t_obj1, transparency = c(1,2)),
-                   regexp = "transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
-    expect_s3_class(pval_plot, c("canvasXpress", "htmlwidget"))
 })

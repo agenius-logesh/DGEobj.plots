@@ -8,15 +8,18 @@ test_that("comparePlot.R: comparePlot()", {
     # testing plot with significance measures supplied and default parameters
     cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"))
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
-                         plotType = "ggplot", symbolSize = c(4, 4, 4, 2))
+
+    cPlot <- comparePlot(dgeObj = t_obj1,
+                         contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                         plotType = "ggplot")
     expect_s3_class(cPlot , c("gg", "ggplot"))
 
     # testing plot without significance measures supplied and default parameters
     cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = FALSE)
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
+
     cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), sigMeasurePlot = FALSE,
-                          plotType = "ggplot", symbolSize = c(4, 4, 4, 2))
+                          plotType = "ggplot")
     expect_s3_class(cPlot , c("gg", "ggplot"))
 
     # testing aesthetics of plots with significance measures
@@ -26,13 +29,7 @@ test_that("comparePlot.R: comparePlot()", {
                          title    = "MyPlot",
                          xlab     = "xaxis-title",
                          ylab     = "yaxis-title",
-                         symbolSize = c(5, 5, 2, 2),
-                         transparency = 0.5,
-                         crosshair = "grey50",
-                         referenceLine = "darkgoldenrod1",
-                         refLineThickness = 1,
-                         legendPosition = "right",
-                         footnote = "This is my footnote")
+                         referenceLine = "darkgoldenrod1")
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
     cPlot <- comparePlot(dgeObj = t_obj1,
                          contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
@@ -41,13 +38,7 @@ test_that("comparePlot.R: comparePlot()", {
                          title    = "MyPlot",
                          xlab     = "xaxis-title",
                          ylab     = "yaxis-title",
-                         symbolSize = c(5, 5, 2, 2),
-                         transparency = 0.5,
-                         crosshair = "grey50",
-                         referenceLine = "darkgoldenrod1",
-                         refLineThickness = 1,
-                         legendPosition = "right",
-                         footnote = "This is my footnote")
+                         referenceLine = "darkgoldenrod1")
     expect_setequal(unlist(cPlot$labels[c("title","y", "x")]), c("MyPlot", "yaxis-title", "xaxis-title"))
     expect_setequal(cPlot$layers[[2]]$aes_params$colour, "grey50")
 
@@ -59,13 +50,7 @@ test_that("comparePlot.R: comparePlot()", {
                          title    = "MyPlot",
                          xlab     = "xaxis-title",
                          ylab     = "yaxis-title",
-                         symbolSize = c(5, 5, 2, 2),
-                         transparency = 0.5,
-                         crosshair = "grey50",
-                         referenceLine = "darkgoldenrod1",
-                         refLineThickness = 1,
-                         legendPosition = "right",
-                         footnote = "This is my footnote")
+                         referenceLine = "darkgoldenrod1")
     expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
     cPlot <- comparePlot(dgeObj = t_obj1,
                          contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
@@ -75,13 +60,7 @@ test_that("comparePlot.R: comparePlot()", {
                          title    = "MyPlot",
                          xlab     = "xaxis-title",
                          ylab     = "yaxis-title",
-                         symbolSize = c(5, 5, 2, 2),
-                         transparency = 0.5,
-                         crosshair = "grey50",
-                         referenceLine = "darkgoldenrod1",
-                         refLineThickness = 1,
-                         legendPosition = "right",
-                         footnote = "This is my footnote")
+                         referenceLine = "darkgoldenrod1")
     expect_setequal(unlist(cPlot$labels[c("title","y", "x")]), c("MyPlot", "yaxis-title", "xaxis-title"))
     expect_setequal(cPlot$layers[[2]]$aes_params$colour, "grey50")
 
@@ -110,6 +89,21 @@ test_that("comparePlot.R: comparePlot()", {
                  regexp = msg)
     expect_error(comparePlot(dgeObj = t_obj1, contrasts = "xyz"),
                  regexp = msg)
+
+    #plotType
+    msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "cx"),
+                   regexp = msg)
+    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = NULL),
+                   regexp = msg)
+    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = 1),
+                   regexp = msg)
+    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
+    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = c("canvasxpress","ggplot")),
+                   regexp = msg)
+    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
 
     ## sigMeasurePlot
     msg <- "sigMeasurePlot must be a singular logical value. Assigning default value TRUE"
@@ -221,145 +215,6 @@ test_that("comparePlot.R: comparePlot()", {
                    regexp = msg)
     expect_s3_class(cPlot , c("gg", "ggplot"))
 
-    ## symbolShape
-    msg <- "symbolShape must be a vector of 4 charcter values. Assigning default values 'circle', 'circle', 'circle', 'circle'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolShape = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolShape = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolShape = 1),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolShape = 1),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolShape = c(1, 2)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolShape = c(1, 2)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolShape = c("cube", "cube", "cube", "cube")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolShape = c("cube", "cube", "cube", "cube")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    ## symbolSize
-    msg <- "symbolSize must be a vector of 4 integer values. Assigning default values 7, 7, 7, 3."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolSize = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolSize = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolSize = 1),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolSize = 1),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolSize = c(1, 2)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolSize = c(1, 2)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolSize = c("1", "2", "3", "4")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolSize = c("1", "2", "3", "4")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    ## symbolColor
-    msg <- "symbolColor must be a vector of 4 character values. Assigning default values 'darkgoldenrod1', 'deepskyblue4', 'red3', 'grey25'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolColor = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolColor = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolColor = "black"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolColor = "black"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolColor = c("black", "grey0")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolColor = c("black", "grey0")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolColor = c(1, 2, 3, 4)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolColor = c(1, 2, 3, 4)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), symbolColor = c("abc", "abc", "abc", "abc")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", symbolColor = c("abc", "abc", "abc", "abc")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    ## transparency
-    msg <- "transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), transparency = "123"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", transparency = "123"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), transparency = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", transparency = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), transparency = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", transparency = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    ## crosshair
-    msg <- "crosshair must be a singular value of class character or 'NULL' to disable. Assigning default value 'grey50'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), crosshair = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", crosshair = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), crosshair = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", crosshair = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), crosshair = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", crosshair = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), crosshair = NULL)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", crosshair = NULL)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    msg <- "Color specified is not valid. Assigning default value 'grey50'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), crosshair = "abc"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", crosshair = "abc"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
     ## referenceLine
     msg <- "referenceLine must be a singular value of class character or 'NULL' to disable. Assigning default value 'darkgoldenrod1'."
     expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), referenceLine = 123),
@@ -386,139 +241,6 @@ test_that("comparePlot.R: comparePlot()", {
     expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", referenceLine = "abc"),
                    regexp = msg)
     expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    ## refLineThickness
-    msg <- "refLineThickness must be a singular value of class numeric Assigning default value '1'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), refLineThickness = "123"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", refLineThickness = "123"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), refLineThickness = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", refLineThickness = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), refLineThickness = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", refLineThickness = NULL),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    ## legendPosition
-    msg <- "legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'ne', 'se', 'nw', 'sw' or 'NULL' to disable. Assigning default value 'right'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), legendPosition = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", legendPosition = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), legendPosition = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", legendPosition = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), legendPosition = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", legendPosition = c(123, 456)),
-                   regexp = msg)
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", legendPosition = "xyz"),
-                   regexp = msg)
-
-    ## footnote
-    msg <- "footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", footnote = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", footnote = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", footnote = c(123, 456)),
-                   regexp = msg)
-
-
-    ## footnote
-    msg <- "footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", footnote = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", footnote = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", footnote = c(123, 456)),
-                   regexp = msg)
-
-    ## footnoteColor
-    msg <- "footnoteColor must be a singular value of class character. Assigning default value 'black'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", footnoteColor = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", plotType = "ggplot", footnoteColor = 123),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", footnoteColor = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", plotType = "ggplot", footnoteColor = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", footnoteColor = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", plotType = "ggplot", footnoteColor = c(123, 456)),
-                   regexp = msg)
-
-    ## footnoteSize
-    msg <- "footnoteSize must be a singular value of class numeric. Assigning default value '3'."
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", footnoteSize = "123"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", plotType = "ggplot", footnoteSize = "123"),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", footnoteSize = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", plotType = "ggplot", footnoteSize = c(123, 456)),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", footnoteSize = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    expect_warning(cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), footnote = "notes", plotType = "ggplot", footnoteSize = c("123", "456")),
-                   regexp = msg)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), crosshair = NULL)
-    expect_s3_class(cPlot , c("canvasXpress", "htmlwidget"))
-    cPlot <- comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "ggplot", crosshair = NULL)
-    expect_s3_class(cPlot , c("gg", "ggplot"))
-
-    # testing assert statement
-    expect_warning(comparePlot(dgeObj = t_obj1, contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"), plotType = "cx"),
-                   regexp = "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
 })
 
 test_that("comparePlot.R: comparePrep()", {

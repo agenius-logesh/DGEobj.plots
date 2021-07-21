@@ -38,22 +38,8 @@
 #' @param ylab Y-axis label (default = second column name)
 #' @param title Plot title (Optional)
 #' @param pThreshold Used to color points (default = 0.01)
-#' @param symbolSize Size of symbols (default = c(7, 7, 7, 3))
-#' @param symbolShape Shape of the symbols (default = c("circle", "circle", "circle", "circle")).
-#'        For ggplot reference see \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}
-#' @param symbolColor c(Common, xUnique, yUnique, NoChange) symbols colors (default = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"))
-#' @param transparency Controls the transparency of the plotted points (0-1; default = 0.5)
-#' @param crosshair Color for the crosshair (default = "grey50">, NULL disables)
-#'        See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
 #' @param referenceLine Color for a slope=1, intercept=0 reference line
 #'        (default = "darkgoldenrod1"; NULL disables)
-#' @param refLineThickness Set thickness for crosshair and referenceLine (default = 1)
-#' @param legendPosition One of "top", "bottom", "left", "right", "ne", "se", "nw", "sw", NULL.
-#'        top/bottom/left/right place the legend outside the figure.  ne/se/nw/sw place the figure
-#'        inside the figure. NULL disables the legend (default = "right")
-#' @param footnote Optional string placed right justified at bottom of plot.
-#' @param footnoteSize Applies to footnote (default = 3)
-#' @param footnoteColor Applies to footnote (default = "black")
 #'
 #' @return canvasXpress or ggplot object based on plotType selection
 #'
@@ -83,20 +69,7 @@
 #'                         xlab = "x Axis Label",
 #'                         ylab = "y Axis Label",
 #'                         title = "Plot Title",
-#'                         crosshair = "red",
-#'                         referenceLine = "blue",
-#'                         legendPosition = "right")
-#'
-#'                         myPlot <- comparePlot(dgeObj,
-#'                         contrasts,
-#'                         pThreshold = 0.5,
-#'                         xlab = "x Axis Label",
-#'                         ylab = "y Axis Label",
-#'                         title = "Plot Title",
-#'                         crosshair = "red",
-#'                         referenceLine = "blue",
-#'                         legendPosition = "right",
-#'                         plotType = "ggplot")
+#'                         referenceLine = "blue")
 #' }
 #'
 #' @import ggplot2
@@ -114,17 +87,7 @@ comparePlot <- function(dgeObj,
                         xlab = NULL,
                         ylab = NULL,
                         title = NULL,
-                        symbolSize = c(7, 7, 7, 3),
-                        symbolShape = c("circle", "circle", "circle", "circle"),
-                        symbolColor = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
-                        transparency = 0.5,
-                        crosshair = "grey50",
-                        referenceLine = "darkgoldenrod1",
-                        refLineThickness = 1,
-                        legendPosition = "right",
-                        footnote,
-                        footnoteSize = 3,
-                        footnoteColor = "black") {
+                        referenceLine = "darkgoldenrod1") {
 
     ##### Asserts
     assertthat::assert_that(!missing(dgeObj),
@@ -161,7 +124,7 @@ comparePlot <- function(dgeObj,
     if (any(is.null(plotType),
             !is.character(plotType),
             length(plotType) != 1,
-            !plotType %in% c("canvasxpress", "ggplot"))) {
+            !tolower(plotType) %in% c("canvasxpress", "ggplot"))) {
         warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
         plotType <- "canvasxpress"
     }
@@ -175,65 +138,23 @@ comparePlot <- function(dgeObj,
 
     if (!is.null(title) &&
         !all(is.character(title),
-             length(title) == 1)) {
+        length(title) == 1)) {
         warning("title must be a singular value of class character. Assigning default value 'NULL'.")
         title <- NULL
     }
 
     if (!is.null(xlab) &&
         !all(is.character(xlab),
-             length(xlab) == 1)) {
+        length(xlab) == 1)) {
         warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
         xlab <- NULL
     }
 
     if (!is.null(ylab) &&
         !all(is.character(ylab),
-             length(ylab) == 1)) {
+        length(ylab) == 1)) {
         warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
         ylab <- NULL
-    }
-
-    if (any(is.null(symbolColor),
-            !is.character(symbolColor),
-            length(symbolColor)  != 4,
-            length(.validate_colors(symbolColor)) != 4)) {
-        warning("symbolColor must be a vector of 4 character values. Assigning default values 'darkgoldenrod1', 'deepskyblue4', 'red3', 'grey25'.")
-        symbolColor <- c("darkgoldenrod1", "deepskyblue4", "red3", "grey25")
-    }
-
-    if (any(is.null(symbolSize),
-            !is.numeric(symbolSize),
-            length(symbolSize)  != 4)) {
-        warning("symbolSize must be a vector of 4 integer values. Assigning default values 7, 7, 7, 3.")
-        symbolSize  <-  c(7, 7, 7, 3)
-    }
-
-    if (any(is.null(symbolShape),
-            !is.character(symbolShape),
-            length(symbolShape)  != 4,
-            plotType == "canvasxpress" && !is.null(symbolShape) && length(.validate_cx_shapes(symbolShape)) != 4,
-            plotType == "ggplot" && !is.null(symbolShape) && length(.validate_gg_shapes(symbolShape)) != 4)) {
-        warning("symbolShape must be a vector of 4 charcter values. Assigning default values 'circle', 'circle', 'circle', 'circle'.")
-        symbolShape  <- c("circle", "circle", "circle", "circle")
-    }
-
-    if (any(is.null(transparency),
-            !is.numeric(transparency),
-            length(transparency) != 1,
-            transparency <= 0,
-            transparency > 1)) {
-        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.5'.")
-        transparency <- 0.5
-    }
-
-    if (!is.null(crosshair) &&
-        !all(is.character(crosshair), length(crosshair) == 1)) {
-        warning("crosshair must be a singular value of class character or 'NULL' to disable. Assigning default value 'grey50'.")
-        crosshair <- "grey50"
-    } else if (.rgbaConversion(crosshair) == "invalid value") {
-        warning("Color specified is not valid. Assigning default value 'grey50'.")
-        crosshair <- "grey50"
     }
 
     if (!is.null(referenceLine) &&
@@ -243,45 +164,6 @@ comparePlot <- function(dgeObj,
     } else if (.rgbaConversion(referenceLine) == "invalid value") {
         warning("Color specified is not valid. Assigning default value 'darkgoldenrod1'.")
         referenceLine <- "darkgoldenrod1"
-    }
-
-    if (any(is.null(refLineThickness),
-            !is.numeric(refLineThickness),
-            length(refLineThickness) != 1)) {
-        warning("refLineThickness must be a singular value of class numeric Assigning default value '1'.")
-        refLineThickness <- 1
-    }
-
-    if (!is.null(legendPosition) &&
-        !all(is.character(legendPosition),
-             length(legendPosition) == 1,
-             legendPosition %in% c("top", "bottom", "left", "right", "ne", "se", "nw", "sw"))) {
-        warning("legendPosition must be one value from 'top', 'bottom', 'left', 'right', 'ne', 'se', 'nw', 'sw' or 'NULL' to disable. Assigning default value 'right'.")
-        legendPosition <- "right"
-    }
-
-    if (missing(footnote)) {
-        footnote <- NULL
-    } else if (!is.null(footnote) &&
-               !all(is.character(footnote), length(footnote) == 1)) {
-        warning("footnote must be a singular value of class character or 'NULL' to disable. Assigning default value 'NULL'.")
-        footnote <- NULL
-    }
-
-    if (!is.null(footnote) &&
-        !is.null(footnoteSize) &&
-        any(!is.numeric(footnoteSize),
-            length(footnoteSize) != 1)) {
-        warning("footnoteSize must be a singular value of class numeric. Assigning default value '3'.")
-        footnoteSize <- 3
-    }
-
-    if (!is.null(footnote) &&
-        !is.null(footnoteColor) &&
-        any(!is.character(footnoteColor),
-            length(footnoteColor) != 1)) {
-        warning("footnoteColor must be a singular value of class character. Assigning default value 'black'.")
-        footnoteColor <- "black"
     }
 
     levels         <- c("Common", "X Unique", "Y Unique", "Not Significant")
@@ -318,23 +200,24 @@ comparePlot <- function(dgeObj,
         dplyr::rename_with(~ c("min", "max"))
 
     if (plotType == "canvasxpress") {
-        # adding transparency to colors
-        symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = transparency, USE.NAMES = FALSE)
+        # adding alpha to colors
+        symbolColor <- c("darkgoldenrod1", "grey25", "deepskyblue4", "red3")
+        symbolColor <- sapply(symbolColor, .rgbaConversion, alpha = 0.5, USE.NAMES = FALSE)
         decorations <- list()
-        if (!is.null(crosshair)) {
-            decorations <- .getCxPlotDecorations(decorations,
-                                                 color = .rgbaConversion(crosshair, alpha = transparency),
-                                                 width = refLineThickness,
+
+        decorations <- .getCxPlotDecorations(decorations,
+                                                 color = .rgbaConversion("grey50", alpha = 0.5),
+                                                 width = 1,
                                                  x     = 0)
-            decorations <- .getCxPlotDecorations(decorations,
-                                                 color = .rgbaConversion(crosshair, alpha = transparency),
-                                                 width = refLineThickness,
-                                                 y     = 0)
-        }
+        decorations <- .getCxPlotDecorations(decorations,
+                                             color = .rgbaConversion("grey50", alpha = 0.5),
+                                             width = 1,
+                                             y     = 0)
+
         if (!is.null(referenceLine)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                 color       = .rgbaConversion(referenceLine, alpha = transparency),
-                                                 width       = refLineThickness,
+                                                 color       = .rgbaConversion(referenceLine, alpha = 0.5),
+                                                 width       = 1,
                                                  x           = ceiling(y_range$max),
                                                  y           = floor(y_range$min))
         }
@@ -348,17 +231,17 @@ comparePlot <- function(dgeObj,
                 dplyr::rename_with(~ c("Group"))
             colorBy <- "Group"
             sizeBy  <- "Group"
-            colors  <- symbolColor[c(1,4,2,3)]
-            sizes   <- symbolSize[c(1,4,2,3)]
-            shapes  <- symbolShape[c(1,4,2,3)]
+            colors  <- symbolColor
+            sizes   <- c(7,4,7,7)
+            shapes  <- rep("circle",4)
         } else {
             cx.data   <- round(compareDF %>% dplyr::select(c(xlabel, ylabel)), digits = 2)
             var.annot <- NULL
             colorBy   <- NULL
             sizeBy    <- NULL
-            colors    <- symbolColor[2]
-            sizes     <- symbolSize[2]
-            shapes    <- symbolShape[2]
+            colors    <- "deepskyblue4"
+            sizes     <- 7
+            shapes    <- "circle"
         }
         canvasXpress::canvasXpress(data             = cx.data,
                                    varAnnot         = var.annot,
@@ -367,7 +250,7 @@ comparePlot <- function(dgeObj,
                                    colorBy          = colorBy,
                                    colors           = colors,
                                    shapes           = shapes,
-                                   legendPosition   = legendPosition,
+                                   legendPosition   = "right",
                                    scatterAxesEqual = TRUE,
                                    showDecorations  = TRUE,
                                    sizeBy           = sizeBy,
@@ -375,27 +258,23 @@ comparePlot <- function(dgeObj,
                                    sizeByShowLegend = FALSE,
                                    title            = title,
                                    xAxisTitle       = xlab,
-                                   yAxisTitle       = ylab,
-                                   citation         = footnote,
-                                   citationFontSize = footnoteSize,
-                                   citationColor    = footnoteColor
-        )
+                                   yAxisTitle       = ylab)
     } else {
         ssc <- data.frame(group = factor(x = levels, levels = levels),
-                          symbolShape = symbolShape,
-                          symbolSize  = symbolSize,
-                          symbolColor = symbolColor,
-                          symbolFill  = symbolColor)
+                          symbolShape = rep("circle",4),
+                          symbolSize  = c(7,7,7,4),
+                          symbolColor = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
+                          symbolFill  = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"))
         # Used to set uniform square scale
         scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% magrittr::multiply_by(1.05)
         if (!sigMeasurePlot) {
             compPlot <- compareDF %>%
                 ggplot(aes_string(x = xlabel, y = ylabel)) +
                 geom_point(shape = 21,
-                                    size  = ssc$symbolSize[ssc$group == "X Unique"],
-                                    color = ssc$symbolFill[ssc$group == "X Unique"],
-                                    fill  = ssc$symbolFill[ssc$group == "X Unique"],
-                                    alpha = transparency) +
+                           size  = ssc$symbolSize[ssc$group == "X Unique"],
+                           color = ssc$symbolFill[ssc$group == "X Unique"],
+                           fill  = ssc$symbolFill[ssc$group == "X Unique"],
+                           alpha = 0.5) +
                 coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax))
         } else {
             compPlot <- compareDF %>%
@@ -406,37 +285,37 @@ comparePlot <- function(dgeObj,
                 scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
                 scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +
                 scale_fill_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolFill) +
-                geom_point(alpha = transparency) +
+                geom_point(alpha = 0.5) +
                 # Make it square with same axis scales
                 coord_equal(xlim = c(-scalemax, scalemax), ylim = c(-scalemax, scalemax)) +
                 # Box around the legend
                 theme(legend.background = element_rect(fill = "gray95", size = .5, linetype = "dotted"))
         }
-        if (!is.null(crosshair)) {
-            compPlot <- compPlot +
-                geom_hline(yintercept = 0,
-                                    color = crosshair,
-                                    size = refLineThickness,
-                                    alpha = 0.5) +
-                geom_vline(xintercept = 0,
-                                    color = crosshair,
-                                    size = refLineThickness,
-                                    alpha = 0.5)
-        }
+
+        compPlot <- compPlot +
+            geom_hline(yintercept = 0,
+                       color = "grey50",
+                       size = 1,
+                       alpha = 0.5) +
+            geom_vline(xintercept = 0,
+                       color = "grey50",
+                       size = 1,
+                       alpha = 0.5)
+
         if (!is.null(referenceLine)) {
             compPlot <- compPlot +
                 geom_abline(slope = 1,
-                                     intercept = 0,
-                                     color = referenceLine,
-                                     size = refLineThickness,
-                                     alpha = 0.5)
+                            intercept = 0,
+                            color = referenceLine,
+                            size = 1,
+                            alpha = 0.5)
         }
 
-        compPlot +
-            theme(legend.position = "right") +
+        compPlot + theme(legend.position = "right") +
             xlab(xlab) +
             ylab(ylab) +
             ggtitle(title)
+
     }
 }
 

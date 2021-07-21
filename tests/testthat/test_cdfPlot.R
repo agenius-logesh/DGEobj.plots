@@ -30,13 +30,8 @@ test_that("cdfPlot.R: cdfPlot()", {
     plot <- cdfPlot(dgeObj = t_obj1,
                     contrast = "BDL_vs_Sham",
                     referenceLine = "blue",
-                    pThreshold = 0.5,
-                    pvalMax = 0.3,
-                    symbolSize     = c(30, 20),
-                    symbolShape    = c("circle", "square"),
-                    symbolColor    = c("green", "deepskyblue4"),
-                    transparency   = 1.0,
-                    refLineThickness = 2)
+                    pThreshold = 0.3,
+                    pvalMax = 0.5)
     expect_type(plot, "list")
     expect_s3_class(plot$main, c("canvasXpress", "htmlwidget"))
     expect_s3_class(plot$inset, c("canvasXpress", "htmlwidget"))
@@ -45,13 +40,8 @@ test_that("cdfPlot.R: cdfPlot()", {
     plot <- cdfPlot(dgeObj = t_obj1,
                     contrast = "BDL_vs_Sham",
                     referenceLine = "blue",
-                    pThreshold = 0.5,
-                    pvalMax = 0.3,
-                    symbolSize     = c(3, 2),
-                    symbolShape    = c("circle", "square"),
-                    symbolColor    = c("green", "deepskyblue4"),
-                    transparency   = 1.0,
-                    refLineThickness = 2,
+                    pThreshold = 0.3,
+                    pvalMax = 0.5,
                     plotType = "ggplot")
     expect_type(plot, "list")
     expect_s3_class(plot$main, c("gg", "ggplot"))
@@ -61,12 +51,11 @@ test_that("cdfPlot.R: cdfPlot()", {
     # testing plot with customized aesthetics.
     plot_with_aes <- cdfPlot(dgeObj = t_obj1,
                              contrast = "BDL_vs_Sham",
-                             insetTitle    = "Sub plot title",
+                             viewportTitle    = "Sub plot title",
                              xlab          = "xaxis-title",
                              ylab          = "yaxis-title",
                              title         = "MyPlot",
-                             referenceLine = "blue",
-                             footnote      = "this is footnote of the plot")
+                             referenceLine = "blue")
 
     expect_type(plot_with_aes, "list")
     expect_s3_class(plot_with_aes$main, c("canvasXpress", "htmlwidget"))
@@ -75,12 +64,11 @@ test_that("cdfPlot.R: cdfPlot()", {
     plot_with_aes <- cdfPlot(dgeObj = t_obj1,
                              contrast = "BDL_vs_Sham",
                              plotType      = "ggplot",
-                             insetTitle    = "Sub plot title",
+                             viewportTitle    = "Sub plot title",
                              xlab          = "xaxis-title",
                              ylab          = "yaxis-title",
                              title         = "MyPlot",
                              referenceLine = "blue",
-                             footnote      = "this is footnote of the plot",
                              viewportX     = 0,
                              viewportY     = 1,
                              viewportWidth = 0.45)
@@ -191,15 +179,19 @@ test_that("cdfPlot.R: cdfPlot()", {
     expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
     expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
 
-    #insetTitle
-    msg <- "insetTitle must be a singular value of class character. Assigning default value NULL."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", insetTitle = c("title","title")),
+    #viewportTitle
+    msg <- "viewportTitle must be a singular value of class character. Assigning default value NULL."
+    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1,
+                                       contrast = "BDL_vs_Sham",
+                                       viewportTitle = c("title","title")),
                    regexp = msg)
     expect_type(cdf_plot, "list")
     expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
     expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", insetTitle = 1),
+    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1,
+                                       contrast = "BDL_vs_Sham",
+                                       viewportTitle = 1),
                    regexp = msg)
     expect_type(cdf_plot, "list")
     expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
@@ -233,116 +225,6 @@ test_that("cdfPlot.R: cdfPlot()", {
     expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
     expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
 
-    #symbolSize
-    msg <- "symbolSize must be a vector of 2 integer values. Assigning default values 2,1."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolSize = "notavalidvalue"),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolSize = 1),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolSize = c(1,2,3)),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolSize = NULL),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    #symbolShape
-    msg <- "symbolShape must be a vector of 2 charcter values. Assigning default values 'circle'."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolShape = c("notavalidvalue","symbolColor")),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolShape = 1),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolShape = c("circle","circle","circle")),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolShape = NULL),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    #symbolColor
-    msg <- "symbolColor must be a vector of 2 character values. Assigning default values 'red3', 'deepskyblue4'."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolColor = c("notavalidvalue","symbolColor")),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolColor = 1),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolColor = c("red","red","red")),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", symbolColor = NULL),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    #transparency
-    msg <- "transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value 0.7."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", transparency = NULL),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", transparency = c(1,2)),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", transparency = -1),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", transparency = "notavalidvalue"),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", transparency = 2),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
     #referenceLine
     msg <- "referenceLine must be a singular value of class character or NULL to disable. Assigning default value NULL."
     expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", referenceLine = c("blue", "blue")),
@@ -359,32 +241,6 @@ test_that("cdfPlot.R: cdfPlot()", {
 
     expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", referenceLine = "notavalidvalue"),
                    regexp = "Color specified is not valid. Assigning default value NULL.")
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    #refLineThickness
-    msg <- "refLineThickness must be a singular value of class numeric Assigning default value 1."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", refLineThickness = c(1,2)),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", refLineThickness = -1),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", refLineThickness = NULL),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", refLineThickness = "notavalidvalue"),
-                   regexp = msg)
     expect_type(cdf_plot, "list")
     expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
     expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
@@ -480,20 +336,6 @@ test_that("cdfPlot.R: cdfPlot()", {
     expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
 
     expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", pvalMax = "notavalidvalue"),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    #footnote
-    msg <- "footnote must be a singular value of class character or NULL to disable. Assigning default value NULL."
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", footnote = 1),
-                   regexp = msg)
-    expect_type(cdf_plot, "list")
-    expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))
-    expect_s3_class(cdf_plot$inset, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(cdf_plot <- cdfPlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", footnote = c("footnote","footnote")),
                    regexp = msg)
     expect_type(cdf_plot, "list")
     expect_s3_class(cdf_plot$main, c("canvasXpress", "htmlwidget"))

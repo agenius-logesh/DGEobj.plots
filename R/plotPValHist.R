@@ -9,8 +9,6 @@
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
 #' @param binWidth Value is always between 0 and 1. (default = 0.02)
-#' @param transparency Set the transparency. (default = 0.6)
-#' @param color Fill & Outline color for the histogram (default = "dodgerblue3")
 #'
 #' @return A canvasXpress or a ggplot2 object if facet = TRUE or a list of plots if facet = FALSE. (default = TRUE)
 #'
@@ -31,9 +29,7 @@ plotPvalHist <- function(dgeObj,
                          P.Val          = "P.Value",
                          plotType       = "canvasXpress",
                          facet          = TRUE,
-                         binWidth       = 0.02,
-                         transparency   = 0.6,
-                         color    = "dodgerblue3") {
+                         binWidth       = 0.02) {
 
     assertthat::assert_that(!missing(dgeObj),
                             !is.null(dgeObj),
@@ -58,14 +54,6 @@ plotPvalHist <- function(dgeObj,
         plotType <- "canvasxpress"
     }
 
-    if (any(is.null(color),
-            !is.character(color),
-            length(color)  != 1,
-            length(.validate_colors(color)) != 1)) {
-        warning("color must be a singular value of class character and must specify the name of the color or the rgb value. Assigning default value 'dodgerblue3'.")
-        color <- "dodgerblue3"
-    }
-
     if (any(is.null(facet),
             !is.logical(facet),
             length(facet) != 1)) {
@@ -82,14 +70,6 @@ plotPvalHist <- function(dgeObj,
         binWidth <- 0.02
     }
 
-    if (any(is.null(transparency),
-            !is.numeric(transparency),
-            length(transparency) != 1,
-            transparency <= 0,
-            transparency > 1)) {
-        warning("transparency must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.6'.")
-        transparency <- 0.6
-    }
 
     if (is.matrix(P.Val)) {
         P.Val <- P.Val %>%
@@ -122,8 +102,7 @@ plotPvalHist <- function(dgeObj,
                                                     histogramData        = TRUE,
                                                     histogramBinWidth    = binWidth,
                                                     graphType            = "Scatter2D",
-                                                    colors               = color,
-                                                    transparency         = transparency,
+                                                    colors               = "dodgerblue3",
                                                     title                = title,
                                                     xAxisTitle           = "P-value",
                                                     yAxisTitle           = "Count",
@@ -142,8 +121,7 @@ plotPvalHist <- function(dgeObj,
                                                         histogramData        = TRUE,
                                                         histogramBinWidth    = binWidth,
                                                         graphType            = "Scatter2D",
-                                                        colors               = color,
-                                                        transparency         = transparency,
+                                                        colors               = "dodgerblue3",
                                                         title                = paste(title, "\n", sample),
                                                         xAxisTitle           = "P-value",
                                                         yAxisTitle           = "Count",
@@ -160,9 +138,8 @@ plotPvalHist <- function(dgeObj,
             numrow <- (samples_num / numcol) %>% ceiling
 
             plotlist <- ggplot2::ggplot(data = P.Val, aes(x = pval)) +
-                ggplot2::geom_histogram(alpha    = transparency,
-                                        fill     = color,
-                                        color    = color,
+                ggplot2::geom_histogram(fill     = "dodgerblue3",
+                                        color    = "dodgerblue3",
                                         binwidth = binWidth) +
                 ggplot2::xlab("P-value") +
                 ggplot2::ylab("Count") +
@@ -174,9 +151,8 @@ plotPvalHist <- function(dgeObj,
                 pval_subset <- dplyr::filter(P.Val, grepl(sample, levels))
 
                 hist_pval <- ggplot2::ggplot(data = pval_subset, aes(x = pval)) +
-                    ggplot2::geom_histogram(alpha = transparency,
-                                            fill = color,
-                                            color = color,
+                    ggplot2::geom_histogram(fill = "dodgerblue3",
+                                            color = "dodgerblue3",
                                             binwidth = binWidth) +
                     ggplot2::xlab("P-value") +
                     ggplot2::ylab("Count") +
