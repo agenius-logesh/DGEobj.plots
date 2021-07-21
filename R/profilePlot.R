@@ -141,6 +141,10 @@ profilePlot <- function(dgeObj,
                             msg = "pvalCol to be a singular value of class character and must be in contrast data.")
 
     if (!missing(geneNameCol)) {
+
+        assertthat::assert_that(length(names(getType(t_obj1, "geneData"))) == 1,
+                                msg = "dgeObj must have exactly one gene object.")
+
         assertthat::assert_that(!is.null(geneNameCol),
                                 length(geneNameCol) == 1,
                                 geneNameCol %in% names(DGEobj::getType(dgeObj, type = "geneData")[[1]]),
@@ -284,7 +288,7 @@ profilePlot <- function(dgeObj,
 
         if (!missing(geneNameCol)) {
             gene_data <- DGEobj::getItem(dgeObj, "geneData") %>%
-                dplyr::select(all_of(geneNameCol))
+                dplyr::select(dplyr::all_of(geneNameCol))
 
             var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
                 tibble::column_to_rownames(var = "Row.names") %>%
