@@ -30,9 +30,8 @@
 #' values are used.
 #'
 #' @param dgeObj DGEobj with a class of DGEobj.
-#' @param contrasts A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
-#'        with logFC and P.Value. These two contrasts representing the x and y variables.
-#'        Optionally add xp and yp columns to hold p-values or FDR values.
+#' @param contrasts A pair of two contrasts in DGEobj that has logFC and P.Value.
+#'        Optionally add xp and yp columns to hold p-values or FDR values using colorBySigMeasure.
 #' @param colorBySigMeasure Colors points by significance measures.  (default = TRUE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param xlab X-axis label (default = first column name)
