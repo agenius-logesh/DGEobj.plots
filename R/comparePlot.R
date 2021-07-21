@@ -29,9 +29,8 @@
 #' Note: if p-values or FDR values are not used to color the plot, the X Unique color
 #' values are used.
 #'
-#' @param DGEdata Name of DGEobj with a class of DGEobj.
-#' @param contrastOne and
-#' @param contrastTwo A character vector of a topTable data in DGEobj and its a class of dataframe
+#' @param dgeObj DGEobj with a class of DGEobj.
+#' @param contrasts A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
 #'        with logFC and P.Value. These two contrasts representing the x and y variables.
 #'        Optionally add xp and yp columns to hold p-values or FDR values.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
@@ -47,10 +46,11 @@
 #' @examples
 #' \dontrun{
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-#'   contrastList <- lapply(c(contrastOne,contrastTwo), function(x){
-#'      getItems(DGEdata, x)
+#'   contrasts <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
+#'   contrastList <- lapply(contrasts, function(x){
+#'      getItems(dgeObj, x)
 #'    })
-#'    names(contrastList) <- c(contrastOne,contrastTwo)
+#'    names(contrastList) <- contrasts
 #'
 #'   # Capture the default logFC and P.Value
 #'   compareDat <- comparePrep(contrastList)
@@ -59,13 +59,12 @@
 #'   compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 #'
 #'   # Draw the plot
-#'   cPlot <- comparePlot(DGEdata, contrastOne, contrastTwo, title = "Plot Title")
+#'   cPlot <- comparePlot(dgeObj, contrasts, title = "Plot Title")
 #'   print(cPlot)
 #'
 #'   # Deluxe Plot with bells and whistles.
-#'   myPlot <- comparePlot(DGEdata,
-#'                         contrastOne,
-#'                         contrastTwo,
+#'   myPlot <- comparePlot(dgeObj,
+#'                         contrasts,
 #'                         pThreshold = 0.5,
 #'                         xlab = "x Axis Label",
 #'                         ylab = "y Axis Label",
@@ -74,15 +73,14 @@
 #' }
 #'
 #' @import ggplot2
-#' @importFrom dplyr mutate arrange filter select rename_with summarise
+#' @importFrom dplyr mutate arrange filter select rename_with summarise across everything
 #' @importFrom assertthat assert_that
 #' @importFrom canvasXpress canvasXpress
-#' @importFrom magrittr set_rownames
+#' @importFrom magrittr set_rownames multiply_by
 #'
 #' @export
-comparePlot <- function(DGEdata,
-                        contrastOne,
-                        contrastTwo,
+comparePlot <- function(dgeObj,
+                        contrasts,
                         sigMeasurePlot = TRUE,
                         plotType = "canvasXpress",
                         pThreshold = 0.01,
@@ -92,25 +90,22 @@ comparePlot <- function(DGEdata,
                         referenceLine = "darkgoldenrod1") {
 
     ##### Asserts
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            "DGEobj" %in% class(DGEdata),
-                            msg = "DGEdata must be specified as class of DGEobj.")
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
-    assertthat::assert_that(!missing(contrastOne),
-                            !is.null(contrastOne),
-                            contrastOne %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrastOne to be a singular value of class character and must be one from DGEdata with logFC and P.value columns.")
+    assertthat::assert_that(!missing(contrasts),
+                            !is.null(contrasts),
+                            length(contrasts) == 2,
+                            is.character(contrasts),
+                            all(contrasts %in% names(DGEobj::getType(dgeObj, type = "topTable"))),
+                            msg = "contrasts must be a class of character and must be two of the top tables in the dgeObj. with logFC and P.value columns.")
 
-    assertthat::assert_that(!missing(contrastTwo),
-                            !is.null(contrastTwo),
-                            contrastTwo %in% names(DGEobj::getType(DGEdata, type = "topTable")),
-                            msg = "contrastTwo to be a singular value of class character and must be one from DGEdata with logFC and P.value columns.")
-
-    contrastList <- lapply(c(contrastOne,contrastTwo), function(x){
-        getItems(DGEdata, x)
+    contrastList <- lapply(contrasts, function(x){
+        getItems(dgeObj, x)
     })
-    names(contrastList) <- c(contrastOne,contrastTwo)
+    names(contrastList) <- contrasts
 
     if (any(is.null(sigMeasurePlot),
             !is.logical(sigMeasurePlot),
@@ -201,7 +196,7 @@ comparePlot <- function(DGEdata,
 
     y_range <- compareDF %>%
         dplyr::select(ylabel) %>%
-        dplyr::summarise(across(everything(), list(min, max))) %>%
+        dplyr::summarise(dplyr::across(dplyr::everything(), list(min, max))) %>%
         dplyr::rename_with(~ c("min", "max"))
 
     if (plotType == "canvasxpress") {
@@ -271,7 +266,7 @@ comparePlot <- function(DGEdata,
                           symbolColor = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"),
                           symbolFill  = c("darkgoldenrod1", "deepskyblue4", "red3", "grey25"))
         # Used to set uniform square scale
-        scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% multiply_by(1.05)
+        scalemax = compareDF[,1:2] %>% as.matrix %>% abs %>% max %>% magrittr::multiply_by(1.05)
         if (!sigMeasurePlot) {
             compPlot <- compareDF %>%
                 ggplot(aes_string(x = xlabel, y = ylabel)) +
@@ -285,7 +280,7 @@ comparePlot <- function(DGEdata,
             compPlot <- compareDF %>%
                 ggplot(aes_string(x = xlabel, y = ylabel)) +
                 aes(shape = group, size = group,
-                    color = group, fill = group) +
+                             color = group, fill = group) +
                 scale_shape_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolShape) +
                 scale_size_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolSize) +
                 scale_color_manual(name = "Group", guide = "legend", labels = ssc$group, values = ssc$symbolColor) +

@@ -2,121 +2,161 @@ context("DGEobj.plots - tests for plotDispersion.R functions")
 
 
 test_that("plotDispersion.R: plotDispersion()", {
-    skip_if(is.null(t_obj1$DGEList))
+    skip_if(is.null(t_obj1))
 
-    # creating designMatrix and dgelist
-    dgelist <- t_obj1$DGEList
-    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, getItem(t_obj1, "design"))
-
-    # Testing dispersion plots with input DGEList
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix)
+    # Testing dispersion plots with input DGEobj
+    plot_disp <- plotDispersion(dgeObj  = t_obj1)
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
-                                plotType     = "canvasXpress")
-    expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
-
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
-                                plotType     = "ggplot")
+    plot_disp <- plotDispersion(dgeObj  = t_obj1,
+                                plotType = "ggplot")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-    # Testing dispersion plots with input countMatrix
-    plot_disp <- plotDispersion(DGEdata       = t_obj1$counts,
-                                designMatrix  = designMatrix)
+    # Testing dispersion plots with counts data.
+    plot_disp <- plotDispersion(dgeObj    = t_obj1,
+                                counts     = TRUE)
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata       = t_obj1$counts,
-                                plotType      = "ggplot",
-                                designMatrix  = designMatrix)
+    plot_disp <- plotDispersion(dgeObj    = t_obj1,
+                                plotType   = "ggplot",
+                                counts     = TRUE)
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-    #Testing BCV plots with input DGEList
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    #Testing BCV plots with input DGEobj.
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 plotCategory = "BCV")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 plotCategory = "BCV",
                                 plotType     = "ggplot")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-    #Testing BCV plots with input countMatrix
-    plot_disp <- plotDispersion(DGEdata       = t_obj1$counts,
-                                designMatrix  = designMatrix,
+    #Testing BCV plots with counts data
+    plot_disp <- plotDispersion(dgeObj       = t_obj1,
+                                counts        = TRUE,
                                 plotCategory  = "BCV")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata       = t_obj1$counts,
+    plot_disp <- plotDispersion(dgeObj       = t_obj1,
                                 plotType      = "ggplot",
-                                designMatrix  = designMatrix,
+                                counts        = TRUE,
                                 plotCategory  = "BCV")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
     #Testing parameter - LineFit
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 lineFit      = "loess")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 lineFit      = "loess",
                                 plotType     = "ggplot")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-
-    #Testing lineFit parameters
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 lineFit      = "lm")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 lineFit      = "glm")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                designMatrix = designMatrix,
+    plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                 lineFit      = "gam")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
     # testing assert statements
+    #dgeObj
+    msg <- "dgeObj must be specified and must belong to DGEobj class."
+    expect_error(plotDispersion(dgeObj = NULL),
+                 regexp = msg)
+    expect_error(plotDispersion(dgeObj = "xyz"),
+                 regexp = msg)
     expect_error(plotDispersion(),
-                 regexp = "Both DGEdata and designMatrix must be specified.")
-    expect_error(plotDispersion(DGEdata = t_obj1$counts),
-                 regexp = "Both DGEdata and designMatrix must be specified.")
-    expect_warning(plotDispersion(DGEdata = t_obj1$counts, designMatrix = designMatrix, plotCategory = "cx"),
-                   regexp = "plotCategory must be either dispersion or bcv. Assigning default value 'dispersion'.")
-    expect_warning(plotDispersion(DGEdata = t_obj1$counts, designMatrix = designMatrix, plotType = "cx"),
-                   regexp = "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+                 regexp = msg)
+    expect_error(plotDispersion(dgeObj = 123),
+                 regexp = msg)
+    expect_error(plotDispersion(data.frame()),
+                 regexp = msg)
+    #counts
+    msg = "counts must be a singular logical value. Assigning default value FALSE."
+    expect_warning(plotDispersion(dgeObj = t_obj1, counts = NULL),
+                   regexp = msg)
+    expect_warning(plotDispersion(dgeObj = t_obj1, counts = "123"),
+                   regexp = msg)
+    expect_warning(plotDispersion(dgeObj = t_obj1, counts = c(123,234)),
+                   regexp = msg)
+    expect_warning(plotDispersion(dgeObj = t_obj1, counts = "xyz"),
+                   regexp = msg)
+
+    ## ReplicateGroupCol
+    msg <- "ReplicateGroupCol to be a singular value of class character and must be in design data. Assigning default value 'ReplicateGroup'."
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  ReplicateGroupCol = "xyz"),
+                   regexp = msg)
+
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  ReplicateGroupCol = NULL),
+                   regexp = msg)
+
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  ReplicateGroupCol = 123),
+                   regexp = msg)
+
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  ReplicateGroupCol = c("xyz", "abc")),
+                   regexp = msg)
+
+    ## plotType
+    msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  plotType = "xyz"),
+                   regexp = msg)
+
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  plotType = NULL),
+                   regexp = msg)
+
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  plotType = 123),
+                   regexp = msg)
+
+    expect_warning(plotDispersion(dgeObj  = t_obj1,
+                                  plotType = c("canvasXpress", "ggplot")),
+                   regexp = msg)
+
+    #plotCategory
+    msg = "plotCategory must be either dispersion or bcv. Assigning default value 'dispersion'."
+    expect_warning(plotDispersion(dgeObj = t_obj1, plotCategory = NULL),
+                   regexp = msg)
+    expect_warning(plotDispersion(dgeObj = t_obj1, plotCategory = "123"),
+                   regexp = msg)
+    expect_warning(plotDispersion(dgeObj = t_obj1, plotCategory = c(123,234)),
+                   regexp = msg)
+    expect_warning(plotDispersion(dgeObj = t_obj1, plotCategory = "xyz"),
+                   regexp = msg)
 
     #testing warning messages
-    expect_warning(plot_disp <- plotDispersion(DGEdata      = dgelist,
-                                               designMatrix = designMatrix,
+    expect_warning(plot_disp <- plotDispersion(dgeObj      = t_obj1,
                                                lineFit   = "abc"),
                    regexp = "lineFit must be one value from 'glm', 'lm', 'loess', 'gam' or 'NULL' to disable. Assigning default value 'NULL'.")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(plot_disp <- plotDispersion(DGEdata      = dgelist,
+    expect_warning(plot_disp <- plotDispersion(dgeObj       = dgelist,
                                                designMatrix = designMatrix,
                                                lineFit      = 123),
                    regexp = "lineFit must be one value from 'glm', 'lm', 'loess', 'gam' or 'NULL' to disable. Assigning default value 'NULL'")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(plot_disp <- plotDispersion(DGEdata      = dgelist,
+    expect_warning(plot_disp <- plotDispersion(dgeObj       = dgelist,
                                                designMatrix = designMatrix,
                                                lineFit      = "abc",
                                                plotType     = "ggplot"),
                    regexp = "lineFit must be one value from 'glm', 'lm', 'loess', 'gam' or 'NULL' to disable. Assigning default value 'NULL'")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-    expect_warning(plot_disp <- plotDispersion(DGEdata      = dgelist,
+    expect_warning(plot_disp <- plotDispersion(dgeObj       = dgelist,
                                                designMatrix = designMatrix,
                                                lineFit      = 123,
                                                plotType     = "ggplot"),

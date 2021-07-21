@@ -13,7 +13,7 @@
 #' allows for selection of a number close the number of differential genes in the
 #' input data.
 #'
-#' @param DGEdata A DGEobj that contains a DGEList OR a log2cpm matrix. (Required)
+#' @param dgeObj DGEobj.
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param designTable Name of the design table object
 #' @param colorBy A column name in the design table.Points are colored by the values in that column (Required)
@@ -22,7 +22,7 @@
 #' @param top Number of most variant genes to include (Default = Inf)
 #' @param labels A column name in the design table. Text labels for the samples. These should be short
 #'   abbreviations of the sample identifiers.
-#'   Default = ReplicateGroup or rownames of DGEdata. Set to NULL to disable
+#'   Default = ReplicateGroup or rownames of dgeObj. Set to NULL to disable
 #'   text labels.
 #' @param title A title for the plot. (Optional)
 #' @param vlineIntercept X intercept of vertical line (Optional)
@@ -59,7 +59,7 @@
 #' @importFrom DGEobj getItem
 #'
 #' @export
-ggplotMDS <- function(DGEdata,
+ggplotMDS <- function(dgeObj,
                       plotType     = "canvasXpress",
                       designTable  = "design",
                       colorBy      = "ReplicateGroup",
@@ -71,10 +71,11 @@ ggplotMDS <- function(DGEdata,
                       hlineIntercept,
                       vlineIntercept,
                       dim.plot     = c(1, 2)) {
-    assertthat::assert_that(!missing(DGEdata),
-                            !is.null(DGEdata),
-                            class(DGEdata)[1] %in% c("DGEobj"),
-                            msg = "DGEdata must be specified and must be of class 'DGEobj'.")
+
+    assertthat::assert_that(!missing(dgeObj),
+                            !is.null(dgeObj),
+                            "DGEobj" %in% class(dgeObj),
+                            msg = "dgeObj must be specified and must belong to DGEobj class.")
 
     plotType <- tolower(plotType)
     if (any(is.null(plotType),
@@ -90,21 +91,21 @@ ggplotMDS <- function(DGEdata,
     if (!is.null(designTable) &&
         length(designTable) == 1 &&
         is.character(designTable) &&
-        designTable %in% names(DGEdata)) {
+        designTable %in% names(dgeObj)) {
         design_default    <- FALSE
-        design            <- DGEobj::getItem(DGEdata, designTable)
+        design            <- DGEobj::getItem(dgeObj, designTable)
         colnames(design)  <- tolower(colnames(design))
         }
 
 
-    if (design_default && ("design" %in% names(DGEdata))) {
+    if (design_default && ("design" %in% names(dgeObj))) {
         warning("designTable is either missing or invalid. Assigning default value 'design'.")
-        design            <- DGEobj::getItem(DGEdata, "design")
+        design            <- DGEobj::getItem(dgeObj, "design")
         colnames(design)  <- tolower(colnames(design))
     }
 
     if (is.null(design)) {
-        warning("designTable is either missing or invalid and the default value 'design' is not present in the DGEdata. Unable to color,size or shape points on the plot.")
+        warning("designTable is either missing or invalid and the default value 'design' is not present in the dgeObj. Unable to color,size or shape points on the plot.")
     }
 
     colorby_default <- TRUE
@@ -133,7 +134,7 @@ ggplotMDS <- function(DGEdata,
     if (!is.null(design)) {
         if (!is.null(shapeBy) &&
         !(tolower(shapeBy) %in% colnames(design))) {
-        warning("shapeBy should be a column in the design attribute of DGEdata. Assigning NULL as default value.")
+        warning("shapeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value.")
         shapeBy <- NULL
         }
     } else {
@@ -143,7 +144,7 @@ ggplotMDS <- function(DGEdata,
     if (!is.null(design)) {
         if (!is.null(sizeBy) &&
         !(tolower(sizeBy) %in% colnames(design))) {
-        warning("sizeBy should be a column in the design attribute of DGEdata. Assigning NULL as default value.")
+        warning("sizeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value.")
         sizeBy <- NULL
         }
     } else {
@@ -170,7 +171,7 @@ ggplotMDS <- function(DGEdata,
     if (addDefaultLabel) {
         labels <- NULL
         # Get labels from ReplicateGroup if present
-        if ("DGEobj" %in% class(DGEdata)) {
+        if ("DGEobj" %in% class(dgeObj)) {
             if (exists("design") && (with(design, exists("replicategroup")))) {
                     labels <- "replicategroup"
             }
@@ -200,7 +201,7 @@ ggplotMDS <- function(DGEdata,
     }
 
     if (!missing(dim.plot)) {
-        if (any(is.null(dim.plot),!is.numeric(dim.plot), length(dim.plot) != 2, any(dim.plot > ncol(DGEdata) - 1))) {
+        if (any(is.null(dim.plot),!is.numeric(dim.plot), length(dim.plot) != 2, any(dim.plot > ncol(dgeObj) - 1))) {
             warning("dim.plot should a numeric vector of length 2 and should be lesser than the number of columns in DGEobj.")
             dim.plot <- c(1,2)
         }
@@ -221,11 +222,11 @@ ggplotMDS <- function(DGEdata,
         }
     }
 
-    if ("DGEobj" %in% class(DGEdata)) {
-        DGEdata <- DGEobj::getItem(DGEdata, "DGEList")
+    if ("DGEobj" %in% class(dgeObj)) {
+        dgeObj <- DGEobj::getItem(dgeObj, "DGEList")
     }
 
-    mds.data <- limma::plotMDS(DGEdata,
+    mds.data <- limma::plotMDS(dgeObj,
                           top = top,
                           dim.plot = dim.plot,
                           plot = FALSE)
