@@ -19,9 +19,8 @@ comparePlot(
 \arguments{
 \item{dgeObj}{DGEobj with a class of DGEobj.}
 
-\item{contrasts}{A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
-with logFC and P.Value. These two contrasts representing the x and y variables.
-Optionally add xp and yp columns to hold p-values or FDR values.}
+\item{contrasts}{A pair of two contrasts in DGEobj that has logFC and P.Value.
+Optionally add xp and yp columns to hold p-values or FDR values using colorBySigMeasure.}
 
 \item{colorBySigMeasure}{Colors points by significance measures.  (default = TRUE)}
 

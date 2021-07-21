@@ -42,6 +42,17 @@ xrange <- function(my.ggp) {
     return(range)
 }
 
+.get_valid_symbolShapes_ggplot <- function() {
+    shape_names <- c(
+        "circle", "square", "diamond", "triangle", "plus", "asterisk", "cross", "bullet",
+        paste("circle", c("open", "filled", "cross", "plus", "small")),
+        paste("square", c("open", "filled", "cross", "plus", "triangle")),
+        paste("diamond", c("open", "filled", "plus")),
+        paste("triangle", c("open", "filled", "square")),
+        paste("triangle down", c("open", "filled"))
+    )
+}
+
 .rgbaConversion <- function(color, alpha = 0.5){
     rgbastr <- NULL
     if (!is.character(color)) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/volcanoPlot.R
 \name{volcanoPlot}
 \alias{volcanoPlot}
-\title{Create volcano}
+\title{Create volcano plot}
 \usage{
 volcanoPlot(
   dgeObj,
