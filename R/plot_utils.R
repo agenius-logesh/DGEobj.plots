@@ -1,7 +1,3 @@
-baseFont <- function(base_size = 12,
-                     base_family = ""){
-    baseFont <- theme(text = element_text(size = base_size, family = base_family))
-}
 baseTheme <- function(base_size = 18,
                       base_family = "",
                       scale_legend = TRUE) {
