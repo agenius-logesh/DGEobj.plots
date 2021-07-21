@@ -35,7 +35,7 @@
 #' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label significantly changed points.
 #' @param pthresholdLine Color for a horizontal line at the p-threshold. (default = NULL (disabled))
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (default = TRUE)
-#' @param foldChangethreshold Position of reference vertical lines for fold change. (default = 1.5)
+#' @param foldChangeThreshold Position of reference vertical lines for fold change. (default = 1.5)
 #' @return canvasxpress or ggplot object based on plotType selection.
 #'
 #' @examples
@@ -93,7 +93,7 @@ volcanoPlot <- function(dgeObj,
                         title           = NULL,
                         sizeByIntensity = TRUE,
                         pthresholdLine  = NULL,
-                        foldChangethreshold = 1.5) {
+                        foldChangeThreshold = 1.5) {
     ##### Asserts
     assertthat::assert_that(!missing(dgeObj),
                             !is.null(dgeObj),
@@ -147,30 +147,30 @@ volcanoPlot <- function(dgeObj,
         pthreshold <- 0.01
     }
 
-    if (any(is.null(foldChangethreshold),
-            !is.numeric(foldChangethreshold),
-            length(foldChangethreshold) != 1)) {
-        warning("foldChangethreshold must be a singular numeric value. Assigning default value 1.5.")
-        foldChangethreshold <- 1.5
+    if (any(is.null(foldChangeThreshold),
+            !is.numeric(foldChangeThreshold),
+            length(foldChangeThreshold) != 1)) {
+        warning("foldChangeThreshold must be a singular numeric value. Assigning default value 1.5.")
+        foldChangeThreshold <- 1.5
     }
 
     if (!is.null(title) &&
         !all(is.character(title),
-        length(title) == 1)) {
+             length(title) == 1)) {
         warning("title must be a singular value of class character. Assigning default value 'NULL'.")
         title <- NULL
     }
 
     if (!is.null(xlab) &&
         !all(is.character(xlab),
-        length(xlab) == 1)) {
+             length(xlab) == 1)) {
         warning("xlab must be a singular value of class character. Assigning default value 'NULL'.")
         xlab <- NULL
     }
 
     if (!is.null(ylab) &&
         !all(is.character(ylab),
-        length(ylab) == 1)) {
+             length(ylab) == 1)) {
         warning("ylab must be a singular value of class character. Assigning default value 'NULL'.")
         ylab <- NULL
     }
@@ -203,8 +203,8 @@ volcanoPlot <- function(dgeObj,
     contrastDF <- contrastDF %>%
         dplyr::mutate(negLog10P = -log10(!!rlang::sym(pvalCol)),
                       Group = dplyr::case_when(
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -log2(foldChangethreshold)) ~ "Decreased",
-                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > log2(foldChangethreshold)) ~ "Increased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) < -log2(foldChangeThreshold)) ~ "Decreased",
+                          (!!rlang::sym(pvalCol) <= pthreshold) & (!!rlang::sym(logRatioCol) > log2(foldChangeThreshold)) ~ "Increased",
                           TRUE ~  "No Change")) %>%
             dplyr::arrange(Group)
 
@@ -227,15 +227,15 @@ volcanoPlot <- function(dgeObj,
                                                    y           = -log10(pthreshold))
         }
 
-        if (!is.null(foldChangethreshold)) {
+        if (!is.null(foldChangeThreshold)) {
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                  color       = symbolColor[2],
                                                  width       = 2,
-                                                 x           = log2(foldChangethreshold))
+                                                 x           = log2(foldChangeThreshold))
             decorations <- .getCxPlotDecorations(decorations = decorations,
                                                  color       = symbolColor[1],
                                                  width       = 2,
-                                                 x           = -log2(foldChangethreshold))
+                                                 x           = -log2(foldChangeThreshold))
         }
 
         events <- htmlwidgets::JS("{ 'mousemove' : function(o, e, t) {
@@ -347,13 +347,13 @@ volcanoPlot <- function(dgeObj,
                            alpha      = 0.5)
         }
 
-        if (!is.null(foldChangethreshold)) {
+        if (!is.null(foldChangeThreshold)) {
             volcanoPlot <- volcanoPlot +
-                geom_vline(xintercept = log2(foldChangethreshold),
+                geom_vline(xintercept = log2(foldChangeThreshold),
                            color      = "red3",
                            size       = 2,
                            alpha      = 0.5) +
-                geom_vline(xintercept = -log2(foldChangethreshold),
+                geom_vline(xintercept = -log2(foldChangeThreshold),
                            color      = "deepskyblue4",
                            size       = 2,
                            alpha      = 0.5)

@@ -270,21 +270,21 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                                pthreshold = c(0.1, 0.1)),
                    regexp = msg)
 
-    ## foldChangethreshold
-    msg <- "foldChangethreshold must be a singular numeric value. Assigning default value 1.5."
+    ## foldChangeThreshold
+    msg <- "foldChangeThreshold must be a singular numeric value. Assigning default value 1.5."
     expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
-                               foldChangethreshold = NULL),
+                               foldChangeThreshold = NULL),
                    regexp = msg)
 
     expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
-                               foldChangethreshold = "0.1"),
+                               foldChangeThreshold = "0.1"),
                    regexp = msg)
 
     expect_warning(volcanoPlot(dgeObj   = t_obj1,
                                contrast = "BDL_vs_Sham",
-                               foldChangethreshold = c(0.1, 0.1)),
+                               foldChangeThreshold = c(0.1, 0.1)),
                    regexp = msg)
     ## title
     msg <- "title must be a singular value of class character. Assigning default value 'NULL'."
