@@ -2,10 +2,10 @@
 % Please edit documentation in R/obsPlot.R
 \name{obsPlot}
 \alias{obsPlot}
-\title{Function obsPlot}
+\title{obsPlot: Plots a summary (box/violin) plot the for given gene}
 \usage{
 obsPlot(
-  DGEdata,
+  dgeObj,
   plotType = "canvasXpress",
   countsMatrix = "counts",
   convertCounts = NULL,
@@ -20,7 +20,6 @@ obsPlot(
   xlab,
   ylab,
   title,
-  color = "deepskyblue3",
   facet = TRUE,
   axisFree = TRUE
 )
@@ -56,13 +55,11 @@ This parameter is passed to DGEobj.utils::convertCounts}
 
 \item{title}{Plot title (optional)}
 
-\item{color}{Color for the boxplot or the violin ploy (default = "deepskyblue3")}
-
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
 
 \item{axisFree}{Specify same scale or independent scales for each subplot (default = TRUE;
-Allowed values: TRUE and FALSE)}
+Allowed values: TRUE or FALSE)}
 
 \item{data}{A  DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)}
 }

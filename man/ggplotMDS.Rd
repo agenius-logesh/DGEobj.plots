@@ -5,7 +5,7 @@
 \title{Create limma MDS plot}
 \usage{
 ggplotMDS(
-  DGEdata,
+  dgeObj,
   plotType = "canvasXpress",
   designTable = "design",
   colorBy = "ReplicateGroup",
@@ -13,20 +13,15 @@ ggplotMDS(
   sizeBy = NULL,
   top = Inf,
   labels = "ReplicateGroup",
-  labelSize = 3,
   title,
+  xlab,
+  ylab,
   hlineIntercept,
-  vlineIntercept,
-  reflineColor = "red",
-  reflineSize = 0.5,
-  symShape = "circle",
-  symSize = 10,
-  transparency = 0.7,
-  dim.plot = c(1, 2)
+  vlineIntercept
 )
 }
 \arguments{
-\item{DGEdata}{A DGEobj that contains a DGEList OR a log2cpm matrix. (Required)}
+\item{dgeObj}{DGEobj.}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
@@ -42,28 +37,14 @@ ggplotMDS(
 
 \item{labels}{A column name in the design table. Text labels for the samples. These should be short
 abbreviations of the sample identifiers.
-Default = ReplicateGroup or rownames of DGEdata. Set to NULL to disable
+Default = ReplicateGroup or rownames of dgeObj. Set to NULL to disable
 text labels.}
-
-\item{labelSize}{Control size for the text labels in the plot,}
 
 \item{title}{A title for the plot. (Optional)}
 
 \item{hlineIntercept}{Y intercept of horizontal line (Optional)}
 
 \item{vlineIntercept}{X intercept of vertical line (Optional)}
-
-\item{reflineColor}{Color for the horizontal and vertical reference lines
-(default = "darkgoldenrod1")}
-
-\item{reflineSize}{Thickness of the reference lines (default = 0.5)}
-
-\item{symShape}{Set the default shape of the symbols if not mapped to a column (default = circle)}
-
-\item{symSize}{Set the default size of the symbols if not mapped to a column
-(default = 10)}
-
-\item{transparency}{Set transparency (default = 0.7)}
 
 \item{dim.plot}{Define which dimension to plot. dim.plot should a numeric vector of
 length 2 and should be lesser than the number of columns in DGEobj. (default = c(1,2))}

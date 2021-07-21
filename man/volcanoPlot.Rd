@@ -2,115 +2,61 @@
 % Please edit documentation in R/volcanoPlot.R
 \name{volcanoPlot}
 \alias{volcanoPlot}
-\title{Create volcano plot}
+\title{Create volcano}
 \usage{
 volcanoPlot(
-  contrastDF,
+  dgeObj,
+  contrast,
   plotType = "canvasXpress",
   logRatioCol = "logFC",
   logIntCol = "AveExpr",
   pvalCol = "P.Value",
   pthreshold = 0.01,
-  geneSymLabels,
-  geneSymCol,
+  geneNameCol,
   xlab = NULL,
   ylab = NULL,
   title = NULL,
-  symbolSize = c(4, 4, 2),
-  symbolShape = c(21, 21, 1),
-  symbolColor = c("black", "grey0", "grey25"),
-  symbolFill = c("red3", "deepskyblue4", "grey25"),
-  alpha = 0.5,
   sizeByIntensity = TRUE,
   pthresholdLine = NULL,
-  foldChangeLines = log2(1.5),
-  refLineThickness = 1,
-  legendPosition = "right",
-  footnote,
-  footnoteSize = 3,
-  footnoteColor = "black",
-  footnoteJust = 1
+  foldChangeThreshold = 1.5
 )
 }
 \arguments{
-\item{contrastDF}{A dataframe with LogRatio and LogIntensity columns and optionally a
-p-value or FDR column (typically a topTable dataframe).}
+\item{dgeObj}{DGEobj.}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{contrast}{Name of the contrast.}
 
-\item{logRatioCol}{Name of the LogRatio column (Default = "logFC")}
+\item{plotType}{Plot type must be canvasXpress or ggplot. (default = canvasXpress)}
 
-\item{logIntCol}{Name of the LogIntensity column (Default = "AveExpr")}
+\item{logRatioCol}{Name of the LogRatio column. (default = "logFC")}
 
-\item{pvalCol}{Name of the p-value or FDR column (Default = "P.Value")}
+\item{logIntCol}{Name of the LogIntensity column. (default = "AveExpr")}
 
-\item{pthreshold}{Used to color points (Default = 0.01)}
+\item{pvalCol}{Name of the p-value or FDR column. (default = "P.Value")}
 
-\item{geneSymLabels}{A character vector of gene to label (must be the name space of the column
-specified by geneSymCol)}
+\item{pthreshold}{Used to color points. (default = 0.01)}
 
-\item{geneSymCol}{Name of the gene symbol column in contrastDF.  The gene symbol is
-not in topTable output by default so the user has to bind this column
-to the dataframe in advance.  This column will be used to label
-significantly changed points.}
+\item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to label significantly changed points.}
 
-\item{xlab}{X axis label (Default is the LogIntensity column name)}
+\item{xlab}{X axis label. (Default is the LogIntensity column name)}
 
-\item{ylab}{Y axis label (Default is the LogRatio column name)}
+\item{ylab}{Y axis label. (Default is the LogRatio column name)}
 
-\item{title}{Plot title (optional)}
+\item{title}{Plot title (optional).}
 
-\item{symbolSize}{Size of symbols for Up, no change, and Down. default = c(4,
-3.99, 4); Note: All three cannot be the same size. Decimal values are acceptable to help offset that
-(e.g. 4, 4.1, 4.2).}
+\item{sizeByIntensity}{If TRUE, creates a column to support sizeByIntensity. (default = TRUE)}
 
-\item{symbolShape}{Shape of the symbols for Up, no change, and Down; Default =
-c(21, 1, 21) (1 = open circle, 21 = fillable open circle); Note: The same symbol shape cannot
-be selected for all three symbols. See
-\url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types}}
+\item{pthresholdLine}{Color for a horizontal line at the p-threshold. (default = NULL (disabled))}
 
-\item{symbolColor}{c(Up, NoChange, Down); default = c("black", "grey25",
-"grey0") See \url{http://research.stowers-institute.org/efg/R/Color/Chart}
-Note: Colors cannot be duplicated.}
-
-\item{symbolFill}{Set the fill color for the symbols. Note only symbols 21-25
-are fillable. This will have no effect on other symbols. Default =
-c("red3", "grey25", "deepskyblue4") Note: Colors cannot be duplicated.}
-
-\item{alpha}{Controls the transparency of the plotted points (range: 0-1;
-default = 0.7)}
-
-\item{sizeByIntensity}{If TRUE, creates a column to support sizeByIntensity. (Default = TRUE)}
-
-\item{pthresholdLine}{Color for a horizontal line at the p-threshold (Default
-= NULL (disabled))}
-
-\item{foldChangeLines}{Position of reference vertical lines for fold change
-(Default = log2(1.5); NULL disables)}
-
-\item{refLineThickness}{Set the thickness for all reference lines (Default =
-1)}
-
-\item{legendPosition}{One of "top", "bottom", "left", "right", "ne", "se",
-"nw", "sw", NULL. top/bottom/left/right place the legend outside the
-figure.  ne/se/nw/sw place the figure inside the figure. NULL disables the
-legend. Default = "right"}
-
-\item{footnote}{Optional string placed right justified at bottom of plot.}
-
-\item{footnoteSize}{Applies to footnote. (Default = 3)}
-
-\item{footnoteColor}{Applies to footnote. (Default = "black")}
-
-\item{footnoteJust}{Value 0 - 1. 0 is left justified, 1 is right justified, 0.5 is centered. (Default = 1)}
+\item{foldChangeThreshold}{Position of reference vertical lines for fold change. (default = 1.5)}
 }
 \value{
-canvasxpress or ggplot object based on plotType selection
+canvasxpress or ggplot object based on plotType selection.
 }
 \description{
 A volcano plot shows Log Ratio data on the X axis and Negative Log P-values (NLP) on the
-Y axis. This function is intended to show the volcano plot from a dataframe
-created by topTable or topTreat. Properly normalized data will generally be
+Y axis. This function is intended to show the volcano plot created from a
+topTable dataframe in a DGEobj. Properly normalized data will generally be
 centered around LogRatio = 0.
 }
 \details{
@@ -121,39 +67,47 @@ The points are color coded using both the significance and fold-change threshold
 By default, the P.Value field is used with a threshold of 0.01 to color code the points and fold-change
 threshold of +/- 1.5X.
 
-\strong{Data Structure for the input dataframe:}
+\strong{Data Structure for the input DGEobj:}
 
-The defaults are set for dataframes produced by topTable and topTreat.  The columns named "logFC"
-and "P.Value" are used by default to accommodate the column
-names used in topTable/topTreat dataframes.  Any other dataframe
-can be used with fold-change, intensity, and significance measures, with appropriate
-arguments to define the column names to use provided. By default, the
-column names will be used for the axis labels, but can be overridden with xlab and ylab arguments.
+A contrast needs to be specified along with the DGEobj. The top table is extracted from the DGEobj for this contrast.
+The columns named "logFC" and "P.Value" in the topTable are used by default to generate the volcano plot.
+By default, the column names will be used for the axis labels, but can be overridden with xlab and ylab arguments.
 
 A significance measure (which defaults to P.Value <= 0.01) and LogRatio
 threshold are used to color code genes that are significantly increased or decreased.
 Use the appropriate arguments to use an FDR measure instead of p-value.
-
-Sensible defaults are chosen for symbols (Size, Shape, Color, and Fill), but they can be
-adjusted through the use of optional arguments. A length of 3 is
-required for these arguments which applies the attributes in this order:
-Increased, NoChange, Decreased.
 }
 \examples{
 \dontrun{
-   # Simple plot with custom title (contrastDF is a topTable dataframe)
-   myPlot <- volcanoPlot(contrastDF, title = "Plot Title")
+   # Simple plot with custom title (dgeObj is a name of DGEobj and contrast is a name of topTable dataframe)
+   contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
+   myPlot <- volcanoPlot(dgeObj,
+                         contrast,
+                         title = "Plot Title")
 
    # Some options with a custom datafile
-   myPlot <- volcanoPlot(contrastDF,
-                         pthreshold = 0.1,
-                         logRatioCol = "Log2ratio",
-                         logIntCol = "AverageIntensity",
-                         pvalCol = "BHFDR",
-                         xlab = "Log2 Ratio", ylab = "Log10 BHFDR",
-                         title = "Profile Plot Title",
-                         referenceLine = "blue",
-                         legendPosition = "right")
+   myPlot <- volcanoPlot(dgeObj,
+                         contrast,
+                         pthreshold     = 0.1,
+                         logRatioCol    = "logFC",
+                         logIntCol      = "AveExpr",
+                         pvalCol        = "P.Value",
+                         xlab           = "logFC",
+                         ylab           = "negLog10p",
+                         title          = "Volcano Plot Title",
+                         pthresholdLine = "blue")
+
+   myPlot <- volcanoPlot(dgeObj,
+                         contrast,
+                         pthreshold     = 0.1,
+                         logRatioCol    = "logFC",
+                         logIntCol      = "AveExpr",
+                         pvalCol        = "P.Value",
+                         xlab           = "logFC",
+                         ylab           = "negLog10p",
+                         title          = "Volcano Plot Title",
+                         pthresholdLine = "blue",
+                         plotType       = "ggplot")
 }
 
 }
