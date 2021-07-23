@@ -7,7 +7,7 @@
 #' straight line.  Any observations that fail to meet the null hypothesis will
 #' appear as a break in the line at the low end of the curve.
 #'
-#' This function is designed to take topTable dataframes and display the
+#' This function is designed to take a topTable dataframe and display the
 #' corresponding CDF plot. Data for the p-values below 0.1 (configurable via
 #' pvalMax argument) are shown in a full size plot. An viewport figure shows the
 #' whole p-value scale. Points below 0.01 are a different color by default
@@ -19,15 +19,10 @@
 #' The defaults are set for dataframes produced by topTable.  The column
 #' "P.Value" is used by default to accommodate the column names used in topTable
 #' dataframes.  Any other dataframe can be used with by explicitly defining the
-#' p-value column name with the appropriate argument.
+#' p-value column named with the appropriate argument.
 #'
-#' Sensible defaults are chosen for symbols (Size, Shape and Color).
-#' There are optional arguments that allow these to be adjusted. A length of 2
-#' is required for these arguments which applies the attributes in
-#' this order: Significant, Not Significant.
-#'
-#' @param dgeObj DGEobj with a class of DGEobj.
-#' @param contrast Name of a topTable item in DGEobj with LogRatio and LogIntensity columns and optionally a p-value or FDR column.
+#' @param dgeObj A DGEobj with one or more topTables (required)
+#' @param contrast Name of a topTable dataframe with p-value or an FDR column (required)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
 #' @param pvalMax Limit the range of the main plot (default = 0.10)
@@ -36,13 +31,13 @@
 #' @param ylab Y axis label (default = p-value column name)
 #' @param title Plot title (Optional)
 #' @param viewportTitle Title for the inset plot (Optional)
-#' @param referenceLine Color for an horizontal line drawn at the p-threshold
+#' @param referenceLine Color for a horizontal line drawn at the p-threshold
 #'   (default = NULL; NULL disables, set to desired color to enable)
 #' @param viewportX x-location for the inset plot(default = 0.15)
 #' @param viewportY y-location for the inset plot(default = 0.85)
 #' @param viewportWidth width of the inset plot (default = 0.35)
 #'
-#' @return A list containing main plot, inset plot for both plotType. For plotType ="ggplot" list contains a combined plot which
+#' @return A list containing main plot, inset plot for both plotTypes. For plotType ="ggplot" output list also contains a combined plot which
 #' displays the inset plot in a viewport
 #'
 #' @examples
@@ -287,7 +282,7 @@ cdfPlot <- function(dgeObj,
                                                xAxisTitle        = xlab,
                                                yAxisTitle        = ylab,
                                                setMaxY           = max(contrastDF[[y]]))
-        cdfPlot <- list("main" = cdfMain, "viewport" = cdfInset)
+        cdfPlot <- list("main" = cdfMain, "inset" = cdfInset)
     } else {
         symbolSize     = c(4, 3)
         names(symbolShape) <- groupNames
@@ -348,7 +343,7 @@ cdfPlot <- function(dgeObj,
                                        xmin = plot_limits[["xmin"]],
                                        xmax = plot_limits[["xmax"]])
 
-        cdfPlot <- list(main = cdfMain, viewport = cdfInset, combined = vp_plot)
+        cdfPlot <- list(main = cdfMain, inset = cdfInset, combined = vp_plot)
     }
 
     cdfPlot

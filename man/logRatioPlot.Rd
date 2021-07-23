@@ -23,7 +23,7 @@ logRatioPlot(
 )
 }
 \arguments{
-\item{dgeObj}{A DGEobj that contains a contrast or more dataframe.}
+\item{dgeObj}{A DGEobj that contains topTable objects (required)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
@@ -88,7 +88,7 @@ ggplots, one for each facetColname value \emph{(typically gene)}.
               facetColname = "rgd_symbol",
               xColname = "Contrast")
 
-  # Lineplot with some options
+  # Point plot with some options
  logRatioPlot(t_obj1_subset,
               plotCategory = "point",
               facetColname = "rgd_symbol",

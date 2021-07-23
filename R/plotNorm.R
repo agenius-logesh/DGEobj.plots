@@ -1,14 +1,14 @@
 #' Plot log2CPM before and after normalization
 #'
-#' Takes a DGEobj containing counts or a counts matrix as input. Returns a canvasXpress or ggplot
+#' Takes a DGEobj containing a counts matrix as input. Returns a canvasXpress or ggplot
 #' object containing a faceted plot of log2CPM before and after normalization.
 #'
 #' Either a box plot or density plot category can be chosen.
 #'
-#' Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored to count-based
+#' Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored for count-based
 #' data.  Thus this function is only appropriate for count-based data.
 #'
-#' @param dgeObj DGEobj with a class of DGEobj.
+#' @param dgeObj DGEobj with a counts Matrix ( required)
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param plotCategory  One of "box" or "density." (Default = "box")
 #' @param normalize Default = "TMM" and invokes TMM normalization. Other allowed

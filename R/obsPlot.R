@@ -4,7 +4,6 @@
 #' experiment group.
 #'
 #' The plot can optionally include boxplot, violinplot or both and can additionally choose to display points on the plot.
-#' The boxLayer and the violin layer can be customized to have the desired transparency, colors etc.
 #'
 #' By default, the violinLayer is not displayed and only the boxplot, points and the mean on the plots can be seen.
 #' Also, by default, the plots are faceted.
@@ -45,18 +44,21 @@
 #'   # Faceted boxplot
 #'   obsPlot(DGEobj,
 #'           designTable = "design",
-#'           group = "replicategroup")
+#'           group = "replicategroup",
+#'           countsMatrix = "counts")
 #'
 #'   # Faceted violin plot
 #'   obsPlot(DGEobj,
 #'            violinLayer = TRUE,
 #'            designTable = "design",
-#'            group = "replicategroup")
+#'            group = "replicategroup",
+#'            countsMatrix = "counts")
 #'
 #'   # Return a list of plot for each individual gene
 #'   myplots <- obsPlot(DGEobj,
 #'                      designTable = "design",
-#'                      group = "replicategroup"
+#'                      group = "replicategroup",
+#'                      countsMatrix = "counts",
 #'                      facet = FALSE)
 #'   # Plot one from the list
 #'   myplots[[2]]
@@ -65,6 +67,7 @@
 #'   obsPlot(DGEobj,
 #'           designTable = "design",
 #'           group = "replicategroup",
+#'           countsMatrix = "counts",
 #'           plotType = "ggplot")
 #' }
 #'
@@ -75,6 +78,8 @@
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom stringr str_c
 #' @importFrom rlang sym
+#' @importFrom DGEobj getItem getType
+#' @importFrom DGEobj.utils convertCounts
 #'
 #' @export
 obsPlot <- function(dgeObj,
@@ -100,10 +105,10 @@ obsPlot <- function(dgeObj,
                             "DGEobj" %in% class(dgeObj),
                             msg = "dgeObj must be specified and must belong to DGEobj class.")
 
-    assertthat::assert_that(!is.null(getType(dgeObj,"counts")),
+    assertthat::assert_that(!is.null(DGEobj::getType(dgeObj,"counts")),
                             msg = "counts matrix must be available in dgeObj to plot the data.")
 
-    assertthat::assert_that(!is.null(getType(dgeObj,"design")),
+    assertthat::assert_that(!is.null(DGEobj::getType(dgeObj,"design")),
                             msg = "design table must be available in dgeObj to plot the data.")
 
     #plotType
@@ -122,8 +127,8 @@ obsPlot <- function(dgeObj,
             !(countsMatrix %in% names(dgeObj)))) {
         if ("counts" %in% names(dgeObj)) {
             countsMatrix <- "counts"
-        } else if (!is.null(getType(dgeObj,"counts"))) {
-            countsMatrix <- names(getType(dgeObj,"counts"))
+        } else if (!is.null(DGEobj::getType(dgeObj,"counts"))) {
+            countsMatrix <- names(DGEobj::getType(dgeObj,"counts"))
         }
         warning(paste0("countsMatrix specified is not present in DGEobj. Assigning default value '", countsMatrix,"'."))
     }
@@ -154,7 +159,7 @@ obsPlot <- function(dgeObj,
         }
 
         if (!missing(convert_geneLength) && convertCounts != "CPM") {
-            assertthat::assert_that(length(convert_geneLength) == nrow(getItem(dgeObj, countsMatrix)),
+            assertthat::assert_that(length(convert_geneLength) == nrow(DGEobj::getItem(dgeObj, countsMatrix)),
                                     msg = "geneLength must be the same length of the number of rows in countsMatrix.")
         }
 
@@ -165,7 +170,7 @@ obsPlot <- function(dgeObj,
             convert_prior.count <- NULL
         }
 
-        data <- convertCounts(getItem(dgeObj, countsMatrix),
+        data <- DGEobj.utils::convertCounts(DGEobj::getItem(dgeObj, countsMatrix),
                                       unit        = convertCounts,
                                       geneLength  = convert_geneLength,
                                       log         = convert_log,
@@ -173,7 +178,7 @@ obsPlot <- function(dgeObj,
                                       prior.count = convert_prior.count) %>%
             as.data.frame()
     } else {
-        data <- getItem(dgeObj, countsMatrix) %>%
+        data <- DGEobj::getItem(dgeObj, countsMatrix) %>%
             as.data.frame()
     }
 
@@ -183,8 +188,8 @@ obsPlot <- function(dgeObj,
                 !(designTable %in% names(dgeObj)))) {
             if ("design" %in% names(dgeObj)) {
                 designTable <- "design"
-            } else if (!is.null(getType(dgeObj,"design"))) {
-                designTable <- names(getType(dgeObj,"design"))
+            } else if (!is.null(DGEobj::getType(dgeObj,"design"))) {
+                designTable <- names(DGEobj::getType(dgeObj,"design"))[[1]]
             }
             warning(paste0("designTable specified is not present in DGEobj. Assigning default value '", designTable,"'."))
         }

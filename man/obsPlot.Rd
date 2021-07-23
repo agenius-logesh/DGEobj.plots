@@ -74,7 +74,6 @@ experiment group.
 }
 \details{
 The plot can optionally include boxplot, violinplot or both and can additionally choose to display points on the plot.
-The boxLayer and the violin layer can be customized to have the desired transparency, colors etc.
 
 By default, the violinLayer is not displayed and only the boxplot, points and the mean on the plots can be seen.
 Also, by default, the plots are faceted.
@@ -88,18 +87,21 @@ Counts Matrix. User can also provide input parameters to convert the counts matr
   # Faceted boxplot
   obsPlot(DGEobj,
           designTable = "design",
-          group = "replicategroup")
+          group = "replicategroup",
+          countsMatrix = "counts")
 
   # Faceted violin plot
   obsPlot(DGEobj,
            violinLayer = TRUE,
            designTable = "design",
-           group = "replicategroup")
+           group = "replicategroup",
+           countsMatrix = "counts")
 
   # Return a list of plot for each individual gene
   myplots <- obsPlot(DGEobj,
                      designTable = "design",
-                     group = "replicategroup"
+                     group = "replicategroup",
+                     countsMatrix = "counts",
                      facet = FALSE)
   # Plot one from the list
   myplots[[2]]
@@ -108,6 +110,7 @@ Counts Matrix. User can also provide input parameters to convert the counts matr
   obsPlot(DGEobj,
           designTable = "design",
           group = "replicategroup",
+          countsMatrix = "counts",
           plotType = "ggplot")
 }
 

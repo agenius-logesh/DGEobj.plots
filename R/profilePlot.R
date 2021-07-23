@@ -1,8 +1,8 @@
 #' Plot log intensity versus log ratio
 #'
 #' A profile plot shows Log Intensity on the X axis and Log Ratio on the Y axis.
-#' This function is intended to show the profile plot from a dataframe
-#' in DGEobj design objects (i.e BDL_vs_SHAM).  Properly normalized data will generally be
+#' This function is intended to show the profile plot from a topTable dataframe
+#' in DGEobj (i.e BDL_vs_SHAM).  Properly normalized data will generally be
 #' centered around LogRatio = 0.
 #'
 #' By default, the plot places "logFC" on the Y axis and "AveExpr" on the X
@@ -15,7 +15,7 @@
 #'
 #' \strong{Data Structure for the input dataframe:}
 #'
-#' The defaults are set for the contrasts on the DGEobj object (ie in BDL_vs_SHAM).
+#' The defaults are set for the contrasts on the DGEobj object.
 #' The columns named "logFC", "AveExpr", and "P.Value" are used by default to accommodate
 #' the column names used in these dataframes.  Any other dataframe can be used with fold-change,
 #' intensity, and significance measures, with appropriate arguments to define the column names
@@ -24,13 +24,8 @@
 #'
 #' A significance measure (which defaults to P.Value <= 0.01) is used to color code genes that
 #' are significantly increased or decreased.
-#'
-#' Sensible defaults are chosen for symbols (Size, Shape, Color, and Fill), but they can be
-#' adjusted through the use of optional arguments. A length of 3 is
-#' required for these arguments which applies the attributes in this order:
-#' Increased, NoChange, Decreased.
-#'
-#' @param dgeObj DGEobj.
+#
+#' @param dgeObj DGEobj with a topTable item (required.
 #' @param contrast Name of the contrast in dgeObj.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = "canvasXpress").
 #' @param logRatioCol Name of the LogRatio column (default = "logFC")
@@ -44,7 +39,7 @@
 #'    significantly changed points.
 #' @param sizeBySignificance Set to TRUE to size points by the negative Log10 of the
 #'        Significance measure (default = FALSE)
-#' @param referenceLine Color for an intercept = 0 horizontal reference line
+#' @param referenceLine Color for a horizontal reference line at intercept = 0
 #'        (default = "darkgoldenrod1"; NULL disables)
 #' @param foldChangeThreshold Position of reference horizontal lines for fold change
 #'        (default = 1.5)
@@ -272,16 +267,18 @@ profilePlot <- function(dgeObj,
                                                   if (o.y != null &&
                                                       o.y.data != null &&
                                                       o.y.smps != null) {
-                                                      info = '<b>' + o.y.vars[0]  + '</b>' + '<br/>' +
-                                                             '<b>' + o.y.smps[0]  + '</b>' + ': ' + o.y.data[0][0] + '<br/>' +
-                                                             '<b>' + o.y.smps[1]  + '</b>' + ': ' + o.y.data[0][1] ;
-                                                      if (o.z != null && o.z['GeneName'] != null) {
-                                                        info  = info + '<br/>' +
-                                                              '<b> Symbol</b>' + ': ' + o.z['GeneName'] ;
+                                                       if (o.z != null && o.z['GeneName'] != null) {
+                                                        info  = '<b>' + o.z['GeneName'] + '</b>'+ ' (' + o.y.vars[0] + ')';
+                                                      } else {
+                                                        info = '<b>' + o.y.vars[0]  + '</b>' ;
                                                       }
+                                                      info = info + '</br>' +
+                                                             '<i>' + o.z.Group  + '</i><br/>' +
+                                                             'logFC: ' +  o.y.data[0][0] + '<br/>' +
+                                                             '-log-pVal: ' +  o.y.data[0][1] ;
                                                     t.showInfoSpan(e, info);
+                                                      }
 
-                                                  }
                                                 }; }}")
         if (sizeBySignificance) {
             var.annot <- contrastDF %>%
@@ -365,7 +362,7 @@ profilePlot <- function(dgeObj,
         } else {
             profilePlot <- profilePlot + aes(size = Group) +
                 scale_size_manual(name = "Group", guide = "legend", labels = ssc$group,
-                                  values = c(4, 4, 2))
+                                  values = c(4, 2, 4))
         }
 
         if (!is.null(referenceLine)) {

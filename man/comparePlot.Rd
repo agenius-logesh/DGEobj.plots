@@ -2,12 +2,14 @@
 % Please edit documentation in R/comparePlot.R
 \name{comparePlot}
 \alias{comparePlot}
-\title{Create formatted scatterplot of first two cols of data.frame}
+\title{Create formatted scatterplot of a common column from 2 contrasts}
 \usage{
 comparePlot(
   dgeObj,
   contrasts,
   colorBySigMeasure = TRUE,
+  pvalCol = "P.Value",
+  valueCol = "logFC",
   plotType = "canvasXpress",
   pThreshold = 0.01,
   xlab = NULL,
@@ -17,13 +19,16 @@ comparePlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a class of DGEobj.}
+\item{dgeObj}{A DGeobj with atleast 2 contrasts}
 
-\item{contrasts}{A Two character vector Name of a topTable item in DGEobj and its a class of dataframe
-with logFC and P.Value. These two contrasts representing the x and y variables.
-Optionally add xp and yp columns to hold p-values or FDR values.}
+\item{contrasts}{A pair of two contrasts in DGEobj that has logFC column.
+Optionally add xp and yp columns to hold p-values or FDR values using colorBySigMeasure.}
 
 \item{colorBySigMeasure}{Colors points by significance measures.  (default = TRUE)}
+
+\item{pvalCol}{Name of the p-value column (default = "P.Value")}
+
+\item{valueCol}{Column name of the data for plot (default = "logFC")}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
@@ -42,9 +47,8 @@ Optionally add xp and yp columns to hold p-values or FDR values.}
 canvasXpress or ggplot object based on plotType selection
 }
 \description{
-Creates a nicely formatted scatterplot of the
-first two columns in a dataframe.  Several formatting options are
-available to enhance the plots.  If p-values or FDR values and a threshold are supplied,
+Creates a nicely formatted scatterplot of any common column from any 2 toptable dataframes(defaults to logFC).
+ Additionally If p-values or FDR values and a threshold are supplied,
 the plot is color coded to show X unique, Y unique, and
 common differentially expressed (DE) genes in different colors.
 }
@@ -53,8 +57,8 @@ Other options add an identity line (slope = 1, intercept = 0) and/or a crosshair
 
 \strong{Data Structure for the input dataframe:}
 
-The x and y values should be in the first two columns. By default, their
-column names will be used for the axis labels. The x and y labels can be changed
+The x and y values should a common column from two chosen contrasts. By default, the
+contrast names will be used for the axis labels. The x and y labels can be changed
 using the xlab and ylab arguments.
 
 Optionally, significance measures in the form of p-values or FDR values can be supplied
@@ -63,14 +67,6 @@ Together with a threshold (which defaults to 0.01), these values will
 be used to color code the plot to show X Unique, Y Unique, and Common DE
 genes.  Use either p-values or FDR values for the significance columns. Use the
 pThreshold argument to set a proper threshold for FDR values.
-
-Sensible defaults are chosen for symbols (Size, Shape, Color and Fill), but optional
-arguments allow much about the symbols to be customized. A length of 4 is
-required for these arguments which applies the attributes in this order:
-Common, X Unique, Y Unique, and Not Significant.
-
-Note: if p-values or FDR values are not used to color the plot, the X Unique color
-values are used.
 }
 \examples{
 \dontrun{

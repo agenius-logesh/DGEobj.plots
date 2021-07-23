@@ -4,11 +4,11 @@
 #' numbers. Intended to perform histogram analysis of p-value distributions,
 #' but should be useful for any dataframe of numeric columns.
 #'
-#' @param dgeObj DGEobj with a class of DGEobj.
+#' @param dgeObj DGEobj with topTables (required)
 #' @param P.Val p-value column name in the topTables in DGEobj. Default="P.Value".
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
-#' @param binWidth Value is always between 0 and 1. (default = 0.02)
+#' @param binWidth size of each bin.Value is always between 0 and 1. (default = 0.02)
 #'
 #' @return A canvasXpress or a ggplot2 object if facet = TRUE or a list of plots if facet = FALSE. (default = TRUE)
 #'
@@ -23,6 +23,7 @@
 #' @import ggplot2
 #' @importFrom dplyr filter select
 #' @importFrom canvasXpress canvasXpress
+#' @importFrom tidyr gather
 #'
 #' @export
 plotPvalHist <- function(dgeObj,
@@ -69,7 +70,6 @@ plotPvalHist <- function(dgeObj,
         warning("binWidth must be a singular value of class numeric and must be between 0 and 1. Assigning default value '0.02'.")
         binWidth <- 0.02
     }
-
 
     if (is.matrix(P.Val)) {
         P.Val <- P.Val %>%
@@ -137,26 +137,26 @@ plotPvalHist <- function(dgeObj,
             numcol <- 3
             numrow <- (samples_num / numcol) %>% ceiling
 
-            plotlist <- ggplot2::ggplot(data = P.Val, aes(x = pval)) +
-                ggplot2::geom_histogram(fill     = "dodgerblue3",
-                                        color    = "dodgerblue3",
-                                        binwidth = binWidth) +
-                ggplot2::xlab("P-value") +
-                ggplot2::ylab("Count") +
+            plotlist <- ggplot(data = P.Val, aes(x = pval)) +
+                geom_histogram(fill     = "dodgerblue3",
+                               color    = "dodgerblue3",
+                               binwidth = binWidth) +
+                xlab("P-value") +
+                ylab("Count") +
                 ggtitle(title) +
-                ggplot2::scale_fill_brewer(palette = "Set1") +
-                ggplot2::facet_wrap(~levels, nrow = numrow, scales = "free")
+                scale_fill_brewer(palette = "Set1") +
+                facet_wrap(~levels, nrow = numrow, scales = "free")
         } else {
             plotlist <- lapply(sample_names, function(sample) {
                 pval_subset <- dplyr::filter(P.Val, grepl(sample, levels))
 
-                hist_pval <- ggplot2::ggplot(data = pval_subset, aes(x = pval)) +
-                    ggplot2::geom_histogram(fill = "dodgerblue3",
-                                            color = "dodgerblue3",
-                                            binwidth = binWidth) +
-                    ggplot2::xlab("P-value") +
-                    ggplot2::ylab("Count") +
-                    ggplot2::ggtitle(paste(title, "\n", sample))
+                hist_pval <- ggplot(data = pval_subset, aes(x = pval)) +
+                    geom_histogram(fill = "dodgerblue3",
+                                   color = "dodgerblue3",
+                                   binwidth = binWidth) +
+                    xlab("P-value") +
+                    ylab("Count") +
+                    ggtitle(paste(title, "\n", sample))
 
                 hist_pval
             })

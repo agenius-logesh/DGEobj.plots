@@ -2,7 +2,8 @@ context("DGEobj.plots - tests for comparePlot.R functions")
 
 
 test_that("comparePlot.R: comparePlot()", {
-    suppressWarnings(skip_if(is.null(getType(t_obj1, "topTable"))))
+    contrasts <- c("BDL_vs_Sham", "EXT1024_vs_BDL")
+    skip_if(!all(contrasts %in% names(DGEobj::getType(t_obj1,"topTable"))))
 
     # prepare testing data
     # testing plot with significance measures supplied and default parameters
@@ -88,6 +89,44 @@ test_that("comparePlot.R: comparePlot()", {
     expect_error(comparePlot(dgeObj = t_obj1, contrasts = c(123,234)),
                  regexp = msg)
     expect_error(comparePlot(dgeObj = t_obj1, contrasts = "xyz"),
+                 regexp = msg)
+
+    #valueCol
+    msg <- "valueCol to be a singular value of class character and must be present in both the contrasts."
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             valueCol = NULL),
+                 regexp = msg)
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             valueCol = "abc"),
+                 regexp = msg)
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             valueCol = 123),
+                 regexp = msg)
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             valueCol = c("logFC","logFC")),
+                 regexp = msg)
+
+    #pvalCol
+    msg <- "pvalCol to be a singular value of class character and must be present in both the contrasts."
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             pvalCol = NULL),
+                 regexp = msg)
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             pvalCol = "abc"),
+                 regexp = msg)
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             pvalCol = 123),
+                 regexp = msg)
+    expect_error(comparePlot(dgeObj = t_obj1,
+                             contrasts = c("BDL_vs_Sham", "EXT1024_vs_BDL"),
+                             pvalCol = c("P.Value","P.Value")),
                  regexp = msg)
 
     #plotType

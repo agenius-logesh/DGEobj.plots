@@ -1,13 +1,13 @@
 #' Plot edgeR dispersion from a DGEobj
 #'
-#' Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a counts matrix
-#' or DGEList for input.  Dispersion is plotted against AveLogCPM.  Optionally,
+#' Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a DGeobj which has a counts matrix
+#' or DGEList as input.  Dispersion is plotted against AveLogCPM.  Optionally,
 #' the plot can instead be Biological Coefficient of Variation (BCV is the square root of
 #' dispersion) against AveLogCPM.
 #'
-#' @param dgeObj DGEobj.
-#' @param replicateGroupCol A singular value of class character and must be in design data. (default = "ReplicateGroup")
-#' @param countsMatrix If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = FALSE)
+#' @param dgeObj DGEobj which has a counts matrix or a DGElist
+#' @param replicateGroupCol A singular value of class character and must be a column name in design object (default = "ReplicateGroup")
+#' @param countsMatrix If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = TRUE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param plotCategory One of "dispersion" or "BCV" (default = "dispersion")
 #' @param lineFit (default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
@@ -23,17 +23,17 @@
 #'    myCxplot <- plotDispersion(myDGEobj)
 #'
 #'    # ggplot
-#'    myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
+#'    myGgplot <- plotDispersion(myDGEobj, plotType = "ggplot")
 #' }
 #'
-#' @importFrom assertthat assert_that see_if
+#' @importFrom assertthat assert_that
 #' @importFrom edgeR calcNormFactors estimateDisp DGEList
 #' @importFrom canvasXpress canvasXpress
 #'
 #'
 #' @export
 plotDispersion <- function(dgeObj,
-                           countsMatrix = FALSE,
+                           countsMatrix = TRUE,
                            replicateGroupCol = "ReplicateGroup",
                            plotType     = "canvasXpress",
                            plotCategory = "dispersion",
@@ -47,7 +47,7 @@ plotDispersion <- function(dgeObj,
 
     design_names <- names(DGEobj::getType(dgeObj, type = "design"))
     assertthat::assert_that(length(design_names) == 1,
-                            msg = "DGEobj must have exactly one design object.")
+                            msg = "dgeObj must have exactly one design object.")
     design <- DGEobj::getType(dgeObj, type = "design")[[1]]
 
     if (any(is.null(replicateGroupCol),
@@ -58,13 +58,33 @@ plotDispersion <- function(dgeObj,
         replicateGroupCol <- "ReplicateGroup"
     }
 
+    # Placeholder message until this issue can be fixed. We are passing the ReplicateGroupCol as a parameter
+    # into the function. However, we are only able to hardcode the name of the column in the model.matrixformula and not
+    # able to pass a variable that holds the Replicate Group column name. Standard options like eval and
+    #rlang::sym are not working. Function returns an error and the plot execution stops if the name of the ReplicateGroup column  is not "ReplicateGroup".
+    # This error is temporary and will need to be removed after this issue is fixed.
+    #############################################################################################
+    assertthat::assert_that(replicateGroupCol == "ReplicateGroup",
+                            msg = "Function supports only one value for ReplicateGroup.")
+    ###############################################################################
+
     designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, design)
 
     if (any(is.null(countsMatrix),
             !is.logical(countsMatrix),
             length(countsMatrix) != 1)) {
-        warning("countsMatrix must be a singular logical value. Assigning default value FALSE.")
-        countsMatrix <- FALSE
+        warning("countsMatrix must be a singular logical value. Assigning default value TRUE.")
+        countsMatrix <- TRUE
+    }
+
+    if (countsMatrix) {
+        counts_names <- suppressWarnings(names(DGEobj::getType(dgeObj,"counts")))
+        assertthat::assert_that(length(counts_names) == 1,
+                                msg = "dgeObj needs to have exactly one counts matrix." )
+    } else {
+        DGEList_names <- suppressWarnings(names(DGEobj::getType(dgeObj,"DGEList")))
+        assertthat::assert_that(length(DGEList_names) == 1,
+                                msg = "dgeObj needs to have exactly one DGEList." )
     }
 
     plotType <- tolower(plotType)
@@ -95,13 +115,13 @@ plotDispersion <- function(dgeObj,
     }
 
     if (countsMatrix) {
-        dgelist <- dgeObj$counts %>%  # Process a counts matrix
+        dgelist <- DGEobj::getType(dgeObj, "counts")[[1]] %>%  # Process a counts matrix
             as.matrix %>%
             edgeR::DGEList() %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     } else {
-        dgelist <- dgeObj$DGEList %>%
+        dgelist <- DGEobj::getType(dgeObj, "DGEList")[[1]] %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     }

@@ -1,6 +1,6 @@
 #' Plot network of DGEobj relationships
 #'
-#' Reads a DGEobj and produces a node pair file defining parent/child relationships between
+#' Reads a DGEobj and produces a node pair file or a graph defining parent/child relationships between
 #' data items in the DGEobj.
 #'
 #' @param dgeObj DGEobj to find the parent/child relationships between data items.
@@ -26,7 +26,7 @@
 #' @importFrom igraph graph_from_data_frame
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom htmlwidgets JS
-#' @importFrom dplyr filter rename
+#' @importFrom dplyr filter rename left_join
 #' @importFrom tibble rownames_to_column
 #'
 #' @export
@@ -98,7 +98,7 @@ mapDGEobj <- function(dgeObj,
         dplyr::rename(BaseType = V1) %>%
         tibble::rownames_to_column("child")
 
-    nodes <- left_join(type, basetype, by = "child")
+    nodes <- dplyr::left_join(type, basetype, by = "child")
 
 
     if (plotType == "canvasxpress") {

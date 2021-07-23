@@ -2,6 +2,9 @@ context("DGEobj.plots - tests for ggplotMDS.R functions")
 
 
 test_that("obsPlot.R: obsPlot()", {
+    skip_if(!all(c("design","counts") %in% names(t_obj1)))
+    skip_if(is.null(t_obj1$design$ReplicateGroup))
+
     #subset t_obj1
     t_obj1_subset <- subset(t_obj1, row = c(1:6))
 

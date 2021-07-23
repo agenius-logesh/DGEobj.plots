@@ -13,7 +13,7 @@
 #' If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
 #' ggplots, one for each facetColname value \emph{(typically gene)}.
 #'
-#' @param dgeObj A DGEobj that contains a contrast or more dataframe.
+#' @param dgeObj A DGEobj that contains topTable objects (required)
 #' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
 #' @param facetColname Define the column name to separate plots from geneData (default = "rgd_symbol").
 #' @param xColname Define name for the computed column to group boxplots by (Required) (default = "Contrast").
@@ -48,7 +48,7 @@
 #'               facetColname = "rgd_symbol",
 #'               xColname = "Contrast")
 #'
-#'   # Lineplot with some options
+#'   # Point plot with some options
 #'  logRatioPlot(t_obj1_subset,
 #'               plotCategory = "point",
 #'               facetColname = "rgd_symbol",

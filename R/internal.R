@@ -12,7 +12,7 @@
 }
 
 #' @importFrom utils packageVersion
-yrange <- function(my.ggp) {
+.yrange <- function(my.ggp) {
     assertthat::assert_that(class(my.ggp)[[2]] == "ggplot",
                             msg = "my.ggp must be of class 'ggplot'.")
     # Method used is ggplot2 version-dependent
@@ -27,7 +27,7 @@ yrange <- function(my.ggp) {
     return(range)
 }
 
-xrange <- function(my.ggp) {
+.xrange <- function(my.ggp) {
     assertthat::assert_that(class(my.ggp)[[2]] == "ggplot",
                             msg = "my.ggp must be of class 'ggplot'.")
     # Method used is ggplot2 version-dependent

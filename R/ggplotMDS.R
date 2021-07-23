@@ -13,12 +13,12 @@
 #' allows for selection of a number close the number of differential genes in the
 #' input data.
 #'
-#' @param dgeObj DGEobj.
-#' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
-#' @param designTable Name of the design table object
-#' @param colorBy A column name in the design table.Points are colored by the values in that column (Required)
-#' @param shapeBy A column name in the design table.Points are shaped by the values in that column (Optional)
-#' @param sizeBy A column name in the design table.Points are sized by the values in that column (Optional)
+#' @param dgeObj A DGEobj object with a DGEList and design table (required)
+#' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
+#' @param designTable Name of the design table object (default = design)
+#' @param colorBy A column name in the design table.Points are colored by the values in that column (default = ReplicateGroup)
+#' @param shapeBy A column name in the design table.Points are shaped by the values in that column (default = ReplicateGroup)
+#' @param sizeBy A column name in the design table.Points are sized by the values in that column (default = ReplicateGroup)
 #' @param top Number of most variant genes to include (Default = Inf)
 #' @param labels A column name in the design table. Text labels for the samples. These should be short
 #'   abbreviations of the sample identifiers.
@@ -27,8 +27,6 @@
 #' @param title A title for the plot. (Optional)
 #' @param vlineIntercept X intercept of vertical line (Optional)
 #' @param hlineIntercept Y intercept of horizontal line (Optional)
-#' @param dim.plot Define which dimension to plot. dim.plot should a numeric vector of
-#' length 2 and should be lesser than the number of columns in DGEobj. (default = c(1,2))
 #'
 #' @return A list with two elements, the ggplot object and the MDS object returned
 #'    by the plotMDS() function.
@@ -38,13 +36,8 @@
 #'      # Plot the first two dimensions using all genes
 #'      myMDS_cxplot <- ggplotMDS(MyDGEobj)
 #'
-#'      # Plot the 2nd and 3rd dimensions using the top 1000 genes
-#'      myMDS_cxplot <- ggplotMDS(MyDGEobj, dim.plot = c(2, 3))
-#'      myMDS_cxplot[[1]]
-#'
 #'      # MDSplot - ggplot
 #'      myMDS_ggplot <- ggplotMDS(MyDGEobj, plotType = "ggplot")
-#'      myMDS_ggplot <- ggplotMDS(MyDGEobj, plotType = "ggplot", dim.plot = c(2, 3))
 #'      myMDS_ggplot[[1]]
 #' }
 #'
@@ -101,15 +94,15 @@ ggplotMDS <- function(dgeObj,
     }
 
     if (design_default) {
-        design_names <- DGEobj::getType(dgeObj, "design")
+        design_names <- names(DGEobj::getType(dgeObj, "design"))
         if (length(design_names) == 1) {
-            design           <- DGEobj::getItem(dgeObj, "design")
+            design           <- DGEobj::getItem(dgeObj, design_names[[1]])
             colnames(design) <- tolower(colnames(design))
         }
     }
 
     if (is.null(design)) {
-        warning("designTable is either missing or invalid and the default value 'design' is not present in the dgeObj. Unable to color,size or shape points on the plot.")
+        warning("designTable is either missing or invalid and the default value of type 'design' is not present in the dgeObj. Unable to color,size or shape points on the plot.")
     }
 
     colorby_default <- TRUE
@@ -376,73 +369,73 @@ ggplotMDS <- function(dgeObj,
         shapes <- .get_valid_symbolShapes_ggplot()[1:8]
         sizes <- c(1:8)
         symColor <- "blue"
-        mdsplot <- ggplot2::ggplot(plot_data, ggplot2::aes(x = x, y = y))
+        mdsplot <- ggplot(plot_data, aes(x = x, y = y))
         geom_point_params <- list()
 
         if (byColor) {
-            mdsplot <- mdsplot + ggplot2::aes(color = ColorCode)
+            mdsplot <- mdsplot + aes(color = ColorCode)
         } else {
             geom_point_params[["color"]] = symColor
         }
 
         if (byShape) {
-            mdsplot <- mdsplot + ggplot2::aes(shape = Shape) +  ggplot2::scale_shape_manual(values = shapes)
+            mdsplot <- mdsplot + aes(shape = Shape) +  scale_shape_manual(values = shapes)
         } else {
             geom_point_params[["shape"]] = "circle"
         }
 
         if (bySize) {
-            mdsplot <- mdsplot + ggplot2::aes(size = Size) + ggplot2::scale_size_manual(values = sizes)
+            mdsplot <- mdsplot + aes(size = Size) + scale_size_manual(values = sizes)
         } else {
             geom_point_params[["size"]] = 10
         }
 
-        mdsplot <- mdsplot + ggplot2::layer(geom = "point",
+        mdsplot <- mdsplot + layer(geom = "point",
                                             stat = "identity",
                                             position = "identity",
                                             params = geom_point_params)
 
         if (addLabels) {
                 mdsplot <- mdsplot +
-                    ggrepel::geom_text_repel(ggplot2::aes(label = Labels), size = 3, max.overlaps = Inf)
+                    ggrepel::geom_text_repel(aes(label = Labels), size = 3, max.overlaps = Inf)
         }
 
         #For discrete color values
         if (length(unique(colorBy)) <= length(colors)) {
             mdsplot <- mdsplot +
-                ggplot2::scale_fill_manual(values = colors) +
-                ggplot2::scale_colour_manual(values = colors)
+                scale_fill_manual(values = colors) +
+                scale_colour_manual(values = colors)
         }
 
         # Add some other common elements
         mdsplot <- mdsplot +
-            ggplot2::coord_fixed() +
-            ggplot2::xlab(xlab) +
-            ggplot2::ylab(ylab) +
-            ggplot2::ggtitle(title)
+            coord_fixed() +
+            xlab(xlab) +
+            ylab(ylab) +
+            ggtitle(title)
 
         # Place an annotation on the bottom left of the plot
-        xrange <- xrange(mdsplot)
-        yrange <- yrange(mdsplot)
+        xrange <- .xrange(mdsplot)
+        yrange <- .yrange(mdsplot)
         # Put the annotation 10% from xmin
         xpos <- xrange[1] + ((xrange[2] - xrange[1]) * 0.1 )
-        mdsplot <- mdsplot + ggplot2::annotate("text",
-                                               x = xpos,
-                                               y = yrange[1],
-                                               label = citation,
-                                               hjust = 0,
-                                               size = ggplot2::rel(2.5),
-                                               color = "grey30")
+        mdsplot <- mdsplot + annotate("text",
+                                       x = xpos,
+                                       y = yrange[1],
+                                       label = citation,
+                                       hjust = 0,
+                                       size = rel(2.5),
+                                       color = "grey30")
 
         if (!missing(hlineIntercept)) {
-            mdsplot <- mdsplot + ggplot2::geom_hline(yintercept = hlineIntercept,
-                                                     color = "red",
-                                                     size = 0.5)
+            mdsplot <- mdsplot + geom_hline(yintercept = hlineIntercept,
+                                            color = "red",
+                                            size = 0.5)
         }
         if (!missing(vlineIntercept)) {
-            mdsplot <- mdsplot + ggplot2::geom_vline(xintercept = vlineIntercept,
-                                                     color = "red",
-                                                     size = 0.5)
+            mdsplot <- mdsplot + geom_vline(xintercept = vlineIntercept,
+                                            color = "red",
+                                            size = 0.5)
         }
     }
     list(plot = mdsplot, mdsobj = mds.data)
@@ -578,21 +571,21 @@ MDS_var_explained <- function(mds,
                                                         smpLabelRotate   = 90)
     } else {
         # Fraction variance for each dimension
-        resultList$varexp <- ggplot2::ggplot(plotdat) +
-            ggplot2::aes(x = dim, y = var) +
-            ggplot2::geom_col(color = barColor,
+        resultList$varexp <- ggplot(plotdat) +
+            aes(x = dim, y = var) +
+            geom_col(color = barColor,
                               fill = barColor,
                               width = barWidth) +
-            ggplot2::labs(title = varexp_title,
+            labs(title = varexp_title,
                           x = xlab,
                           y = ylab_ve) +
-            ggplot2::scale_x_continuous(breaks = setBreaks)
+            scale_x_continuous(breaks = setBreaks)
 
         # Cumulative variance plot (change the y dimension and relabel)
-        resultList$cumvar <- resultList$varexp + ggplot2::aes(y = cumvar) +
-            ggplot2::labs(title = cumvar_title,
+        resultList$cumvar <- resultList$varexp + aes(y = cumvar) +
+            labs(title = cumvar_title,
                           y = ylab_cv) +
-            ggplot2::ylim(0,1)
+            ylim(0,1)
     }
     # Return the full data table too
     resultList$var_explained <- var_explained

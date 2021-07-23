@@ -1,8 +1,7 @@
-#' Create formatted scatterplot of first two cols of data.frame
+#' Create formatted scatterplot of a common column from 2 contrasts
 #'
-#' Creates a nicely formatted scatterplot of the
-#' first two columns in a dataframe.  Several formatting options are
-#' available to enhance the plots.  If p-values or FDR values and a threshold are supplied,
+#' Creates a nicely formatted scatterplot of any common column from any 2 toptable dataframes(defaults to logFC).
+#'  Additionally If p-values or FDR values and a threshold are supplied,
 #' the plot is color coded to show X unique, Y unique, and
 #' common differentially expressed (DE) genes in different colors.
 #'
@@ -10,8 +9,8 @@
 #'
 #' \strong{Data Structure for the input dataframe:}
 #'
-#' The x and y values should be in the first two columns. By default, their
-#' column names will be used for the axis labels. The x and y labels can be changed
+#' The x and y values should a common column from two chosen contrasts. By default, the
+#' contrast names will be used for the axis labels. The x and y labels can be changed
 #' using the xlab and ylab arguments.
 #'
 #' Optionally, significance measures in the form of p-values or FDR values can be supplied
@@ -21,18 +20,13 @@
 #' genes.  Use either p-values or FDR values for the significance columns. Use the
 #' pThreshold argument to set a proper threshold for FDR values.
 #'
-#' Sensible defaults are chosen for symbols (Size, Shape, Color and Fill), but optional
-#' arguments allow much about the symbols to be customized. A length of 4 is
-#' required for these arguments which applies the attributes in this order:
-#' Common, X Unique, Y Unique, and Not Significant.
 #'
-#' Note: if p-values or FDR values are not used to color the plot, the X Unique color
-#' values are used.
-#'
-#' @param dgeObj DGEobj with a class of DGEobj.
-#' @param contrasts A pair of two contrasts in DGEobj that has logFC and P.Value.
+#' @param dgeObj A DGeobj with atleast 2 contrasts
+#' @param contrasts A pair of two contrasts in DGEobj that has logFC column.
 #'        Optionally add xp and yp columns to hold p-values or FDR values using colorBySigMeasure.
 #' @param colorBySigMeasure Colors points by significance measures.  (default = TRUE)
+#' @param pvalCol Name of the p-value column (default = "P.Value")
+#' @param valueCol Column name of the data for plot (default = "logFC")
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param xlab X-axis label (default = first column name)
 #' @param ylab Y-axis label (default = second column name)
@@ -82,6 +76,8 @@
 comparePlot <- function(dgeObj,
                         contrasts,
                         colorBySigMeasure = TRUE,
+                        pvalCol = "P.Value",
+                        valueCol = "logFC",
                         plotType = "canvasXpress",
                         pThreshold = 0.01,
                         xlab = NULL,
@@ -107,6 +103,16 @@ comparePlot <- function(dgeObj,
     })
     names(contrastList) <- contrasts
 
+    assertthat::assert_that(!is.null(valueCol),
+                            length(valueCol) == 1,
+                            (valueCol %in% colnames(contrastList[[1]])) && (valueCol %in% colnames(contrastList[[2]])),
+                            msg = "valueCol to be a singular value of class character and must be present in both the contrasts.")
+
+    assertthat::assert_that(!is.null(pvalCol),
+                            length(pvalCol) == 1,
+                            (pvalCol %in% colnames(contrastList[[1]])) && (pvalCol %in% colnames(contrastList[[2]])),
+                            msg = "pvalCol to be a singular value of class character and must be present in both the contrasts.")
+
     if (any(is.null(colorBySigMeasure),
             !is.logical(colorBySigMeasure),
             length(colorBySigMeasure) != 1)) {
@@ -115,9 +121,13 @@ comparePlot <- function(dgeObj,
     }
 
     if (colorBySigMeasure) {
-        compareDF <- comparePrep(contrastList)
+        compareDF <- comparePrep(contrastList,
+                                 valueCol = valueCol,
+                                 significanceCol = pvalCol)
     } else {
-        compareDF <- comparePrep(contrastList)[,1:2]
+        compareDF <- comparePrep(contrastList,
+                                 valueCol = valueCol,
+                                 significanceCol = pvalCol)[,1:2]
     }
 
     plotType <- tolower(plotType)

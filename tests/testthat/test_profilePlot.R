@@ -2,6 +2,8 @@ context("DGEobj.plots - tests for profilePlot.R functions")
 
 
 test_that("profilePlot.R: profilePlot()", {
+    contrasts <- c("BDL_vs_Sham", "EXT1024_vs_BDL")
+    skip_if(!all(contrasts %in% names(DGEobj::getType(t_obj1,"topTable"))))
 
     # testing contrast objects defualts (no sizeBySignificance and no geneNameCol)
     ## BDL_vs_Sham

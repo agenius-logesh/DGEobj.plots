@@ -22,7 +22,7 @@
 #' threshold are used to color code genes that are significantly increased or decreased.
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
-#' @param dgeObj DGEobj.
+#' @param dgeObj DGEobj with a topTable dataframe (required)
 #' @param contrast Name of the contrast.
 #' @param plotType Plot type must be canvasXpress or ggplot. (default = canvasXpress)
 #' @param logRatioCol Name of the LogRatio column. (default = "logFC")
@@ -36,6 +36,7 @@
 #' @param pthresholdLine Color for a horizontal line at the p-threshold. (default = NULL (disabled))
 #' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (default = TRUE)
 #' @param foldChangeThreshold Position of reference vertical lines for fold change. (default = 1.5)
+#'
 #' @return canvasxpress or ggplot object based on plotType selection.
 #'
 #' @examples
@@ -134,6 +135,11 @@ volcanoPlot <- function(dgeObj,
                             msg = "pvalCol to be a singular value of class character and must be in contrast data.")
 
     if (!missing(geneNameCol)) {
+        genedata_names <- suppressWarnings(names(DGEobj::getType(dgeObj, "geneData")))
+
+        assertthat::assert_that(length(genedata_names) == 1,
+                                msg = "dgeObj must have exactly one geneData item.")
+
         assertthat::assert_that(!is.null(geneNameCol),
                                 length(geneNameCol) == 1,
                                 geneNameCol %in% names(DGEobj::getType(dgeObj, type = "geneData")[[1]]),

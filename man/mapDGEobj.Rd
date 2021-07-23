@@ -18,7 +18,7 @@ be directed or not. (default = TRUE)}
 A class igraph network object for plotType ggplot and canvasxpress network plot for plotType canvasxpress.
 }
 \description{
-Reads a DGEobj and produces a node pair file defining parent/child relationships between
+Reads a DGEobj and produces a node pair file or a graph defining parent/child relationships between
 data items in the DGEobj.
 }
 \examples{

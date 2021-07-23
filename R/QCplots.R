@@ -191,6 +191,15 @@ QCplots <- function(DGEdata,
                                                      x = metricMean - SD)
             } else if (hlineSD > 0) {
 
+                # Placeholder message until this issue can be fixed. Decorations is histogram are not working correctly.
+                # This error is temporary and will need to be removed after this issue is fixed.
+                #############################################################################################
+
+                message("Decorations in Histograms are incorrect.")
+
+                #############################################################################################
+
+
                 decorations <- list()
 
                 line <- list(color = .rgbaConversion("grey70", alpha = 1),

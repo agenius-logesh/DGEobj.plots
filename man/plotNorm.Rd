@@ -12,7 +12,7 @@ plotNorm(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a class of DGEobj.}
+\item{dgeObj}{DGEobj with a counts Matrix ( required)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
 
@@ -26,13 +26,13 @@ normalization.}
 A faceted canvasXpress/ggplot plot showing before/after log2CPM normalization.
 }
 \description{
-Takes a DGEobj containing counts or a counts matrix as input. Returns a canvasXpress or ggplot
+Takes a DGEobj containing a counts matrix as input. Returns a canvasXpress or ggplot
 object containing a faceted plot of log2CPM before and after normalization.
 }
 \details{
 Either a box plot or density plot category can be chosen.
 
-Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored to count-based
+Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored for count-based
 data.  Thus this function is only appropriate for count-based data.
 }
 \examples{
