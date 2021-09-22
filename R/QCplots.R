@@ -174,7 +174,7 @@ QCplots <- function(DGEdata,
 
             decorations = list()
 
-            if (hlineSD > 0 & plot_metric == "histogram") {
+            if (hlineSD > 0 && plot_metric == "histogram") {
                 decorations <- .getCxPlotDecorations(decorations = decorations,
                                                      color = "grey70",
                                                      width = 2,
@@ -190,16 +190,6 @@ QCplots <- function(DGEdata,
                                                      width = 1,
                                                      x = metricMean - SD)
             } else if (hlineSD > 0) {
-
-                # Placeholder message until this issue can be fixed. Decorations is histogram are not working correctly.
-                # This error is temporary and will need to be removed after this issue is fixed.
-                #############################################################################################
-
-                message("Decorations in Histograms are incorrect.")
-
-                #############################################################################################
-
-
                 decorations <- list()
 
                 line <- list(color = .rgbaConversion("grey70", alpha = 1),
@@ -263,7 +253,11 @@ QCplots <- function(DGEdata,
                 cx.params <- list(data        = cx.data,
                                   graphType   = "Scatter2D",
                                   colors      = color,
-                                  decorations = decorations,
+                                  #############################################################################################
+                                  # Decorations in histogram are not working correctly.
+                                  # This comment is temporary and will be removed after this issue is fixed.
+                                  #############################################################################################
+                                  # decorations = decorations,
                                   showLegend  = FALSE,
                                   xAxisTitle  = metric,
                                   yAxisTitle  = "count",
@@ -291,7 +285,7 @@ QCplots <- function(DGEdata,
 
             # Draw hline xSD above or below the mean
             SD <- metricSD * hlineSD
-            if (hlineSD > 0 & plot_metric == "histogram") {
+            if (hlineSD > 0 && plot_metric == "histogram") {
 
                 # Plot vlines for the histogram
                 p <- p +
