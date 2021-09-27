@@ -22,7 +22,7 @@ of type AlignQC. (Required)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{plotCategory}{One of "bar", "point", "pointline".  For a different
+\item{plotCategory}{One of "bar", "point", "pointline" or "histogram".  For a different
 plot type for each metric, pass a list of plotCategories with length equal to
 length(metricNames). (default = "bar")}
 

@@ -13,7 +13,7 @@
 #' @param metricNames A list of metrics to plot. Values must exist in column names of the item
 #' of type AlignQC. (Required)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
-#' @param plotCategory One of "bar", "point", "pointline".  For a different
+#' @param plotCategory One of "bar", "point", "pointline" or "histogram".  For a different
 #'   plot type for each metric, pass a list of plotCategories with length equal to
 #'   length(metricNames). (default = "bar")
 #' @param labelAngle Angle to set the sample labels on the X axis (default = 30;
