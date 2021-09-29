@@ -218,15 +218,15 @@ QCplots <- function(DGEdata,
             max.val <- max(max(cx.data[1,]), metricMedian, metricMean + SD, metricMean - SD)
             max.val <- max.val + 0.05 * max.val
 
-            cx.params <- list(data          = cx.data,
+            cx.params <- list(data             = cx.data,
                               graphOrientation = "vertical",
-                              smpTitle      = "Sample",
-                              title         = metric,
-                              decorations   = decorations,
-                              xAxisTitle    = metric,
-                              smpLabelRotate = labelAngle,
-                              colors        = color,
-                              showLegend    = FALSE)
+                              smpTitle         = "Sample",
+                              title            = metric,
+                              decorations      = decorations,
+                              xAxisTitle       = metric,
+                              smpLabelRotate   = labelAngle,
+                              colors           = color,
+                              showLegend       = FALSE)
 
             if (plot_metric == "bar") {
                 cx.params <- c(cx.params, list(graphType = "Bar",
@@ -253,14 +253,12 @@ QCplots <- function(DGEdata,
                 cx.params <- list(data        = cx.data,
                                   graphType   = "Scatter2D",
                                   colors      = color,
-                                  #############################################################################################
-                                  # Decorations in histogram are not working correctly.
-                                  # This comment is temporary and will be removed after this issue is fixed.
-                                  #############################################################################################
-                                  # decorations = decorations,
+                                  decorations = decorations,
                                   showLegend  = FALSE,
                                   xAxisTitle  = metric,
                                   yAxisTitle  = "count",
+                                  setMinX     = min.val,
+                                  setMaxX     = max.val,
                                   title       = metric,
                                   afterRender = list(list("createHistogram")))
             }
