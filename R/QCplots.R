@@ -159,7 +159,7 @@ QCplots <- function(DGEdata,
         metricMedian <- median(as.numeric(thisMetric[-1]), na.rm = TRUE)
         metricMean   <- mean(as.numeric(thisMetric[-1]), na.rm = TRUE)
         metricSD     <- sd(as.numeric(thisMetric[-1]), na.rm = TRUE)
-        SD <- metricSD * hlineSD
+        SD           <- metricSD * hlineSD
 
         #aesthetics
         color = "dodgerblue3"
@@ -200,14 +200,14 @@ QCplots <- function(DGEdata,
                 line <- list(color = .rgbaConversion("firebrick3", alpha = 1),
                              width = 1,
                              type  = "longdash",
-                             value = metricMean + metricSD)
+                             value = metricMean + SD)
                 decorations <- list(line = append(decorations$line, list(line)))
 
                 if (metricMean - SD > 0) {
                     line <- list(color = .rgbaConversion("firebrick3", alpha = 1),
                                  width = 1,
                                  type  = "longdash",
-                                 value = metricMean - metricSD)
+                                 value = metricMean - SD)
                     decorations <- list(line = append(decorations$line, list(line)))
                 }
             }
