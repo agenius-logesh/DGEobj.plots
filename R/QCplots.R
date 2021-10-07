@@ -176,17 +176,17 @@ QCplots <- function(DGEdata,
 
             if (hlineSD > 0 && plot_metric == "histogram") {
                 decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                     color = "grey70",
+                                                     color = .rgbaConversion("grey70", alpha = 1),
                                                      width = 2,
                                                      x = metricMedian)
 
                 decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                     color = "firebrick3",
+                                                     color = .rgbaConversion("firebrick3", alpha = 1),
                                                      width = 1,
                                                      x = metricMean + SD)
 
                 decorations <- .getCxPlotDecorations(decorations = decorations,
-                                                     color = "firebrick3",
+                                                     color = .rgbaConversion("firebrick3", alpha = 1),
                                                      width = 1,
                                                      x = metricMean - SD)
             } else if (hlineSD > 0) {
@@ -200,21 +200,20 @@ QCplots <- function(DGEdata,
                 line <- list(color = .rgbaConversion("firebrick3", alpha = 1),
                              width = 1,
                              type  = "longdash",
-                             value = metricMean + SD)
+                             value = metricMean + metricSD)
                 decorations <- list(line = append(decorations$line, list(line)))
 
                 if (metricMean - SD > 0) {
                     line <- list(color = .rgbaConversion("firebrick3", alpha = 1),
                                  width = 1,
                                  type  = "longdash",
-                                 value = metricMean - SD)
+                                 value = metricMean - metricSD)
                     decorations <- list(line = append(decorations$line, list(line)))
                 }
             }
 
             min.val <- min(min(cx.data[1,]), metricMedian, metricMean + SD, metricMean - SD)
             min.val <- min.val - 0.05 * min.val
-
             max.val <- max(max(cx.data[1,]), metricMedian, metricMean + SD, metricMean - SD)
             max.val <- max.val + 0.05 * max.val
 
@@ -250,17 +249,18 @@ QCplots <- function(DGEdata,
             } else if (plot_metric == "histogram") {
                 cx.data <- qcdata %>%
                     dplyr::select(!!rlang::sym(metric))
-                cx.params <- list(data        = cx.data,
-                                  graphType   = "Scatter2D",
-                                  colors      = color,
-                                  decorations = decorations,
-                                  showLegend  = FALSE,
-                                  xAxisTitle  = metric,
-                                  yAxisTitle  = "count",
-                                  setMinX     = min.val,
-                                  setMaxX     = max.val,
-                                  title       = metric,
-                                  afterRender = list(list("createHistogram")))
+                cx.params <- list(data                     = cx.data,
+                                  graphType                = "Scatter2D",
+                                  colors                   = color,
+                                  # decoration will be disabled until related cx plot is resolved
+                                  #decorations              = decorations,
+                                  showLegend               = FALSE,
+                                  xAxisTitle               = metric,
+                                  yAxisTitle               = "count",
+                                  title                    = metric,
+                                  histogramMedianLineStyle = "solid",
+                                  showHistogramMedian      = TRUE,
+                                  afterRender              = list(list("createHistogram")))
             }
             p <- do.call(canvasXpress::canvasXpress, cx.params)
 
