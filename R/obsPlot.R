@@ -30,13 +30,14 @@
 #' @param ylab Y axis label (defaults to value column name if not specified)
 #' @param title Plot title (optional)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
-#'   (FALSE)  (default = TRUE)
+#'   (FALSE)  (default = FALSE)
 #' @param axisFree Specify same scale or independent scales for each subplot (default = TRUE;
 #'   Allowed values: TRUE or FALSE)
 #'
-#' @return Plot of type canvasXpress or ggplot. If Facet = TRUE (default) returns a faceted object. If
-#'   facet = FALSE, returns a list of objects indexed
-#'   by observation (gene) names.
+#' @return Plot of type canvasXpress or ggplot. If facet = FALSE (default),
+#' returns a list of objects indexed by observation (gene) names.
+#' If facet = TRUE returns a faceted object.
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -45,21 +46,22 @@
 #'   obsPlot(DGEobj,
 #'           designTable = "design",
 #'           group = "replicategroup",
-#'           countsMatrix = "counts")
+#'           countsMatrix = "counts",
+#'           facet = TRUE)
 #'
 #'   # Faceted violin plot
 #'   obsPlot(DGEobj,
 #'            violinLayer = TRUE,
 #'            designTable = "design",
 #'            group = "replicategroup",
-#'            countsMatrix = "counts")
+#'            countsMatrix = "counts",
+#'            facet = TRUE)
 #'
 #'   # Return a list of plot for each individual gene
 #'   myplots <- obsPlot(DGEobj,
 #'                      designTable = "design",
 #'                      group = "replicategroup",
-#'                      countsMatrix = "counts",
-#'                      facet = FALSE)
+#'                      countsMatrix = "counts")
 #'   # Plot one from the list
 #'   myplots[[2]]
 #'
@@ -97,7 +99,7 @@ obsPlot <- function(dgeObj,
                     xlab,
                     ylab,
                     title,
-                    facet               = TRUE,
+                    facet               = FALSE,
                     axisFree            = TRUE) {
 
     assertthat::assert_that(!missing(dgeObj),
