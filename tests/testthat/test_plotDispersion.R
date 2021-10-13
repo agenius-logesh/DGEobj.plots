@@ -12,6 +12,15 @@ test_that("plotDispersion.R: plotDispersion()", {
                                 plotType = "ggplot")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
+    # Testing dispersion plots with input DGEobj and replicate group = "DiseaseStatus"
+    plot_disp <- plotDispersion(dgeObj  = t_obj1, replicateGroupCol = "DiseaseStatus")
+    expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
+
+    plot_disp <- plotDispersion(dgeObj   = t_obj1,
+                                replicateGroupCol = "DiseaseStatus",
+                                plotType = "ggplot")
+    expect_s3_class(plot_disp, c("gg", "ggplot"))
+
     # Testing dispersion plots with counts data.
     plot_disp <- plotDispersion(dgeObj       = t_obj1,
                                 countsMatrix = FALSE)
@@ -22,7 +31,19 @@ test_that("plotDispersion.R: plotDispersion()", {
                                 countsMatrix = FALSE)
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-    #Testing BCV plots with input DGEobj.
+    # Testing dispersion plots with counts data and replicate group = "DiseaseStatus"
+    plot_disp <- plotDispersion(dgeObj       = t_obj1,
+                                replicateGroupCol = "DiseaseStatus",
+                                countsMatrix = FALSE)
+    expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
+
+    plot_disp <- plotDispersion(dgeObj       = t_obj1,
+                                replicateGroupCol = "DiseaseStatus",
+                                plotType     = "ggplot",
+                                countsMatrix = FALSE)
+    expect_s3_class(plot_disp, c("gg", "ggplot"))
+
+    # Testing BCV plots with input DGEobj.
     plot_disp <- plotDispersion(dgeObj       = t_obj1,
                                 plotCategory = "BCV")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
@@ -32,13 +53,39 @@ test_that("plotDispersion.R: plotDispersion()", {
                                 plotType     = "ggplot")
     expect_s3_class(plot_disp, c("gg", "ggplot"))
 
-    #Testing BCV plots with counts data
+    # Testing BCV plots with input DGEobj with replicateGroupCol = "DiseaseStatus"
+    plot_disp <- plotDispersion(dgeObj       = t_obj1,
+                                replicateGroupCol = "DiseaseStatus",
+                                plotCategory = "BCV")
+    expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
+
+    plot_disp <- plotDispersion(dgeObj       = t_obj1,
+                                plotCategory = "BCV",
+                                replicateGroupCol = "DiseaseStatus",
+                                plotType     = "ggplot")
+    expect_s3_class(plot_disp, c("gg", "ggplot"))
+
+    # Testing BCV plots with counts data
     plot_disp <- plotDispersion(dgeObj        = t_obj1,
                                 countsMatrix  = FALSE,
                                 plotCategory  = "BCV")
     expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
 
     plot_disp <- plotDispersion(dgeObj        = t_obj1,
+                                plotType      = "ggplot",
+                                countsMatrix  = FALSE,
+                                plotCategory  = "BCV")
+    expect_s3_class(plot_disp, c("gg", "ggplot"))
+
+    # Testing BCV plots with counts data with replicateGroupCol = "DiseaseStatus"
+    plot_disp <- plotDispersion(dgeObj        = t_obj1,
+                                replicateGroupCol = "DiseaseStatus",
+                                countsMatrix  = FALSE,
+                                plotCategory  = "BCV")
+    expect_s3_class(plot_disp, c("canvasXpress", "htmlwidget"))
+
+    plot_disp <- plotDispersion(dgeObj        = t_obj1,
+                                replicateGroupCol = "DiseaseStatus",
                                 plotType      = "ggplot",
                                 countsMatrix  = FALSE,
                                 plotCategory  = "BCV")

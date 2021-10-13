@@ -58,17 +58,7 @@ plotDispersion <- function(dgeObj,
         replicateGroupCol <- "ReplicateGroup"
     }
 
-    # Placeholder message until this issue can be fixed. We are passing the ReplicateGroupCol as a parameter
-    # into the function. However, we are only able to hardcode the name of the column in the model.matrixformula and not
-    # able to pass a variable that holds the Replicate Group column name. Standard options like eval and
-    #rlang::sym are not working. Function returns an error and the plot execution stops if the name of the ReplicateGroup column  is not "ReplicateGroup".
-    # This error is temporary and will need to be removed after this issue is fixed.
-    #############################################################################################
-    assertthat::assert_that(replicateGroupCol == "ReplicateGroup",
-                            msg = "Function supports only one value for ReplicateGroup.")
-    ###############################################################################
-
-    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, design)
+    designMatrix <- stats::model.matrix(as.formula(paste("~ 0 +", replicateGroupCol)), design)
 
     if (any(is.null(countsMatrix),
             !is.logical(countsMatrix),
