@@ -21,7 +21,7 @@ comparePlot(
 \arguments{
 \item{dgeObj}{A DGeobj with atleast 2 contrasts}
 
-\item{contrasts}{A pair of two contrasts in DGEobj that has logFC column.
+\item{contrasts}{The itemNames of a pair of two contrasts in DGEobj that has logFC column.
 Optionally add xp and yp columns to hold p-values or FDR values using colorBySigMeasure.}
 
 \item{colorBySigMeasure}{Colors points by significance measures.  (default = TRUE)}
@@ -47,8 +47,8 @@ Optionally add xp and yp columns to hold p-values or FDR values using colorBySig
 canvasXpress or ggplot object based on plotType selection
 }
 \description{
-Creates a nicely formatted scatterplot of any common column from any 2 toptable dataframes(defaults to logFC).
- Additionally If p-values or FDR values and a threshold are supplied,
+Creates a nicely formatted scatterplot of any common column from any 2 topTable dataframes(defaults to logFC).
+ Additionally, if p-values or FDR values and a threshold are supplied,
 the plot is color coded to show X unique, Y unique, and
 common differentially expressed (DE) genes in different colors.
 }
@@ -73,7 +73,7 @@ pThreshold argument to set a proper threshold for FDR values.
   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
   contrasts <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
   contrastList <- lapply(contrasts, function(x){
-     getItems(dgeObj, x)
+     DGEobj::getItems(dgeObj, x)
    })
    names(contrastList) <- contrasts
 

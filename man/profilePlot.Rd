@@ -23,9 +23,9 @@ profilePlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a topTable item (required.}
+\item{dgeObj}{DGEobj with a topTable itemType (required).}
 
-\item{contrast}{Name of the contrast in dgeObj.}
+\item{contrast}{itemName of the contrast in the dgeObj.}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = "canvasXpress").}
 
@@ -33,12 +33,12 @@ profilePlot(
 
 \item{logIntCol}{Name of the LogIntensity column (default = "AveExpr")}
 
-\item{pvalCol}{Name of the p-value (default = "P.Value")}
+\item{pvalCol}{Name of the p-value column (default = "P.Value")}
 
-\item{pthreshold}{Used to color points (default = 0.01)}
+\item{pthreshold}{the p value threshold used to color points (default = 0.01)}
 
-\item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to label
-significantly changed points.}
+\item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to add the gene name
+in the popover for canvasXpress plots only.}
 
 \item{xlab}{X axis label (defaults = "LogIntensity column name")}
 
@@ -92,18 +92,19 @@ are significantly increased or decreased.
 \dontrun{
    # Get DGEObj
    t_obj1 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
-   # Get Contrast Data to plot
-   contrast <- names(DGEobj::getType(t_obj1, "topTable"))[1]
+   # Get the name of the contrast data to plot
+   contrasts <- names(DGEobj::getType(t_obj1, "topTable"))
+   interestedContrast <- contrasts[1]
 
    # Some options with a custom datafile
    myPlot <- profilePlot(t_obj1,
-                         contrast,
+                         interestedContrast,
                          pthreshold = 0.1,
                          title = "BDL_vs_Sham",
                          referenceLine = "blue")
 
    myPlot <- profilePlot(t_obj1,
-                         contrast,
+                         interestedContrast,
                          pthreshold = 0.1,
                          title = "BDL_vs_Sham",
                          referenceLine = "blue",

@@ -28,8 +28,8 @@
 #' @param logRatioCol Name of the LogRatio column. (default = "logFC")
 #' @param logIntCol Name of the LogIntensity column. (default = "AveExpr")
 #' @param pvalCol Name of the p-value or FDR column. (default = "P.Value")
-#' @param xlab X axis label. (Default is the LogIntensity column name)
-#' @param ylab Y axis label. (Default is the LogRatio column name)
+#' @param xlab X axis label. (default is the LogIntensity column name)
+#' @param ylab Y axis label. (default is the LogRatio column name)
 #' @param title Plot title (optional).
 #' @param pthreshold Used to color points. (default = 0.01)
 #' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label significantly changed points.

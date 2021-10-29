@@ -12,14 +12,14 @@ plotNorm(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a counts Matrix ( required)}
+\item{dgeObj}{DGEobj with a counts Matrix (required)}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{plotType}{Plot type must be canvasXpress or ggplot (defaults to canvasXpress).}
 
-\item{plotCategory}{One of "box" or "density." (Default = "box")}
+\item{plotCategory}{One of "box" or "density" (default = "box")}
 
 \item{normalize}{Default = "TMM" and invokes TMM normalization. Other allowed
-values are: "RLE", "upperquartile", or "none". Invokes edgeR::calcNormFactors for
+values are: "RLE", "upperquartile" and "none". Invokes edgeR::calcNormFactors for
 normalization.}
 }
 \value{

@@ -38,9 +38,9 @@ volcanoPlot(
 
 \item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to label significantly changed points.}
 
-\item{xlab}{X axis label. (Default is the LogIntensity column name)}
+\item{xlab}{X axis label. (default is the LogIntensity column name)}
 
-\item{ylab}{Y axis label. (Default is the LogRatio column name)}
+\item{ylab}{Y axis label. (default is the LogRatio column name)}
 
 \item{title}{Plot title (optional).}
 

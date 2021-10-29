@@ -11,26 +11,27 @@
 #' Faceting the plot can be turned off to return a list of individual plots for each gene. Input is a DGEobj with a
 #' Counts Matrix. User can also provide input parameters to convert the counts matrix to other desired units.
 #'
-#' @param data A  DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)
+#'
+#' @param dgeObj A DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)
 #' @param plotType Can be canvasXpress or ggplot (default = canvasXpress)
 #' @param designTable Name of the design table in the DGEObj from which the grouping column will be extracted. (default = design)
 #' @param countsMatrix Name of the counts matrix in the DGEObj which will be used to render the plot.(default = counts)
 #' @param convertCounts A flag to indicate if counts matrix need to be converted or taken as is. Default value is NULL. This indicates
 #'     countsMatrix need to be taken as is. To convert the counts matrix, specify the desired unit. Supported units include CPM,FPKM, FPK and TPM.
-#'     This parameter is passed to DGEobj.utils::convertCounts
-#' @param convert_geneLength Parameter to pass to DGEobj.utils::convertCounts.
+#'     This parameter is passed to DGEobj.utils::convertCounts (default = NULL)
+#' @param convert_geneLength Parameter to pass to DGEobj.utils::convertCounts. (optional).
 #' @param convert_log Parameter to pass to DGEobj.utils::convertCounts. (default = FALSE)
 #' @param convert_normalize Parameter to pass to DGEobj.utils::convertCounts. (default = none)
 #' @param convert_prior.count Parameter to pass to DGEobj.utils::convertCounts. (default = NULL)
 #' @seealso \link[DGEobj.utils]{convertCounts}
 #' @param group Define the column name to group boxplots by (typically a replicate group column) (required)
 #' @param violinLayer Adds a violin layer (default = FALSE)
-#' @param showPoints Shows the datapoints on the plot (default = TRUE)
+#' @param showPoints Shows the data points on the plot (default = TRUE)
 #' @param xlab X axis label (defaults to group column name if not specified)
 #' @param ylab Y axis label (defaults to value column name if not specified)
 #' @param title Plot title (optional)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
-#'   (FALSE)  (default = FALSE)
+#'   (FALSE)  (default = TRUE). It is recommended to facet no more than 40 plots. If 40 of more plots are needed, please set this argument to FALSE
 #' @param axisFree Specify same scale or independent scales for each subplot (default = TRUE;
 #'   Allowed values: TRUE or FALSE)
 #'
@@ -41,16 +42,18 @@
 #'
 #' @examples
 #' \dontrun{
+#'   #subset the DGEobject to only 6 genes before plotting
+#'   DGEobj6 <- DGEobj[1:6,]
 #'
 #'   # Faceted boxplot
-#'   obsPlot(DGEobj,
+#'   obsPlot(DGEobj6,
 #'           designTable = "design",
 #'           group = "replicategroup",
 #'           countsMatrix = "counts",
 #'           facet = TRUE)
 #'
 #'   # Faceted violin plot
-#'   obsPlot(DGEobj,
+#'   obsPlot(DGEobj6,
 #'            violinLayer = TRUE,
 #'            designTable = "design",
 #'            group = "replicategroup",
@@ -58,7 +61,7 @@
 #'            facet = TRUE)
 #'
 #'   # Return a list of plot for each individual gene
-#'   myplots <- obsPlot(DGEobj,
+#'   myplots <- obsPlot(DGEobj6,
 #'                      designTable = "design",
 #'                      group = "replicategroup",
 #'                      countsMatrix = "counts")
@@ -66,7 +69,7 @@
 #'   myplots[[2]]
 #'
 #'   #ggplot
-#'   obsPlot(DGEobj,
+#'   obsPlot(DGEobj6,
 #'           designTable = "design",
 #'           group = "replicategroup",
 #'           countsMatrix = "counts",
