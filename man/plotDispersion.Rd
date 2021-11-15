@@ -25,9 +25,8 @@ plotDispersion(
 
 \item{plotCategory}{One of "dispersion" or "BCV" (default = "dispersion")}
 
-\item{lineFit}{(default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
-one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
-  recommended.}
+\item{lineFit}{If the plotType is ggplot, any method supported by `geom_smooth()`. If the plotType is canvasXpress, one of glm, lm, loess, gam is accepted .
+Loess is recommended. (default = NULL)}
 
 \item{...}{Extra parameters to pass to edgeR::estimateDisp}
 }
@@ -35,7 +34,7 @@ one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
 canvasxpress or ggplot object based on plotType selection
 }
 \description{
-Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a DGeobj which has a counts matrix
+Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a DGEobj which has a counts matrix
 or DGEList as input.  Dispersion is plotted against AveLogCPM.  Optionally,
 the plot can instead be Biological Coefficient of Variation (BCV is the square root of
 dispersion) against AveLogCPM.

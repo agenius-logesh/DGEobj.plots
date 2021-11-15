@@ -1,14 +1,14 @@
-#' Plot network of DGEobj relationships
+#' Construct DGEobj relationships
 #'
-#' Reads a DGEobj and produces a node pair file or a graph defining parent/child relationships between
-#' data items in the DGEobj.
+#' Reads a DGEobj and either (1) produces a node pair file ready for plotting or (2) a plot visualizing parent/child relationships between
+#' data items in a DGEobj.
 #'
 #' @param dgeObj DGEobj to find the parent/child relationships between data items.
-#' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
-#' @param directed Passed to igraph::graph_from_data_frame. Indicates if the graph should
+#' @param plotType Must be canvasXpress or igraph (default = canvasXpress).
+#' @param directed Only for igraph. Indicates if the graph should
 #'     be directed or not. (default = TRUE)
 #'
-#' @return A class igraph network object for plotType ggplot and canvasxpress network plot for plotType canvasxpress.
+#' @return A class igraph network object or a canvasXpress network plot.
 #'
 #'
 #' @examples
@@ -16,7 +16,7 @@
 #'   # Prepare canvasxpress network plot
 #'   mynet <- mapDGEobj(dgeObj)
 #'
-#'   # Prepare an iGraph object for plotting
+#'   # Prepare an igraph object for plotting
 #'   mynet <- mapDGEobj(dgeObj, plotType = "ggplot")
 #'   plot(mynet)
 #'   }
@@ -43,8 +43,8 @@ mapDGEobj <- function(dgeObj,
     if (any(is.null(plotType),
             !is.character(plotType),
             length(plotType) != 1,
-            !tolower(plotType) %in% c("canvasxpress", "ggplot"))) {
-        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'.")
+            !tolower(plotType) %in% c("canvasxpress", "igraph"))) {
+        warning("plotType must be either canvasXpress or igraph. Assigning default value 'canvasXpress'.")
         plotType <- "canvasxpress"
     }
 

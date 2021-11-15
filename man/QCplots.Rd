@@ -37,7 +37,7 @@ deviations.  It is used to calculate the standard deviation for the
 placement of horizontal reference lines (hlineSD argument).  The adaptive
 winsorization used here only trims extreme values when normality is
 violated. see https://www.r-bloggers.com/winsorization/ for details.
-(Default = TRUE).}
+(default = TRUE).}
 }
 \value{
 canvasXpress or ggplot object if one plot is specified.

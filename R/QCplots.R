@@ -25,7 +25,7 @@
 #'   placement of horizontal reference lines (hlineSD argument).  The adaptive
 #'   winsorization used here only trims extreme values when normality is
 #'   violated. see https://www.r-bloggers.com/winsorization/ for details.
-#'   (Default = TRUE).
+#'   (default = TRUE).
 #'
 #' @return canvasXpress or ggplot object if one plot is specified.
 #' A list of canvasXpress or ggplot objects if 2 or more metrics specified.

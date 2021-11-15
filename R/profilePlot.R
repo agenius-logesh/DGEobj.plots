@@ -25,18 +25,18 @@
 #' A significance measure (which defaults to P.Value <= 0.01) is used to color code genes that
 #' are significantly increased or decreased.
 #
-#' @param dgeObj DGEobj with a topTable item (required.
-#' @param contrast Name of the contrast in dgeObj.
+#' @param dgeObj DGEobj with a topTable itemType (required).
+#' @param contrast itemName of the contrast in the dgeObj.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = "canvasXpress").
 #' @param logRatioCol Name of the LogRatio column (default = "logFC")
 #' @param logIntCol Name of the LogIntensity column (default = "AveExpr")
-#' @param pvalCol Name of the p-value (default = "P.Value")
+#' @param pvalCol Name of the p-value column (default = "P.Value")
 #' @param xlab X axis label (defaults = "LogIntensity column name")
 #' @param ylab Y axis label (defaults = "LogRatio column name")
 #' @param title Plot title (optional)
-#' @param pthreshold Used to color points (default = 0.01)
-#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label
-#'    significantly changed points.
+#' @param pthreshold the p value threshold used to color points (default = 0.01)
+#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to add the gene name
+#'        in the popover for canvasXpress plots only.
 #' @param sizeBySignificance Set to TRUE to size points by the negative Log10 of the
 #'        Significance measure (default = FALSE)
 #' @param referenceLine Color for a horizontal reference line at intercept = 0
@@ -52,18 +52,19 @@
 #' \dontrun{
 #'    # Get DGEObj
 #'    t_obj1 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
-#'    # Get Contrast Data to plot
-#'    contrast <- names(DGEobj::getType(t_obj1, "topTable"))[1]
+#'    # Get the name of the contrast data to plot
+#'    contrasts <- names(DGEobj::getType(t_obj1, "topTable"))
+#'    interestedContrast <- contrasts[1]
 #'
 #'    # Some options with a custom datafile
 #'    myPlot <- profilePlot(t_obj1,
-#'                          contrast,
+#'                          interestedContrast,
 #'                          pthreshold = 0.1,
 #'                          title = "BDL_vs_Sham",
 #'                          referenceLine = "blue")
 #'
 #'    myPlot <- profilePlot(t_obj1,
-#'                          contrast,
+#'                          interestedContrast,
 #'                          pthreshold = 0.1,
 #'                          title = "BDL_vs_Sham",
 #'                          referenceLine = "blue",

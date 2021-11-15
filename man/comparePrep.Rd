@@ -7,12 +7,12 @@
 comparePrep(contrastList, valueCol = "logFC", significanceCol = "P.Value")
 }
 \arguments{
-\item{contrastList}{A named list of 2 topTable dataframes (Required). The
+\item{contrastList}{A named list of 2 topTable dataframes (required). The
 names are used as column names for the value columns in the output.}
 
-\item{valueCol}{Name of column containing values to plot (Default = "logFC")}
+\item{valueCol}{Name of column containing values to plot (default = "logFC")}
 
-\item{significanceCol}{Name of column to use for significance (Default = "P.Value")}
+\item{significanceCol}{Name of column to use for significance (default = "P.Value")}
 }
 \value{
 A data frame with 2 LogRatio measurements and 2 significance columns.  Columns 1 and 3 map

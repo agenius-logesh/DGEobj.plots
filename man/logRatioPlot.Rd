@@ -25,7 +25,7 @@ logRatioPlot(
 \arguments{
 \item{dgeObj}{A DGEobj that contains topTable objects (required)}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot (Default to canvasXpress).}
+\item{plotType}{Plot type must be canvasXpress or ggplot (default to canvasXpress).}
 
 \item{facetColname}{Define the column name to separate plots from geneData (default = "rgd_symbol").}
 
@@ -50,9 +50,9 @@ logRatioPlot(
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
 
-\item{labelAngle}{Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)}
+\item{labelAngle}{Angle to set the sample labels on the X axis (default =  45; Range = 0-90)}
 
-\item{axisFree}{Specify same scale or independent scales for each subplot (Default = TRUE;
+\item{axisFree}{Specify same scale or independent scales for each subplot (default = TRUE;
 Allowed values: TRUE and FALSE)}
 }
 \value{
