@@ -2,20 +2,14 @@ context("DGEobj.plots - tests for plotNorm.R functions")
 
 
 test_that("plotNorm.R: plotNorm()", {
+    skip_if(!"counts" %in% names(t_obj1))
+
     ######### box test####################
-    # testing with DGEobj count matrix and plotType cx - plotCategory box
+    # testing with DGEobj and plotType cx - plotCategory box
     norm_plot <- plotNorm(dgeObj = t_obj1)
     expect_s3_class(norm_plot, c("canvasXpress", "htmlwidget"))
 
-    # testing with DGEobj count matrix and plotType ggplot - plotCategory box
-    norm_plot <- plotNorm(dgeObj = t_obj1, plotType = "ggplot")
-    expect_s3_class(norm_plot, c("gg", "ggplot"))
-
-    # testing with DGEobj object and plotType cx - plotCategory box
-    norm_plot <- plotNorm(dgeObj = t_obj1)
-    expect_s3_class(norm_plot, c("canvasXpress", "htmlwidget"))
-
-    # testing with DGEobj object and plotType ggplot - plotCategory box
+    # testing with DGEobj and plotType ggplot - plotCategory box
     norm_plot <- plotNorm(dgeObj = t_obj1, plotType = "ggplot")
     expect_s3_class(norm_plot, c("gg", "ggplot"))
 

@@ -1,18 +1,17 @@
 #' Plot edgeR dispersion from a DGEobj
 #'
-#' Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a counts matrix
-#' or DGEList for input.  Dispersion is plotted against AveLogCPM.  Optionally,
+#' Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a DGEobj which has a counts matrix
+#' or DGEList as input.  Dispersion is plotted against AveLogCPM.  Optionally,
 #' the plot can instead be Biological Coefficient of Variation (BCV is the square root of
 #' dispersion) against AveLogCPM.
 #'
-#' @param dgeObj DGEobj.
-#' @param replicateGroupCol A singular value of class character and must be in design data. (default = "ReplicateGroup")
-#' @param countsMatrix If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = FALSE)
+#' @param dgeObj DGEobj which has a counts matrix or a DGElist
+#' @param replicateGroupCol A singular value of class character and must be a column name in design object (default = "ReplicateGroup")
+#' @param countsMatrix If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = TRUE)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param plotCategory One of "dispersion" or "BCV" (default = "dispersion")
-#' @param lineFit (default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
-#' one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
-#'   recommended.
+#' @param lineFit If the plotType is ggplot, any method supported by `geom_smooth()`. If the plotType is canvasXpress, one of glm, lm, loess, gam is accepted .
+#' Loess is recommended. (default = NULL)
 #' @param ... Extra parameters to pass to edgeR::estimateDisp
 #'
 #' @return canvasxpress or ggplot object based on plotType selection
@@ -23,17 +22,17 @@
 #'    myCxplot <- plotDispersion(myDGEobj)
 #'
 #'    # ggplot
-#'    myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
+#'    myGgplot <- plotDispersion(myDGEobj, plotType = "ggplot")
 #' }
 #'
-#' @importFrom assertthat assert_that see_if
+#' @importFrom assertthat assert_that
 #' @importFrom edgeR calcNormFactors estimateDisp DGEList
 #' @importFrom canvasXpress canvasXpress
 #'
 #'
 #' @export
 plotDispersion <- function(dgeObj,
-                           countsMatrix = FALSE,
+                           countsMatrix = TRUE,
                            replicateGroupCol = "ReplicateGroup",
                            plotType     = "canvasXpress",
                            plotCategory = "dispersion",
@@ -47,7 +46,7 @@ plotDispersion <- function(dgeObj,
 
     design_names <- names(DGEobj::getType(dgeObj, type = "design"))
     assertthat::assert_that(length(design_names) == 1,
-                            msg = "DGEobj must have exactly one design object.")
+                            msg = "dgeObj must have exactly one design object.")
     design <- DGEobj::getType(dgeObj, type = "design")[[1]]
 
     if (any(is.null(replicateGroupCol),
@@ -58,13 +57,23 @@ plotDispersion <- function(dgeObj,
         replicateGroupCol <- "ReplicateGroup"
     }
 
-    designMatrix <- stats::model.matrix(~ 0 + ReplicateGroup, design)
+    designMatrix <- stats::model.matrix(as.formula(paste("~ 0 +", replicateGroupCol)), design)
 
     if (any(is.null(countsMatrix),
             !is.logical(countsMatrix),
             length(countsMatrix) != 1)) {
-        warning("countsMatrix must be a singular logical value. Assigning default value FALSE.")
-        countsMatrix <- FALSE
+        warning("countsMatrix must be a singular logical value. Assigning default value TRUE.")
+        countsMatrix <- TRUE
+    }
+
+    if (countsMatrix) {
+        counts_names <- suppressWarnings(names(DGEobj::getType(dgeObj,"counts")))
+        assertthat::assert_that(length(counts_names) == 1,
+                                msg = "dgeObj needs to have exactly one counts matrix." )
+    } else {
+        DGEList_names <- suppressWarnings(names(DGEobj::getType(dgeObj,"DGEList")))
+        assertthat::assert_that(length(DGEList_names) == 1,
+                                msg = "dgeObj needs to have exactly one DGEList." )
     }
 
     plotType <- tolower(plotType)
@@ -85,6 +94,7 @@ plotDispersion <- function(dgeObj,
         plotCategory <- "dispersion"
     }
 
+
     if (!is.null(lineFit) &&
         !all(is.character(lineFit),
              length(lineFit) == 1,
@@ -94,13 +104,13 @@ plotDispersion <- function(dgeObj,
     }
 
     if (countsMatrix) {
-        dgelist <- dgeObj$counts %>%  # Process a counts matrix
+        dgelist <- DGEobj::getType(dgeObj, "counts")[[1]] %>%  # Process a counts matrix
             as.matrix %>%
             edgeR::DGEList() %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     } else {
-        dgelist <- dgeObj$DGEList %>%
+        dgelist <- DGEobj::getType(dgeObj, "DGEList")[[1]] %>%
             edgeR::calcNormFactors() %>%
             edgeR::estimateDisp(design = designMatrix, robust = TRUE, ...)
     }

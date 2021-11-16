@@ -2,6 +2,8 @@ context("DGEobj.plots - tests for logRatioPlot.R functions")
 
 
 test_that("logRatioPlot.R: logRatioPlot()", {
+    skip_if(is.null(getType(t_obj1, "topTable")))
+
     #subset t_obj1
     t_obj1_subset <- subset(t_obj1, row = c(1:10))
 
@@ -68,19 +70,19 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## facetColname
     msg <- "facetColname must be one of geneData data columns. Setting default value 'rgd_symbol'"
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = c("rgd_symbol", "rgd_symbol"),
                                         xColname     = "Contrast"),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plott <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plott <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "abc",
                                          xColname     = "Contrast"),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = NULL,
                                         xColname     = "Contrast"),
@@ -93,7 +95,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                        list("geneData"),
                                        list("geneData"),
                                        overwrite = TRUE)
-    expect_error(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_error(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                       plotType     = "canvasXpress",
                                       facetColname = "rgd_symbol",
                                       xColname     = "Contrast"),
@@ -105,30 +107,30 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
 
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = c("rgd_symbol", "rgd_symbol"),
                                         xColname     = "Contrast"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plott <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plott <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "abc",
                                          xColname     = "Contrast"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = NULL,
                                         xColname     = "Contrast"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_error(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_error(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                       plotType     = "ggplot",
                                       facetColname = "rgd_symbol",
                                       xColname     = "Contrast"),
                  regexp = "facetColname must be one of geneData data columns.")
-    plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                          plotType     = "ggplot",
                          facetColname = "gSymbols",
                          xColname     = "Contrast")
@@ -148,21 +150,21 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## yColname
     msg <- "yColname must be one of toptables data columns. Setting default value 'logFC'"
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         yColname     = c("Contrast", "Contrast")),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plott <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plott <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          yColname     = "abc"),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -181,7 +183,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                        list("topTable", "topTable", "topTable", "topTable"),
                                        list("topTable", "topTable", "topTable", "topTable"),
                                        overwrite = TRUE)
-    expect_error(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_error(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                       plotType     = "canvasXpress",
                                       facetColname = "rgd_symbol",
                                       xColname     = "Contrast"),
@@ -189,28 +191,28 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
 
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         yColname     = c("Contrast", "Contrast")),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plott <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plott <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          yColname     = "abc"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         yColname     = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_error(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_error(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                       plotType     = "ggplot",
                                       facetColname = "rgd_symbol",
                                       xColname     = "Contrast"),
@@ -220,7 +222,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## CI.R_colname
     msg <- "CI.R_colname must be one of toptables data columns. Setting default value 'CI.R'"
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -229,7 +231,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -238,7 +240,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -258,7 +260,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                        list("topTable", "topTable", "topTable", "topTable"),
                                        overwrite = TRUE)
     ## faceted bar plot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -279,7 +281,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
 
     ## single point plot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -291,7 +293,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_type(plot, "list")
     expect_s3_class(plot[[1]], c("canvasXpress", "htmlwidget"))
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -300,7 +302,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -309,7 +311,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -318,7 +320,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -330,7 +332,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## CI.L_colname
     msg <- "CI.L_colname must be one of toptables data columns. Setting default value 'CI.L'"
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -340,7 +342,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -350,7 +352,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -370,7 +372,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                                        list("topTable", "topTable", "topTable", "topTable"),
                                        list("topTable", "topTable", "topTable", "topTable"),
                                        overwrite = TRUE)
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -381,7 +383,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
 
     ## ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -391,7 +393,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -401,7 +403,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -411,7 +413,7 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg,
                    fixed = TRUE)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset2,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset2,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -422,28 +424,28 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("gg", "ggplot"))
     ## plotCategory
     msg <- "plotCategory must be either 'bar' or 'point'. Setting default value 'bar'"
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         plotCategory = "heatmap"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         plotCategory = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         plotCategory = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -453,28 +455,28 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## refLine
     msg <- "refLine must be singular logical value. Setting default value 'TRUE'."
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         refLine      = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         refLine      = 123),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         refLine      = "FALSE"),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -483,28 +485,28 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
 
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         refLine      = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         refLine      = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         refLine      = "FALSE"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -515,21 +517,21 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## title
     msg <- "title must be a singular value of class character. Assigning default value 'NULL'."
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         title        = 123),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         title        = c(123, 345)),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -537,21 +539,21 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         title        = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         title        = c(123, 345)),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -561,21 +563,21 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## xlab
     msg <- "xlab must be a singular value of class character. Assigning default value 'NULL'."
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         xlab         = 123),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         xlab         = c(123, 345)),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -583,21 +585,21 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         xlab         = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         xlab         = c(123, 345)),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -607,14 +609,14 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## ylab
     msg <- "ylab must be a singular value of class character. Assigning default value 'NULL'."
     ### cxolot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         ylab         = 123),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -629,21 +631,21 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     ### ggolot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         ylab         = 123),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         ylab         = c(123, 345)),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -654,35 +656,35 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     ## labelAngle
     msg <- "labelAngle must be a singular value of class numeric between 0 and 90. Assigning default value '45'."
     ### cxplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = "0.1"),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = -45),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = 145),
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "canvasXpress",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -690,35 +692,35 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                    regexp = msg)
     expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
     ### ggplot
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = NULL),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = "0.1"),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = -45),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         labelAngle   = 145),
                    regexp = msg)
     expect_s3_class(plot, c("gg", "ggplot"))
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         plotType     = "ggplot",
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
@@ -727,17 +729,17 @@ test_that("logRatioPlot.R: logRatioPlot()", {
     expect_s3_class(plot, c("gg", "ggplot"))
     ## plotType
     msg <- "plotType must be either canvasXpress or ggplot. Setting default value 'canvasXpress'"
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         plotType     = NULL),
                    regexp = msg)
-    expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+    expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                         facetColname = "rgd_symbol",
                                         xColname     = "Contrast",
                                         plotType     = 123),
                    regexp = msg)
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          plotType     = c("canvasXpress", "ggplot")),
@@ -745,28 +747,28 @@ test_that("logRatioPlot.R: logRatioPlot()", {
      ## axisFree
      msg <- "axisFree must be a singular logical value. Assigning default value TRUE."
      ### cxplot
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          axisFree     = NULL),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          axisFree     = 123),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          axisFree     = "FALSE"),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
@@ -774,28 +776,28 @@ test_that("logRatioPlot.R: logRatioPlot()", {
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
      ### ggplot
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          axisFree     = NULL),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          axisFree     = 123),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
                                          axisFree     = "FALSE"),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
@@ -806,61 +808,61 @@ test_that("logRatioPlot.R: logRatioPlot()", {
      ## facet
      msg <- "facet must be singular logical value. Setting default value 'TRUE'."
      ### cxplot
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = NULL),
+                                         facet        = NULL),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = 123),
+                                         facet        = 123),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = "FALSE"),
+                                         facet        = "FALSE"),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "canvasXpress",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = c("TRUE", "FALSE")),
+                                         facet        = c("TRUE", "FALSE")),
                     regexp = msg)
      expect_s3_class(plot, c("canvasXpress", "htmlwidget"))
      ### ggplot
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = NULL),
+                                         facet        = NULL),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = 123),
+                                         facet        = 123),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = "FALSE"),
+                                         facet        = "FALSE"),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
-     expect_warning(plot <- logRatioPlot(dgeObj  = t_obj1_subset,
+     expect_warning(plot <- logRatioPlot(dgeObj       = t_obj1_subset,
                                          plotType     = "ggplot",
                                          facetColname = "rgd_symbol",
                                          xColname     = "Contrast",
-                                         facet     = c("TRUE", "FALSE")),
+                                         facet        = c("TRUE", "FALSE")),
                     regexp = msg)
      expect_s3_class(plot, c("gg", "ggplot"))
 })

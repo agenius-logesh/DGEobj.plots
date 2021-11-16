@@ -1,8 +1,7 @@
-#' Create formatted scatterplot of first two cols of data.frame
+#' Create formatted scatterplot of a common column from 2 contrasts
 #'
-#' Creates a nicely formatted scatterplot of the
-#' first two columns in a dataframe.  Several formatting options are
-#' available to enhance the plots.  If p-values or FDR values and a threshold are supplied,
+#' Creates a nicely formatted scatterplot of any common column from any 2 topTable dataframes(defaults to logFC).
+#'  Additionally, if p-values or FDR values and a threshold are supplied,
 #' the plot is color coded to show X unique, Y unique, and
 #' common differentially expressed (DE) genes in different colors.
 #'
@@ -10,8 +9,8 @@
 #'
 #' \strong{Data Structure for the input dataframe:}
 #'
-#' The x and y values should be in the first two columns. By default, their
-#' column names will be used for the axis labels. The x and y labels can be changed
+#' The x and y values should a common column from two chosen contrasts. By default, the
+#' contrast names will be used for the axis labels. The x and y labels can be changed
 #' using the xlab and ylab arguments.
 #'
 #' Optionally, significance measures in the form of p-values or FDR values can be supplied
@@ -21,18 +20,13 @@
 #' genes.  Use either p-values or FDR values for the significance columns. Use the
 #' pThreshold argument to set a proper threshold for FDR values.
 #'
-#' Sensible defaults are chosen for symbols (Size, Shape, Color and Fill), but optional
-#' arguments allow much about the symbols to be customized. A length of 4 is
-#' required for these arguments which applies the attributes in this order:
-#' Common, X Unique, Y Unique, and Not Significant.
 #'
-#' Note: if p-values or FDR values are not used to color the plot, the X Unique color
-#' values are used.
-#'
-#' @param dgeObj DGEobj with a class of DGEobj.
-#' @param contrasts A pair of two contrasts in DGEobj that has logFC and P.Value.
+#' @param dgeObj A DGeobj with atleast 2 contrasts
+#' @param contrasts The itemNames of a pair of two contrasts in DGEobj that has logFC column.
 #'        Optionally add xp and yp columns to hold p-values or FDR values using colorBySigMeasure.
 #' @param colorBySigMeasure Colors points by significance measures.  (default = TRUE)
+#' @param pvalCol Name of the p-value column (default = "P.Value")
+#' @param valueCol Column name of the data for plot (default = "logFC")
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param xlab X-axis label (default = first column name)
 #' @param ylab Y-axis label (default = second column name)
@@ -48,7 +42,7 @@
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
 #'   contrasts <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
 #'   contrastList <- lapply(contrasts, function(x){
-#'      getItems(dgeObj, x)
+#'      DGEobj::getItems(dgeObj, x)
 #'    })
 #'    names(contrastList) <- contrasts
 #'
@@ -82,6 +76,8 @@
 comparePlot <- function(dgeObj,
                         contrasts,
                         colorBySigMeasure = TRUE,
+                        pvalCol = "P.Value",
+                        valueCol = "logFC",
                         plotType = "canvasXpress",
                         pThreshold = 0.01,
                         xlab = NULL,
@@ -107,6 +103,16 @@ comparePlot <- function(dgeObj,
     })
     names(contrastList) <- contrasts
 
+    assertthat::assert_that(!is.null(valueCol),
+                            length(valueCol) == 1,
+                            (valueCol %in% colnames(contrastList[[1]])) && (valueCol %in% colnames(contrastList[[2]])),
+                            msg = "valueCol to be a singular value of class character and must be present in both the contrasts.")
+
+    assertthat::assert_that(!is.null(pvalCol),
+                            length(pvalCol) == 1,
+                            (pvalCol %in% colnames(contrastList[[1]])) && (pvalCol %in% colnames(contrastList[[2]])),
+                            msg = "pvalCol to be a singular value of class character and must be present in both the contrasts.")
+
     if (any(is.null(colorBySigMeasure),
             !is.logical(colorBySigMeasure),
             length(colorBySigMeasure) != 1)) {
@@ -115,9 +121,13 @@ comparePlot <- function(dgeObj,
     }
 
     if (colorBySigMeasure) {
-        compareDF <- comparePrep(contrastList)
+        compareDF <- comparePrep(contrastList,
+                                 valueCol = valueCol,
+                                 significanceCol = pvalCol)
     } else {
-        compareDF <- comparePrep(contrastList)[,1:2]
+        compareDF <- comparePrep(contrastList,
+                                 valueCol = valueCol,
+                                 significanceCol = pvalCol)[,1:2]
     }
 
     plotType <- tolower(plotType)
@@ -328,10 +338,10 @@ comparePlot <- function(dgeObj,
 #' (present in both datasets). The two dataframes must have the same type of
 #' gene IDs as rownames.
 #'
-#' @param contrastList A named list of 2 topTable dataframes (Required). The
+#' @param contrastList A named list of 2 topTable dataframes (required). The
 #'   names are used as column names for the value columns in the output.
-#' @param valueCol Name of column containing values to plot (Default = "logFC")
-#' @param significanceCol Name of column to use for significance (Default = "P.Value")
+#' @param valueCol Name of column containing values to plot (default = "logFC")
+#' @param significanceCol Name of column to use for significance (default = "P.Value")
 #'
 #' @return A data frame with 2 LogRatio measurements and 2 significance columns.  Columns 1 and 3 map
 #' to sample 1 and columns 2 and 4 map to sample 2.  The returned dataframe is formatted as expected

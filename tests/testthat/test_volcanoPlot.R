@@ -2,6 +2,9 @@ context("DGEobj.plots - tests for volcanoPlot.R functions")
 
 
 test_that("volcanoPlot.R: volcanoPlot()", {
+    contrasts <- c("BDL_vs_Sham", "EXT1024_vs_BDL")
+    skip_if(!all(contrasts %in% names(DGEobj::getType(t_obj1,"topTable"))))
+
     # testing contrast objects defualts (sizeByIntensity=TRUE and no geneNameCol)
     ## BDL_vs_Sham
     volcano_plot <- volcanoPlot(dgeObj   = t_obj1,

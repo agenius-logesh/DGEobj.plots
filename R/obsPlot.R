@@ -4,7 +4,6 @@
 #' experiment group.
 #'
 #' The plot can optionally include boxplot, violinplot or both and can additionally choose to display points on the plot.
-#' The boxLayer and the violin layer can be customized to have the desired transparency, colors etc.
 #'
 #' By default, the violinLayer is not displayed and only the boxplot, points and the mean on the plots can be seen.
 #' Also, by default, the plots are faceted.
@@ -12,59 +11,68 @@
 #' Faceting the plot can be turned off to return a list of individual plots for each gene. Input is a DGEobj with a
 #' Counts Matrix. User can also provide input parameters to convert the counts matrix to other desired units.
 #'
-#' @param data A  DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)
+#'
+#' @param dgeObj A DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)
 #' @param plotType Can be canvasXpress or ggplot (default = canvasXpress)
 #' @param designTable Name of the design table in the DGEObj from which the grouping column will be extracted. (default = design)
 #' @param countsMatrix Name of the counts matrix in the DGEObj which will be used to render the plot.(default = counts)
 #' @param convertCounts A flag to indicate if counts matrix need to be converted or taken as is. Default value is NULL. This indicates
 #'     countsMatrix need to be taken as is. To convert the counts matrix, specify the desired unit. Supported units include CPM,FPKM, FPK and TPM.
-#'     This parameter is passed to DGEobj.utils::convertCounts
-#' @param convert_geneLength Parameter to pass to DGEobj.utils::convertCounts.
+#'     This parameter is passed to DGEobj.utils::convertCounts (default = NULL)
+#' @param convert_geneLength Parameter to pass to DGEobj.utils::convertCounts. (optional).
 #' @param convert_log Parameter to pass to DGEobj.utils::convertCounts. (default = FALSE)
 #' @param convert_normalize Parameter to pass to DGEobj.utils::convertCounts. (default = none)
 #' @param convert_prior.count Parameter to pass to DGEobj.utils::convertCounts. (default = NULL)
 #' @seealso \link[DGEobj.utils]{convertCounts}
 #' @param group Define the column name to group boxplots by (typically a replicate group column) (required)
 #' @param violinLayer Adds a violin layer (default = FALSE)
-#' @param showPoints Shows the datapoints on the plot (default = TRUE)
+#' @param showPoints Shows the data points on the plot (default = TRUE)
 #' @param xlab X axis label (defaults to group column name if not specified)
 #' @param ylab Y axis label (defaults to value column name if not specified)
 #' @param title Plot title (optional)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
-#'   (FALSE)  (default = TRUE)
+#'   (FALSE)  (default = TRUE). It is recommended to facet no more than 40 plots. If 40 of more plots are needed, please set this argument to FALSE
 #' @param axisFree Specify same scale or independent scales for each subplot (default = TRUE;
 #'   Allowed values: TRUE or FALSE)
 #'
-#' @return Plot of type canvasXpress or ggplot. If Facet = TRUE (default) returns a faceted object. If
-#'   facet = FALSE, returns a list of objects indexed
-#'   by observation (gene) names.
+#' @return Plot of type canvasXpress or ggplot. If facet = FALSE (default),
+#' returns a list of objects indexed by observation (gene) names.
+#' If facet = TRUE returns a faceted object.
+#'
 #'
 #' @examples
 #' \dontrun{
+#'   #subset the DGEobject to only 6 genes before plotting
+#'   DGEobj6 <- DGEobj[1:6,]
 #'
 #'   # Faceted boxplot
-#'   obsPlot(DGEobj,
+#'   obsPlot(DGEobj6,
 #'           designTable = "design",
-#'           group = "replicategroup")
+#'           group = "replicategroup",
+#'           countsMatrix = "counts",
+#'           facet = TRUE)
 #'
 #'   # Faceted violin plot
-#'   obsPlot(DGEobj,
+#'   obsPlot(DGEobj6,
 #'            violinLayer = TRUE,
 #'            designTable = "design",
-#'            group = "replicategroup")
+#'            group = "replicategroup",
+#'            countsMatrix = "counts",
+#'            facet = TRUE)
 #'
 #'   # Return a list of plot for each individual gene
-#'   myplots <- obsPlot(DGEobj,
+#'   myplots <- obsPlot(DGEobj6,
 #'                      designTable = "design",
-#'                      group = "replicategroup"
-#'                      facet = FALSE)
+#'                      group = "replicategroup",
+#'                      countsMatrix = "counts")
 #'   # Plot one from the list
 #'   myplots[[2]]
 #'
 #'   #ggplot
-#'   obsPlot(DGEobj,
+#'   obsPlot(DGEobj6,
 #'           designTable = "design",
 #'           group = "replicategroup",
+#'           countsMatrix = "counts",
 #'           plotType = "ggplot")
 #' }
 #'
@@ -75,6 +83,8 @@
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom stringr str_c
 #' @importFrom rlang sym
+#' @importFrom DGEobj getItem getType
+#' @importFrom DGEobj.utils convertCounts
 #'
 #' @export
 obsPlot <- function(dgeObj,
@@ -92,7 +102,7 @@ obsPlot <- function(dgeObj,
                     xlab,
                     ylab,
                     title,
-                    facet               = TRUE,
+                    facet               = FALSE,
                     axisFree            = TRUE) {
 
     assertthat::assert_that(!missing(dgeObj),
@@ -100,10 +110,10 @@ obsPlot <- function(dgeObj,
                             "DGEobj" %in% class(dgeObj),
                             msg = "dgeObj must be specified and must belong to DGEobj class.")
 
-    assertthat::assert_that(!is.null(getType(dgeObj,"counts")),
+    assertthat::assert_that(!is.null(DGEobj::getType(dgeObj,"counts")),
                             msg = "counts matrix must be available in dgeObj to plot the data.")
 
-    assertthat::assert_that(!is.null(getType(dgeObj,"design")),
+    assertthat::assert_that(!is.null(DGEobj::getType(dgeObj,"design")),
                             msg = "design table must be available in dgeObj to plot the data.")
 
     #plotType
@@ -122,8 +132,8 @@ obsPlot <- function(dgeObj,
             !(countsMatrix %in% names(dgeObj)))) {
         if ("counts" %in% names(dgeObj)) {
             countsMatrix <- "counts"
-        } else if (!is.null(getType(dgeObj,"counts"))) {
-            countsMatrix <- names(getType(dgeObj,"counts"))
+        } else if (!is.null(DGEobj::getType(dgeObj,"counts"))) {
+            countsMatrix <- names(DGEobj::getType(dgeObj,"counts"))
         }
         warning(paste0("countsMatrix specified is not present in DGEobj. Assigning default value '", countsMatrix,"'."))
     }
@@ -154,7 +164,7 @@ obsPlot <- function(dgeObj,
         }
 
         if (!missing(convert_geneLength) && convertCounts != "CPM") {
-            assertthat::assert_that(length(convert_geneLength) == nrow(getItem(dgeObj, countsMatrix)),
+            assertthat::assert_that(length(convert_geneLength) == nrow(DGEobj::getItem(dgeObj, countsMatrix)),
                                     msg = "geneLength must be the same length of the number of rows in countsMatrix.")
         }
 
@@ -165,7 +175,7 @@ obsPlot <- function(dgeObj,
             convert_prior.count <- NULL
         }
 
-        data <- convertCounts(getItem(dgeObj, countsMatrix),
+        data <- DGEobj.utils::convertCounts(DGEobj::getItem(dgeObj, countsMatrix),
                                       unit        = convertCounts,
                                       geneLength  = convert_geneLength,
                                       log         = convert_log,
@@ -173,7 +183,7 @@ obsPlot <- function(dgeObj,
                                       prior.count = convert_prior.count) %>%
             as.data.frame()
     } else {
-        data <- getItem(dgeObj, countsMatrix) %>%
+        data <- DGEobj::getItem(dgeObj, countsMatrix) %>%
             as.data.frame()
     }
 
@@ -183,8 +193,8 @@ obsPlot <- function(dgeObj,
                 !(designTable %in% names(dgeObj)))) {
             if ("design" %in% names(dgeObj)) {
                 designTable <- "design"
-            } else if (!is.null(getType(dgeObj,"design"))) {
-                designTable <- names(getType(dgeObj,"design"))
+            } else if (!is.null(DGEobj::getType(dgeObj,"design"))) {
+                designTable <- names(DGEobj::getType(dgeObj,"design"))[[1]]
             }
             warning(paste0("designTable specified is not present in DGEobj. Assigning default value '", designTable,"'."))
         }

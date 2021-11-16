@@ -2,7 +2,6 @@ context("DGEobj.plots - tests for mapDGEobj.R functions")
 
 
 test_that('mapDGEobj.R: mapDGEobj()', {
-    t_obj1 <- readRDS("/efs/bms_shared/data/cdb/APJ_LAD_Heart_18Jan2017.RDS")
     map_DGEobj <- mapDGEobj(t_obj1)
     expect_s3_class(map_DGEobj, c("canvasXpress", "htmlwidget"))
 

@@ -13,8 +13,8 @@
 #' If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
 #' ggplots, one for each facetColname value \emph{(typically gene)}.
 #'
-#' @param dgeObj A DGEobj that contains a contrast or more dataframe.
-#' @param plotType Plot type must be canvasXpress or ggplot (Default to canvasXpress).
+#' @param dgeObj A DGEobj that contains topTable objects (required)
+#' @param plotType Plot type must be canvasXpress or ggplot (default to canvasXpress).
 #' @param facetColname Define the column name to separate plots from geneData (default = "rgd_symbol").
 #' @param xColname Define name for the computed column to group boxplots by (Required) (default = "Contrast").
 #' @param yColname Define the column name for the output of the boxplots (default = "logFC")
@@ -27,8 +27,8 @@
 #' @param title Plot title, set to NULL to disable (Optional, default is NULL)
 #' @param facet Specifies whether to facet (TRUE) or print individual plots
 #'   (FALSE)  (default = TRUE)
-#' @param labelAngle Angle to set the sample labels on the X axis (Default =  45; Range = 0-90)
-#' @param axisFree Specify same scale or independent scales for each subplot (Default = TRUE;
+#' @param labelAngle Angle to set the sample labels on the X axis (default =  45; Range = 0-90)
+#' @param axisFree Specify same scale or independent scales for each subplot (default = TRUE;
 #'   Allowed values: TRUE and FALSE)
 #'
 #' @return canvasXpress (the default) or a ggplot object:
@@ -48,7 +48,7 @@
 #'               facetColname = "rgd_symbol",
 #'               xColname = "Contrast")
 #'
-#'   # Lineplot with some options
+#'   # Point plot with some options
 #'  logRatioPlot(t_obj1_subset,
 #'               plotCategory = "point",
 #'               facetColname = "rgd_symbol",

@@ -2,7 +2,7 @@
 % Please edit documentation in R/volcanoPlot.R
 \name{volcanoPlot}
 \alias{volcanoPlot}
-\title{Create volcano}
+\title{Create volcano plot}
 \usage{
 volcanoPlot(
   dgeObj,
@@ -22,7 +22,7 @@ volcanoPlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj.}
+\item{dgeObj}{DGEobj with a topTable dataframe (required)}
 
 \item{contrast}{Name of the contrast.}
 
@@ -38,9 +38,9 @@ volcanoPlot(
 
 \item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to label significantly changed points.}
 
-\item{xlab}{X axis label. (Default is the LogIntensity column name)}
+\item{xlab}{X axis label. (default is the LogIntensity column name)}
 
-\item{ylab}{Y axis label. (Default is the LogRatio column name)}
+\item{ylab}{Y axis label. (default is the LogRatio column name)}
 
 \item{title}{Plot title (optional).}
 

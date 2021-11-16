@@ -6,7 +6,7 @@
 \usage{
 plotDispersion(
   dgeObj,
-  countsMatrix = FALSE,
+  countsMatrix = TRUE,
   replicateGroupCol = "ReplicateGroup",
   plotType = "canvasXpress",
   plotCategory = "dispersion",
@@ -15,19 +15,18 @@ plotDispersion(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj.}
+\item{dgeObj}{DGEobj which has a counts matrix or a DGElist}
 
-\item{countsMatrix}{If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = FALSE)}
+\item{countsMatrix}{If TRUE, uses the countsMatrix in DGEobj to construct the plot else DGElist will be used. (default = TRUE)}
 
-\item{replicateGroupCol}{A singular value of class character and must be in design data. (default = "ReplicateGroup")}
+\item{replicateGroupCol}{A singular value of class character and must be a column name in design object (default = "ReplicateGroup")}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
 \item{plotCategory}{One of "dispersion" or "BCV" (default = "dispersion")}
 
-\item{lineFit}{(default = NULL) Any type supported by geom_smooth(if plotType is ggplot) or
-one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
-  recommended.}
+\item{lineFit}{If the plotType is ggplot, any method supported by `geom_smooth()`. If the plotType is canvasXpress, one of glm, lm, loess, gam is accepted .
+Loess is recommended. (default = NULL)}
 
 \item{...}{Extra parameters to pass to edgeR::estimateDisp}
 }
@@ -35,8 +34,8 @@ one of glm, lm, loess, gam if plotType is canvasXpress. Loess is recommended.
 canvasxpress or ggplot object based on plotType selection
 }
 \description{
-Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a counts matrix
-or DGEList for input.  Dispersion is plotted against AveLogCPM.  Optionally,
+Creates an edgeR dispersion plot for RNA-Seq QC purposes.  Takes a DGEobj which has a counts matrix
+or DGEList as input.  Dispersion is plotted against AveLogCPM.  Optionally,
 the plot can instead be Biological Coefficient of Variation (BCV is the square root of
 dispersion) against AveLogCPM.
 }
@@ -46,7 +45,7 @@ dispersion) against AveLogCPM.
    myCxplot <- plotDispersion(myDGEobj)
 
    # ggplot
-   myGgplot <- plotDispersion(myDGEobj, designMatrix, plotType = "ggplot")
+   myGgplot <- plotDispersion(myDGEobj, plotType = "ggplot")
 }
 
 }

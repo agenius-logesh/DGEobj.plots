@@ -2,6 +2,7 @@ context("DGEobj.plots - tests for plotPValHist.R functions")
 
 
 test_that("plotPValHist.R: plotPvalHist()", {
+    skip_if(is.null(getType(t_obj1, "topTable")))
 
     # testing plotPvalHist with facet = TRUE
     pval_plot <- plotPvalHist(dgeObj = t_obj1)
