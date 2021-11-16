@@ -66,6 +66,7 @@
 #' @importFrom assertthat assert_that
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom magrittr "%>%" set_rownames multiply_by
+#' @importFrom DGEobj getItems
 #'
 #' @export
 comparePlot <- function(dgeObj,
