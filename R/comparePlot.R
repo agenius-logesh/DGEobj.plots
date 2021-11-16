@@ -70,7 +70,8 @@
 #' @importFrom dplyr mutate arrange filter select rename_with summarise across everything
 #' @importFrom assertthat assert_that
 #' @importFrom canvasXpress canvasXpress
-#' @importFrom magrittr set_rownames multiply_by
+#' @importFrom magrittr "%>%" set_rownames multiply_by
+#' @importFrom DGEobj getItems
 #'
 #' @export
 comparePlot <- function(dgeObj,
