@@ -71,17 +71,12 @@ pThreshold argument to set a proper threshold for FDR values.
 \examples{
 \dontrun{
   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
-  contrasts <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
-  contrastList <- lapply(contrasts, function(x){
+  dgeObj       <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
+  contrasts    <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
+  contrastList <- lapply(contrasts, function(x) {
      DGEobj::getItems(dgeObj, x)
    })
    names(contrastList) <- contrasts
-
-  # Capture the default logFC and P.Value
-  compareDat <- comparePrep(contrastList)
-
-  # Switch to an FDR value for the significance measure
-  compareDat <- comparePrep(contrastList, significanceCol = "adj.P.Val")
 
   # Draw the plot
   cPlot <- comparePlot(dgeObj, contrasts, title = "Plot Title")
