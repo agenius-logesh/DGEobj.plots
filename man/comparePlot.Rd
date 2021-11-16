@@ -75,8 +75,8 @@ pThreshold argument to set a proper threshold for FDR values.
   contrasts    <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
   contrastList <- lapply(contrasts, function(x) {
      DGEobj::getItems(dgeObj, x)
-   })
-   names(contrastList) <- contrasts
+  })
+  names(contrastList) <- contrasts
 
   # Draw the plot
   cPlot <- comparePlot(dgeObj, contrasts, title = "Plot Title")

@@ -44,8 +44,8 @@
 #'   contrasts    <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
 #'   contrastList <- lapply(contrasts, function(x) {
 #'      DGEobj::getItems(dgeObj, x)
-#'    })
-#'    names(contrastList) <- contrasts
+#'   })
+#'   names(contrastList) <- contrasts
 #'
 #'   # Draw the plot
 #'   cPlot <- comparePlot(dgeObj, contrasts, title = "Plot Title")
@@ -66,7 +66,6 @@
 #' @importFrom assertthat assert_that
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom magrittr "%>%" set_rownames multiply_by
-#' @importFrom DGEobj getItems
 #'
 #' @export
 comparePlot <- function(dgeObj,
@@ -95,7 +94,7 @@ comparePlot <- function(dgeObj,
                             msg = "contrasts must be a class of character and must be two of the top tables in the dgeObj. with logFC and P.value columns.")
 
     contrastList <- lapply(contrasts, function(x){
-        getItems(dgeObj, x)
+        DGEobj::getItems(dgeObj, x)
     })
     names(contrastList) <- contrasts
 
