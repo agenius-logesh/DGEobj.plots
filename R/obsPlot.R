@@ -11,7 +11,6 @@
 #' Faceting the plot can be turned off to return a list of individual plots for each gene. Input is a DGEobj with a
 #' Counts Matrix. User can also provide input parameters to convert the counts matrix to other desired units.
 #'
-#'
 #' @param dgeObj A DGEObject. The countsMatrix in the DGEObject is extracted to plot the data. (required)
 #' @param plotType Can be canvasXpress or ggplot (default = canvasXpress)
 #' @param designTable Name of the design table in the DGEObj from which the grouping column will be extracted. (default = design)

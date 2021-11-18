@@ -25,6 +25,8 @@
 #'   Default = ReplicateGroup or rownames of dgeObj. Set to NULL to disable
 #'   text labels.
 #' @param title A title for the plot. (Optional)
+#' @param xlab x axis label (Optional)
+#' @param ylab y axis label (Optional)
 #' @param vlineIntercept X intercept of vertical line (Optional)
 #' @param hlineIntercept Y intercept of horizontal line (Optional)
 #'
@@ -47,7 +49,6 @@
 #' @importFrom assertthat assert_that
 #' @importFrom limma plotMDS
 #' @importFrom stats as.dist
-#' @importFrom tibble rownames_to_column
 #' @importFrom dplyr rename left_join select mutate
 #' @importFrom DGEobj getItem
 #'
@@ -233,8 +234,9 @@ ggplotMDS <- function(dgeObj,
         colorBy <- tolower(colorBy)
         colorby_data <- design %>%
             dplyr::select(!!colorBy) %>%
-            dplyr::rename(ColorCode = !!colorBy) %>%
-            tibble::rownames_to_column("sampleID")
+            dplyr::rename(ColorCode = !!colorBy)
+        colorby_data[["sampleID"]] <- rownames(colorby_data)
+
         plot_data <- plot_data %>%
             dplyr::left_join(colorby_data, by = "sampleID")
         byColor <- TRUE
@@ -245,8 +247,9 @@ ggplotMDS <- function(dgeObj,
             labels <- tolower(labels)
             labels_data <- design %>%
                 dplyr::select(!!labels) %>%
-                dplyr::rename(Labels = !!labels) %>%
-                tibble::rownames_to_column("sampleID")
+                dplyr::rename(Labels = !!labels)
+            labels_data[["sampleID"]] <- rownames(labels_data)
+
             plot_data <- plot_data %>%
                 dplyr::left_join(labels_data, by = "sampleID")
         } else {
@@ -261,8 +264,9 @@ ggplotMDS <- function(dgeObj,
         shapeBy <- tolower(shapeBy)
         shapeby_data <- design %>%
             dplyr::select(!!shapeBy) %>%
-            dplyr::rename(Shape = !!shapeBy) %>%
-            tibble::rownames_to_column("sampleID")
+            dplyr::rename(Shape = !!shapeBy)
+        shapeby_data[["sampleID"]] <- rownames(shapeby_data)
+
         plot_data <- plot_data %>%
             dplyr::left_join(shapeby_data, by = "sampleID")
         byShape <- TRUE
@@ -272,8 +276,9 @@ ggplotMDS <- function(dgeObj,
         sizeBy <- tolower(sizeBy)
         sizeby_data <- design %>%
             dplyr::select(!!sizeBy) %>%
-            dplyr::rename(Size = !!sizeBy) %>%
-            tibble::rownames_to_column("sampleID")
+            dplyr::rename(Size = !!sizeBy)
+        sizeby_data[["sampleID"]] <- rownames(sizeby_data)
+
         plot_data <- plot_data %>%
             dplyr::left_join(sizeby_data, by = "sampleID")
         bySize <- TRUE
@@ -454,7 +459,7 @@ ggplotMDS <- function(dgeObj,
 #' @param topN The number of dimensions to plot (default = 10)
 #' @param cumVarLimit The maximum cumulative variance to plot. Range 0-1. (default = 0.9)
 #' @param barColor Fill and outline color default = "dodgerblue4"
-#' @param barWidth. Range 0-1. Applicable only for ggplot. (default = 0.65)
+#' @param barWidth Range 0-1. Applicable only for ggplot. (default = 0.65)
 #'
 #' @return A list with two plots(ggplot or canvasXpress plots) and the variance explained data.frame.
 #'

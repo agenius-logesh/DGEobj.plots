@@ -62,7 +62,7 @@
         rgbaVal <- paste(c(col2rgb(color), alpha), collapse = ",")
         rgbastr <- paste0("rgba(", rgbaVal, ")")
     }, error = function(e) {
-        warning(paste("Ïnvalid color specified",color))
+        warning(paste("Invalid color specified",color))
     })
     if (is.null(rgbastr)) {
         rgbastr <- "invalid value"

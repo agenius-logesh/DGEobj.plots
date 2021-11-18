@@ -42,6 +42,10 @@ text labels.}
 
 \item{title}{A title for the plot. (Optional)}
 
+\item{xlab}{x axis label (Optional)}
+
+\item{ylab}{y axis label (Optional)}
+
 \item{hlineIntercept}{Y intercept of horizontal line (Optional)}
 
 \item{vlineIntercept}{X intercept of vertical line (Optional)}

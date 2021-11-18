@@ -13,11 +13,11 @@ cdfPlot(
   xlab,
   ylab,
   title = NULL,
-  viewportTitle = NULL,
+  insetTitle = NULL,
   referenceLine = NULL,
-  viewportX = 0.15,
-  viewportY = 0.85,
-  viewportWidth = 0.35,
+  insetX = 0.15,
+  insetY = 0.85,
+  insetWidth = 0.35,
   pvalMax = 0.1
 )
 }
@@ -30,7 +30,7 @@ cdfPlot(
 
 \item{pvalCol}{Name of the p-value or FDR column (default = "P.Value")}
 
-\item{pThreshold}{Used to color points (default = 0.01)}
+\item{pThreshold}{Significant value threshold (default = 0.01)}
 
 \item{xlab}{X axis label (default = "Rank")}
 
@@ -38,45 +38,35 @@ cdfPlot(
 
 \item{title}{Plot title (Optional)}
 
-\item{viewportTitle}{Title for the inset plot (Optional)}
+\item{insetTitle}{Title for the inset plot (Optional)}
 
 \item{referenceLine}{Color for a horizontal line drawn at the p-threshold
 (default = NULL; NULL disables, set to desired color to enable)}
 
-\item{viewportX}{x-location for the inset plot(default = 0.15)}
+\item{insetX}{x-location for the inset plot (default = 0.15)}
 
-\item{viewportY}{y-location for the inset plot(default = 0.85)}
+\item{insetY}{y-location for the inset plot (default = 0.85)}
 
-\item{viewportWidth}{width of the inset plot (default = 0.35)}
+\item{insetWidth}{width of the inset plot (default = 0.35)}
 
 \item{pvalMax}{Limit the range of the main plot (default = 0.10)}
 }
 \value{
-A list containing main plot, inset plot for both plotTypes. For plotType ="ggplot" output list also contains a combined plot which
-displays the inset plot in a viewport
+A list of plots.
 }
 \description{
 CDF plots are a good complement to p-value histograms as a way to evaluate
-model performance and examine support for differential expression. Results
-are ranked by p-value on the x-axis and the p-value plotted on the y-axis.
+model performance and examine support for differential expression. On the x-axis,
+is the ranked by p-value and on y-axis is the p-value.
 Since p-value distributions should be flat, this type of plot should produce a
-straight line.  Any observations that fail to meet the null hypothesis will
-appear as a break in the line at the low end of the curve.
+straight line. Any observations that fail to meet the null hypothesis will
+have a break in the line at the end of the curve.
 }
 \details{
 This function is designed to take a topTable dataframe and display the
-corresponding CDF plot. Data for the p-values below 0.1 (configurable via
-pvalMax argument) are shown in a full size plot. An viewport figure shows the
-whole p-value scale. Points below 0.01 are a different color by default
-(threshold set by pThreshold argument; shape/color attributes customizable
-through other arguments).
-
-\strong{Data Structure for the input dataframe:}
-
-The defaults are set for dataframes produced by topTable.  The column
-"P.Value" is used by default to accommodate the column names used in topTable
-dataframes.  Any other dataframe can be used with by explicitly defining the
-p-value column named with the appropriate argument.
+corresponding CDF plots. The first plot (below_pvalMax) are p-values below the pvalMax and the
+the second plot (all_pval) shows all the p-values. For plotType ="ggplot", output also
+contains an additional plot that displays the all_pval plot as an inset in below_pvalMax.
 }
 \examples{
 \dontrun{

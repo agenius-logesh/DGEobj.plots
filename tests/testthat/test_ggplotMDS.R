@@ -54,21 +54,21 @@ test_that("ggplotMDS.R: ggplotMDS()", {
 
     mds_plot <- ggplotMDS(dgeObj      = t_obj1,
                           designTable = "design",
-                          colorBy     =  "ReplicateGroup",
-                          shapeBy     =  "ReplicateGroup",
+                          colorBy     = "ReplicateGroup",
+                          shapeBy     = "ReplicateGroup",
                           plotType    = "ggplot")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     mds_plot <- ggplotMDS(dgeObj      = t_obj1,
                           designTable = "design",
-                          colorBy     =  "ReplicateGroup",
+                          colorBy     = "ReplicateGroup",
                           sizeBy      = "ReplicateGroup",
                           plotType    = "ggplot")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
     mds_plot <- ggplotMDS(dgeObj      = t_obj1,
                           designTable = "design",
-                          colorBy     =  "ReplicateGroup",
+                          colorBy     = "ReplicateGroup",
                           plotType    = "ggplot")
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
 
@@ -81,9 +81,9 @@ test_that("ggplotMDS.R: ggplotMDS()", {
     expect_error(ggplotMDS(),
                  regexp = msg)
 
-    #Testing optional parameters
+    # Testing optional parameters
 
-    #plotType
+    # plotType
     msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
     expect_warning(ggplotMDS(dgeObj = t_obj1,
                            plotType = "cx"),
@@ -91,7 +91,7 @@ test_that("ggplotMDS.R: ggplotMDS()", {
     expect_warning(ggplotMDS(dgeObj = t_obj1,
                            plotType = NULL),
                  regexp = msg)
-    #designTable
+    # designTable
     msg <- "designTable is either missing or invalid. Assigning default object of type 'design'."
     expect_warning(mds_plot <- ggplotMDS(dgeObj      = t_obj1,
                                          designTable = "not a valid value"),
@@ -116,10 +116,6 @@ test_that("ggplotMDS.R: ggplotMDS()", {
 
     #colorBy
     msg <- "colorBy value specified is invalid or missing. Assigning default value 'ReplicateGroup'."
-    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
-                                         colorBy = c(1,2)),
-                   regexp = msg)
-    expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
     missing_repgroup <- t_obj1
     missing_repgroup[["design"]][["ReplicateGroup"]] <- NULL
@@ -140,10 +136,6 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(dgeObj = t_obj1,
-                                         shapeBy = c("value1", "value2")),
-                   regexp = msg)
-
     #sizeBy
     msg <- "sizeBy should be a column in the design attribute of dgeObj. Assigning NULL as default value."
     expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
@@ -156,20 +148,10 @@ test_that("ggplotMDS.R: ggplotMDS()", {
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("canvasXpress", "htmlwidget"))
 
-    expect_warning(mds_plot <- ggplotMDS(dgeObj  = t_obj1,
-                                         sizeBy  = c("value1", "value2")),
-                   regexp = msg)
-
     #labels
     msg <- "label specifed is either missing or invalid. Assigning default values."
     expect_warning(mds_plot <- ggplotMDS(dgeObj   = t_obj1,
                                          labels   = "Replicate",
-                                         plotType = "ggplot"),
-                   regexp = msg)
-    expect_s3_class(mds_plot$plot, c("gg", "ggplot"))
-
-    expect_warning(mds_plot <- ggplotMDS(dgeObj   = t_obj1,
-                                         labels   = c("va1", "val2"),
                                          plotType = "ggplot"),
                    regexp = msg)
     expect_s3_class(mds_plot$plot, c("gg", "ggplot"))

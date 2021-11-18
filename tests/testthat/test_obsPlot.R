@@ -8,7 +8,7 @@ test_that("obsPlot.R: obsPlot()", {
     #subset t_obj1
     t_obj1_subset <- subset(t_obj1, row = c(1:6))
 
-    obs_plot <- obsPlot(t_obj1_subset)
+    obs_plot <- obsPlot(t_obj1_subset, facet = TRUE)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     #facet = FALSE
@@ -18,7 +18,8 @@ test_that("obsPlot.R: obsPlot()", {
     expect_s3_class(obs_plot[[1]], c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
-                        plotType = "ggplot")
+                        plotType = "ggplot",
+                        facet    = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     obs_plot <- obsPlot(t_obj1_subset,
@@ -55,13 +56,15 @@ test_that("obsPlot.R: obsPlot()", {
                         convert_normalize = "none",
                         convert_prior.count = 0.5,
                         violinLayer   = TRUE,
-                        showPoints    = FALSE)
+                        showPoints    = FALSE,
+                        facet         = TRUE)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
                         designTable = "design",
                         group       = "replicategroup",
-                        violinLayer = TRUE)
+                        violinLayer = TRUE,
+                        facet       = TRUE)
 
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -70,14 +73,16 @@ test_that("obsPlot.R: obsPlot()", {
                         designTable = "design",
                         group       = "replicategroup",
                         violinLayer = TRUE,
-                        showPoints  = FALSE)
+                        showPoints  = FALSE,
+                        facet       = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     obs_plot <- obsPlot(t_obj1_subset,
                         plotType    = "ggplot",
                         group       = "replicategroup",
                         designTable = "design",
-                        violinLayer = TRUE)
+                        violinLayer = TRUE,
+                        facet       = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     obs_plot <- obsPlot(t_obj1_subset,
@@ -85,7 +90,8 @@ test_that("obsPlot.R: obsPlot()", {
                         designTable = "design",
                         group       = "replicategroup",
                         violinLayer = TRUE,
-                        showPoints  = FALSE)
+                        showPoints  = FALSE,
+                        facet       = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     obs_plot <- obsPlot(t_obj1_subset,
@@ -117,12 +123,13 @@ test_that("obsPlot.R: obsPlot()", {
                         convert_normalize = "upperquartile",
                         convert_prior.count = 0.5,
                         violinLayer   = FALSE,
-                        showPoints    = TRUE)
+                        showPoints    = TRUE,
+                        facet         = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     # testing assert statements
     msg <- "dgeObj must be specified and must belong to DGEobj class."
-    expect_error(obsPlot(dgeObj = 1:10),
+    expect_error(obsPlot(dgeObj = 1:10, facet = TRUE),
                  regexp = msg)
     expect_error(obsPlot(),
                  regexp = msg)
@@ -130,57 +137,66 @@ test_that("obsPlot.R: obsPlot()", {
     obj_no_counts <- rmItem(t_obj1_subset, "counts")
     expect_error(suppressWarnings(obs_plot <- obsPlot(obj_no_counts,
                                      designTable = "design",
-                                     group       = "replicategroup")),
+                                     group       = "replicategroup",
+                                     facet = TRUE)),
                  regexp = "counts matrix must be available in dgeObj to plot the data.")
 
-    expect_warning(obs_plot <- obsPlot(t_obj1),
+    expect_warning(obs_plot <- obsPlot(t_obj1, facet = TRUE),
                    regexp = "A large number of charts/facets has/have been requested and may take significant time to generate.  It is suggested that less than 40 charts/facets are requested at a time.")
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     msg <- "group must be specified and should be one of the columns in the design object in dgeObj. Assigning replicategroup as the default value."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       group = "notavalidname"),
+                                       group = "notavalidname",
+                                       facet = TRUE),
                  regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       group = 1),
+                                       group = 1,
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       group = c("notavalidname", "invalidname")),
+                                       group = c("notavalidname", "invalidname"),
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obj_no_rep_group <- t_obj1_subset
     obj_no_rep_group$design$ReplicateGroup <- NULL
     expect_error(obsPlot(obj_no_rep_group,
-                         group = "notavalidgroup"),
+                         group = "notavalidgroup",
+                         facet = TRUE),
                  regexp = "group must be specified and should be one of the columns in the designTable in dgeObj.")
 
     obj_no_design <- rmItem(t_obj1_subset, "design")
     expect_error(suppressWarnings(obsPlot(obj_no_design,
                          designTable = "design",
-                         group       = "replicategroup")),
+                         group       = "replicategroup",
+                         facet       = TRUE)),
                  regexp = "design table must be available in dgeObj to plot the data.")
 
     msg <- "designTable specified is not present in DGEobj. Assigning default value 'design'."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        designTable = "notavalidname",
-                                       group       = "replicategroup"),
+                                       group       = "replicategroup",
+                                       facet       = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        designTable = 1,
-                                       group       = "replicategroup"),
+                                       group       = "replicategroup",
+                                       facet       = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        designTable = c("invalidname", "notavalidname"),
-                                       group       = "replicategroup"),
+                                       group       = "replicategroup",
+                                       facet       = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -189,7 +205,8 @@ test_that("obsPlot.R: obsPlot()", {
     t_obj1_updated_design <- addItem(t_obj1_updated_design, item = design_data, itemName = "design_new", itemType = "design")
     expect_warning(obs_plot <- obsPlot(t_obj1_updated_design,
                                        designTable = c("invalidname", "notavalidname"),
-                                       group       = "replicategroup"),
+                                       group       = "replicategroup",
+                                       facet       = TRUE),
                    regexp = "designTable specified is not present in DGEobj. Assigning default value 'design_new'.")
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -201,41 +218,48 @@ test_that("obsPlot.R: obsPlot()", {
     #Testing optional parameters
     #plotType
     msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
-    expect_warning(obs_plot <- obsPlot(dgeObj  = t_obj1_subset,
-                                       plotType = "cx"),
+    expect_warning(obs_plot <- obsPlot(dgeObj   = t_obj1_subset,
+                                       plotType = "cx",
+                                       facet    = TRUE),
+                   regexp = msg)
+    expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
+
+    expect_warning(obs_plot <- obsPlot(dgeObj    = t_obj1_subset,
+                                        plotType = NULL,
+                                       facet     = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(dgeObj   = t_obj1_subset,
-                                        plotType = NULL),
-                   regexp = msg)
-    expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
-
-    expect_warning(obs_plot <- obsPlot(dgeObj  = t_obj1_subset,
-                                       plotType = c("canvasXpress", "ggplot")),
+                                       plotType = c("canvasXpress", "ggplot"),
+                                       facet    = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
 
     #countsMatrix
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       countsMatrix = "notavalidname"),
+                                       countsMatrix = "notavalidname",
+                                       facet        = TRUE),
                    regexp = "countsMatrix specified is not present in DGEobj. Assigning default value 'counts'.")
 
     #convertCounts
     msg <- "Invalid value specificed for convertCounts. It must be null if counts matrix need not be converted or must be one of CPM, FPKM, FPK, and TPM. Assigning default value 'NULL'."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       convertCounts = "abc"),
+                                       convertCounts = "abc",
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       convertCounts = 1),
+                                       convertCounts = 1,
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       convertCounts = c("CPM", "TPM")),
+                                       convertCounts = c("CPM", "TPM"),
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -243,19 +267,22 @@ test_that("obsPlot.R: obsPlot()", {
     msg <- "Invalid value specified for convert_normalize. Must be one of 'TMM', 'RLE', 'upperquartile', 'TMMwzp' or 'none'. Assigning default value 'none'."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts     = "CPM",
-                                       convert_normalize = 1),
+                                       convert_normalize = 1,
+                                       facet             = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts     = "CPM",
-                                       convert_normalize = c('TMM', 'RLE')),
+                                       convert_normalize = c('TMM', 'RLE'),
+                                       facet             = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts     = "CPM",
-                                       convert_normalize = NULL),
+                                       convert_normalize = NULL,
+                                       facet             = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -263,32 +290,37 @@ test_that("obsPlot.R: obsPlot()", {
     msg <- "Invalid value specified for convert_log. Assigning default value FALSE."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts = "CPM",
-                                       convert_log   = 1),
+                                       convert_log   = 1,
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts = "CPM",
-                                       convert_log   = NULL),
+                                       convert_log   = NULL,
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts = "CPM",
-                                       convert_log   = c(TRUE, FALSE)),
+                                       convert_log   = c(TRUE, FALSE),
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts = "CPM",
-                                       convert_log   = c(TRUE, FALSE)),
+                                       convert_log   = c(TRUE, FALSE),
+                                       facet         = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     #convert_genelength
     expect_error(obsPlot(t_obj1_subset,
-                         convertCounts = "TPM",
-                         convert_geneLength = c(1,2)),
+                         convertCounts      = "TPM",
+                         convert_geneLength = c(1,2),
+                         facet              = TRUE),
                  regexp = "geneLength must be the same length of the number of rows in countsMatrix.")
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -296,13 +328,15 @@ test_that("obsPlot.R: obsPlot()", {
     msg <- "Invalid value specified for convert_prior.count Assigning default value NULL."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts = "CPM",
-                                       convert_prior.count = "a"),
+                                       convert_prior.count = "a",
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
                                        convertCounts = "CPM",
-                                      convert_prior.count = c(1,2)),
+                                      convert_prior.count = c(1,2),
+                                      facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
@@ -331,115 +365,136 @@ test_that("obsPlot.R: obsPlot()", {
     #title
     msg <- "Invalid title specificed. Title must be singular value of class character."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       title = 1),
+                                       title = 1,
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       title = c("title1", "title2")),
+                                       title = c("title1", "title2"),
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
-                        title = NULL)
+                        title = NULL,
+                        facet = TRUE)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
                         plotType = "ggplot",
-                        title    = NULL)
+                        title    = NULL,
+                        facet = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
 
     #xlab
     msg <- "xlab value specified is not valid. Assigning groupCol name as the default value."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       xlab  = 1),
+                                       xlab  = 1,
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       xlab  = c("xlab1", "xlab2")),
+                                       xlab  = c("xlab1", "xlab2"),
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
-                        xlab  = NULL)
+                        xlab  = NULL,
+                        facet = TRUE)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
                         plotType = "ggplot",
-                        xlab     = NULL)
+                        xlab     = NULL,
+                        facet = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     #ylab
     msg <- "ylab value specified is not valid. Assigning valueCol name as the default value."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       ylab  = 1),
+                                       ylab  = 1,
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       ylab  = c("ylab1", "ylab2")),
+                                       ylab  = c("ylab1", "ylab2"),
+                                       facet = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
-                        ylab  = NULL)
+                        ylab  = NULL,
+                        facet      = TRUE)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     obs_plot <- obsPlot(t_obj1_subset,
                         plotType = "ggplot",
-                        ylab     = NULL)
+                        ylab     = NULL,
+                        facet      = TRUE)
     expect_s3_class(obs_plot, c("gg", "ggplot"))
 
     #violinLayer
     msg <- "violinLayer must be a singular logical value. Assigning default value FALSE."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       violinLayer = NULL),
+                                       violinLayer = NULL,
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       violinLayer = c(1,2)),
+                                       violinLayer = c(1,2),
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       violinLayer = "abc"),
+                                       violinLayer = "abc",
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     #showPoints
     msg <- "showPoints must be a singular logical value. Assigning default value TRUE."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       showPoints = NULL),
+                                       showPoints = NULL,
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       showPoints = c(1,2)),
+                                       showPoints = c(1,2),
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       showPoints = "abc"),
+                                       showPoints = "abc",
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     #axisFree
     msg <- "axisFree must be a singular logical value. Assigning default value TRUE."
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       axisFree   = NULL),
+                                       axisFree   = NULL,
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       axisFree   = c(1,2)),
+                                       axisFree   = c(1,2),
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
     expect_warning(obs_plot <- obsPlot(t_obj1_subset,
-                                       axisFree   = "abc"),
+                                       axisFree   = "abc",
+                                       facet      = TRUE),
                    regexp = msg)
     expect_s3_class(obs_plot, c("canvasXpress", "htmlwidget"))
 
