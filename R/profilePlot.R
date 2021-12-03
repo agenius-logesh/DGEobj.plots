@@ -297,9 +297,10 @@ profilePlot <- function(dgeObj,
             gene_data <- DGEobj::getItem(dgeObj, "geneData") %>%
                 dplyr::select(dplyr::all_of(geneNameCol))
 
-            var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
-                tibble::column_to_rownames(var = "Row.names") %>%
-                dplyr::rename(GeneName = all_of(geneNameCol))
+            # put the two dataframes together and convert the column to Row.names
+            var.annot           <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE)
+            rownames(var.annot) <- var.annot[["Row.names"]]
+            var.annot           <- dplyr::rename(var.annot, GeneName = all_of(geneNameCol))
         }
 
         showLoessFit <- FALSE

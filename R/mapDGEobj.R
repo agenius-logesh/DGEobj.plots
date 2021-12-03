@@ -27,7 +27,6 @@
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom htmlwidgets JS
 #' @importFrom dplyr filter rename left_join
-#' @importFrom tibble rownames_to_column
 #'
 #' @export
 mapDGEobj <- function(dgeObj,
@@ -75,8 +74,10 @@ mapDGEobj <- function(dgeObj,
         t() %>%
         as.data.frame() %>%
         dplyr::rename(parent = V1) %>%
-        dplyr::filter(nchar(parent) > 0) %>%
-        tibble::rownames_to_column("child")
+        dplyr::filter(nchar(parent) > 0)
+
+    parent[["child"]] <- rownames(parent)
+
     parent <- rbind(parent, mul_parent)
     edges  <- parent[c("parent", "child")]
 
@@ -88,18 +89,20 @@ mapDGEobj <- function(dgeObj,
         as.data.frame() %>%
         t() %>%
         as.data.frame() %>%
-        dplyr::rename(Type = V1) %>%
-        tibble::rownames_to_column("child")
+        dplyr::rename(Type = V1)
+
+    type[["child"]] <- rownames(type)
+    type <- select(type, child, Type)
 
     basetype <- attr(dgeObj, "basetype") %>%
         as.data.frame() %>%
         t() %>%
         as.data.frame() %>%
-        dplyr::rename(BaseType = V1) %>%
-        tibble::rownames_to_column("child")
+        dplyr::rename(BaseType = V1)
+
+    basetype[["child"]] <- rownames(basetype)
 
     nodes <- dplyr::left_join(type, basetype, by = "child")
-
 
     if (plotType == "canvasxpress") {
         colnames(nodes) <- c("id", "Type", "BaseType")

@@ -5,7 +5,7 @@ test_that("profilePlot.R: profilePlot()", {
     contrasts <- c("BDL_vs_Sham", "EXT1024_vs_BDL")
     skip_if(!all(contrasts %in% names(DGEobj::getType(t_obj1,"topTable"))))
 
-    # testing contrast objects defualts (no sizeBySignificance and no geneNameCol)
+    # testing contrast objects defaults (no sizeBySignificance and no geneNameCol)
     ## BDL_vs_Sham
     profile_plot <- profilePlot(dgeObj = t_obj1, contrast = "BDL_vs_Sham", title = "BDL_vs_Sham")
     expect_s3_class(profile_plot, c("canvasXpress", "htmlwidget"))

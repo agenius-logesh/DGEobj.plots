@@ -25,7 +25,7 @@ MDS_var_explained(
 
 \item{barColor}{Fill and outline color default = "dodgerblue4"}
 
-\item{barWidth.}{Range 0-1. Applicable only for ggplot. (default = 0.65)}
+\item{barWidth}{Range 0-1. Applicable only for ggplot. (default = 0.65)}
 }
 \value{
 A list with two plots(ggplot or canvasXpress plots) and the variance explained data.frame.

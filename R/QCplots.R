@@ -54,7 +54,6 @@
 #' @importFrom stringr str_c
 #' @importFrom stats median sd mad
 #' @importFrom dplyr select arrange mutate_all
-#' @importFrom tibble column_to_rownames rownames_to_column
 #' @importFrom rlang sym
 #'
 #' @export
@@ -76,8 +75,8 @@ QCplots <- function(DGEdata,
                             length(qcdata) == 1,
                             msg = "Dgedata must have a single alignQC item.")
 
-    qcdata <- DGEobj::getType(DGEdata,"alignQC")[[1]] %>%
-        tibble::rownames_to_column("Sample")
+    qcdata <- DGEobj::getType(DGEdata,"alignQC")[[1]]
+    qcdata[["Sample"]] <- rownames(qcdata)
 
     #metricNames
     assertthat::assert_that(!missing(metricNames),
@@ -167,8 +166,10 @@ QCplots <- function(DGEdata,
         if (plotType == "canvasxpress") {
             cx.data <- qcdata %>%
                 dplyr::select(Sample, !!rlang::sym(metric)) %>%
-                dplyr::arrange(Sample) %>%
-                tibble::column_to_rownames("Sample") %>%
+                dplyr::arrange(Sample)
+            rownames(cx.data) <- cx.data[["Sample"]]
+            cx.data <- cx.data %>%
+                dplyr::select(-Sample) %>%
                 t() %>%
                 as.data.frame()
 

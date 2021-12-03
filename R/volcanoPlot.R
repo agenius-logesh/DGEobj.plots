@@ -41,7 +41,8 @@
 #'
 #' @examples
 #' \dontrun{
-#'    # Simple plot with custom title (dgeObj is a name of DGEobj and contrast is a name of topTable dataframe)
+#'    # Simple plot with custom title
+#'    #(dgeObj is a name of DGEobj and contrast is a name of topTable dataframe)
 #'    contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
 #'    myPlot <- volcanoPlot(dgeObj,
 #'                          contrast,
@@ -75,7 +76,6 @@
 #' @import ggplot2 magrittr
 #' @importFrom dplyr rename case_when mutate arrange
 #' @importFrom rlang sym
-#' @importFrom tibble column_to_rownames
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom htmlwidgets JS
@@ -281,9 +281,10 @@ volcanoPlot <- function(dgeObj,
             gene_data <- DGEobj::getItem(dgeObj, "geneData") %>%
                 dplyr::select(all_of(geneNameCol))
 
-            var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE) %>%
-                tibble::column_to_rownames(var = "Row.names") %>%
-                dplyr::rename(GeneName = all_of(geneNameCol))
+            var.annot <- merge(var.annot, gene_data, by = 0, all = TRUE, sort = FALSE)
+            rownames(var.annot) <- var.annot[["Row.names"]]
+            var.annot <- dplyr::rename(var.annot, GeneName = all_of(geneNameCol))
+
         }
 
         canvasXpress::canvasXpress( data              = cx.data,

@@ -1,6 +1,6 @@
 Package: DGEobj.plots
-Type:    Package
-Title:   Differential Gene Expression (DGE) Analysis Plots
+Type: Package
+Title: Differential Gene Expression (DGE) Analysis Plots
 Version: 1.0.0.9000
 Description: 
     Provides a function toolkit to facilitate reproducible RNA-Seq DGE
@@ -12,8 +12,8 @@ Authors@R:
       person("Connie", "Brett",  role = c("aut", "cre"), email = "connie@aggregate-genius.com"),
       person("Isaac", "Neuhaus", role = "aut", email = "isaac.neuhaus@bms.com"),
       person("Ryan", "Thompson", role = "aut", email = "rct@thompsonclan.org"))
-Depends:  R (>= 3.5.0)
-License:  GPL-3
+Depends: R (>= 3.5.0)
+License: GPL-3
 Language: en-US
 Encoding: UTF-8
 Imports:
@@ -32,10 +32,12 @@ Imports:
     utils,
     edgeR,
     limma  (>= 3.38),
-    htmlwidgets
+    htmlwidgets,
+    tidyr,
+    rlang
 Suggests:
     knitr,
     rmarkdown,
     testthat
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr

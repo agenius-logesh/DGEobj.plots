@@ -5,10 +5,10 @@ test_that('mapDGEobj.R: mapDGEobj()', {
     map_DGEobj <- mapDGEobj(t_obj1)
     expect_s3_class(map_DGEobj, c("canvasXpress", "htmlwidget"))
 
-    map_DGEobj <- mapDGEobj(t_obj1, plotType = "ggplot")
+    map_DGEobj <- mapDGEobj(t_obj1, plotType = "igraph")
     expect_s3_class(map_DGEobj, "igraph")
 
-    map_DGEobj <- mapDGEobj(t_obj1, plotType = "ggplot", directed = FALSE)
+    map_DGEobj <- mapDGEobj(t_obj1, plotType = "igraph", directed = FALSE)
     expect_s3_class(map_DGEobj, "igraph")
 
     msg <- "dgeObj must be specified and must be of class 'DGEobj'."
@@ -21,7 +21,7 @@ test_that('mapDGEobj.R: mapDGEobj()', {
 
     #Optional parameters
     #plotType
-    msg <- "plotType must be either canvasXpress or ggplot. Assigning default value 'CanvasXpress'."
+    msg <- "plotType must be either canvasXpress or igraph. Assigning default value 'canvasXpress'."
     expect_warning( map_DGEobj <- mapDGEobj(t_obj1,
                                             plotType = "cx"),
                     regexp = msg)
@@ -38,26 +38,26 @@ test_that('mapDGEobj.R: mapDGEobj()', {
     expect_s3_class(map_DGEobj, c("canvasXpress", "htmlwidget"))
 
     expect_warning( map_DGEobj <- mapDGEobj(t_obj1,
-                                            plotType = c("canvasXpress", "ggplot")),
+                                            plotType = c("canvasXpress", "igraph")),
                     regexp = msg)
     expect_s3_class(map_DGEobj, c("canvasXpress", "htmlwidget"))
 
     #directed
     msg <- "directed must be a singular logical value. Assigning default value TRUE."
     expect_warning(map_DGEobj <- mapDGEobj(t_obj1,
-                                           plotType = "ggplot",
+                                           plotType = "igraph",
                                            directed = NULL),
                                 regexp = msg)
     expect_s3_class(map_DGEobj, "igraph")
 
     expect_warning(map_DGEobj <- mapDGEobj(t_obj1,
-                                           plotType = "ggplot",
+                                           plotType = "igraph",
                                            directed = "Invalidvalue"),
                    regexp = msg)
     expect_s3_class(map_DGEobj, "igraph")
 
     expect_warning(map_DGEobj <- mapDGEobj(t_obj1,
-                                           plotType = "ggplot",
+                                           plotType = "igraph",
                                            directed = c(TRUE, FALSE)),
                    regexp = msg)
     expect_s3_class(map_DGEobj, "igraph")
