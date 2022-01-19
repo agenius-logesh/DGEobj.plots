@@ -40,8 +40,8 @@
 #' @examples
 #' \dontrun{
 #'   # DGEobj example, subset DGEobj
+#'   t_obj1 <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'   t_obj1_subset <- subset(t_obj1, row = c(1:6))
-#'
 #'
 #'   # Simple barplot
 #'  logRatioPlot(t_obj1_subset,
@@ -55,7 +55,7 @@
 #'               xColname = "Contrast",
 #'               axisFree = FALSE,
 #'               facet = TRUE,
-#'               title = "Test"
+#'               title = "Test",
 #'               labelAngle = 60)
 #' }
 #'
@@ -303,7 +303,7 @@ logRatioPlot <- function(dgeObj,
 
         cx_params <- list(groupingFactors         = xColname,
                           graphOrientation        = "vertical",
-                          colors                  = "dodgerblue4",
+                          colorScheme             = "Dark2",
                           graphType               = graphType,
                           smpTitle                = xlab,
                           smpLableFontStyle       = "bold",

@@ -32,6 +32,7 @@
 #'
 #' @examples
 #' \dontrun{
+#'    dgeObj <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'    # Plot to console (dgeObj is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
 #'    contrast <- names(DGEobj::getType(dgeObj, type = "topTable"))
 #'
@@ -241,37 +242,37 @@ cdfPlot <- function(dgeObj,
         maxY <- max.value + max.value*0.1
 
         cdfpvalMax <- canvasXpress::canvasXpress(data              = cx.data.subset,
-                                              varAnnot          = var.annot.subset,
-                                              decorations       = decorations,
-                                              graphType         = "Scatter2D",
-                                              colorBy           = "group",
-                                              colors            = c("red3", "deepskyblue4"),
-                                              shapeBy           = "group",
-                                              shapes            = symbolShape,
-                                              shapeByShowLegend = FALSE,
-                                              sizeBy            = "group",
-                                              sizes             = symbolSize,
-                                              sizeByShowLegend  = FALSE,
-                                              title             = title,
-                                              xAxisTitle        = xlab,
-                                              yAxisTitle        = ylab,
-                                              setMaxY           = maxY)
+                                                 varAnnot          = var.annot.subset,
+                                                 decorations       = decorations,
+                                                 graphType         = "Scatter2D",
+                                                 colorBy           = "group",
+                                                 colorScheme       = "Dark2",
+                                                 shapeBy           = "group",
+                                                 shapes            = symbolShape,
+                                                 shapeByShowLegend = FALSE,
+                                                 sizeBy            = "group",
+                                                 sizes             = symbolSize,
+                                                 sizeByShowLegend  = FALSE,
+                                                 title             = title,
+                                                 xAxisTitle        = xlab,
+                                                 yAxisTitle        = ylab,
+                                                 setMaxY           = maxY)
 
         cdfAll <- canvasXpress::canvasXpress(data              = cx.data,
-                                               varAnnot          = var.annot,
-                                               graphType         = "Scatter2D",
-                                               colorBy           = "group",
-                                               colors            = c("red3", "deepskyblue4"),
-                                               shapeBy           = "group",
-                                               shapes            = symbolShape,
-                                               shapeByShowLegend = FALSE,
-                                               sizeBy            = "group",
-                                               sizes             = symbolSize,
-                                               sizeByShowLegend  = FALSE,
-                                               title             = insetTitle,
-                                               xAxisTitle        = xlab,
-                                               yAxisTitle        = ylab,
-                                               setMaxY           = max(contrastDF[[y]]))
+                                             varAnnot          = var.annot,
+                                             graphType         = "Scatter2D",
+                                             colorBy           = "group",
+                                             colorScheme       = "Dark2",
+                                             shapeBy           = "group",
+                                             shapes            = symbolShape,
+                                             shapeByShowLegend = FALSE,
+                                             sizeBy            = "group",
+                                             sizes             = symbolSize,
+                                             sizeByShowLegend  = FALSE,
+                                             title             = insetTitle,
+                                             xAxisTitle        = xlab,
+                                             yAxisTitle        = ylab,
+                                             setMaxY           = max(contrastDF[[y]]))
         cdfPlot <- list("below_pvalMax" = cdfpvalMax, "all_pval" = cdfAll)
     } else {
         symbolSize     = c(4, 3)

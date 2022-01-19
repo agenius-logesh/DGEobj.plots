@@ -70,6 +70,7 @@ contains an additional plot that displays the all_pval plot as an inset in below
 }
 \examples{
 \dontrun{
+   dgeObj <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
    # Plot to console (dgeObj is a DGEobj and contrast is a name of toptable dataframe from DGEobj)
    contrast <- names(DGEobj::getType(dgeObj, type = "topTable"))
 

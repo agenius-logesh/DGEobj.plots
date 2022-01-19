@@ -40,11 +40,11 @@ test_that("profilePlot.R: profilePlot()", {
     expect_s3_class(profile_plot, c("gg", "ggplot"))
 
     # testing gene symbols
-    profile_plot <- profilePlot(dgeObj            = t_obj1,
+    profile_plot <- profilePlot(dgeObj             = t_obj1,
                                 contrast           = "BDL_vs_Sham",
                                 title              = "BDL_vs_Sham with Symbols",
                                 sizeBySignificance = TRUE,
-                                geneNameCol         = "rgd_symbol")
+                                geneNameCol        = "rgd_symbol")
     expect_s3_class(profile_plot, c("canvasXpress","htmlwidget"))
     profile_plot <- profilePlot(dgeObj            = t_obj1,
                                 contrast           = "BDL_vs_Sham",

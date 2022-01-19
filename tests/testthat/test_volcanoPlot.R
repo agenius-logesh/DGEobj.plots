@@ -22,7 +22,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
     volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
                                 contrast = "BDL_vs_Sham",
                                 title    = "BDL_vs_Sham",
-                               sizeByIntensity = FALSE)
+                                sizeByIntensity = FALSE)
     expect_s3_class(volcano_plot, c("canvasXpress", "htmlwidget"))
 
     volcano_plot <- volcanoPlot(dgeObj   = t_obj1,
@@ -86,7 +86,7 @@ test_that("volcanoPlot.R: volcanoPlot()", {
                                 contrast = "EXT1024_vs_BDL",
                                 title    = "EXT1024_vs_BDL",
                                 plotType = "ggplot",
-                                    sizeByIntensity = FALSE)
+                                sizeByIntensity = FALSE)
     expect_s3_class(volcano_plot, c("gg", "ggplot"))
 
     # testing gene symbols

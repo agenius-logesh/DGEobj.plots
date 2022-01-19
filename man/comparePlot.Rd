@@ -70,6 +70,7 @@ pThreshold argument to set a proper threshold for FDR values.
 }
 \examples{
 \dontrun{
+  dgeObj <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
   dgeObj       <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
   contrasts    <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
