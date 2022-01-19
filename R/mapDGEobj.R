@@ -1,29 +1,27 @@
 #' Construct DGEobj relationships
 #'
-#' Reads a DGEobj and either (1) produces a node pair file ready for plotting or (2) a plot visualizing parent/child relationships between
+#' Reads a DGEobj and visualizes parent/child relationships between
 #' data items in a DGEobj.
 #'
 #' @param dgeObj DGEobj to find the parent/child relationships between data items.
-#' @param plotType Must be canvasXpress or igraph (default = canvasXpress).
-#' @param directed Only for igraph. Indicates if the graph should
+#' @param plotType Must be canvasXpress or ggplot (default = canvasXpress).
+#' @param directed Only applies to ggplot. Indicates if the graph should
 #'     be directed or not. (default = TRUE)
 #'
-#' @return A class igraph network object or a canvasXpress network plot.
+#' @return A class ggplot object or a canvasXpress network plot.
 #'
 #'
 #' @examples
 #' \dontrun{
-#'   # Prepare canvasxpress network plot
-#'   mynet <- mapDGEobj(dgeObj)
+#'   # canvasXpress network plot
+#'   mapDGEobj(dgeObj)
 #'
-#'   # Prepare an igraph object for plotting
-#'   mynet <- mapDGEobj(dgeObj, plotType = "ggplot")
-#'   plot(mynet)
+#'   # ggplot object
+#'   mapDGEobj(dgeObj, plotType = "ggplot")
 #'   }
 #'
 #' @import magrittr
 #' @importFrom assertthat assert_that
-#' @importFrom igraph graph_from_data_frame
 #' @importFrom canvasXpress canvasXpress
 #' @importFrom htmlwidgets JS
 #' @importFrom dplyr filter rename left_join
@@ -42,9 +40,17 @@ mapDGEobj <- function(dgeObj,
     if (any(is.null(plotType),
             !is.character(plotType),
             length(plotType) != 1,
-            !tolower(plotType) %in% c("canvasxpress", "igraph"))) {
-        warning("plotType must be either canvasXpress or igraph. Assigning default value 'canvasXpress'.")
+            !tolower(plotType) %in% c("canvasxpress", "ggplot"))) {
+        warning("plotType must be either canvasXpress or ggplot. Assigning default value 'canvasXpress'.")
         plotType <- "canvasxpress"
+    }
+
+    if (plotType == "ggplot") {
+        assertthat::assert_that(requireNamespace("ggraph", quietly = TRUE),
+                                msg = "ggraph package is required for this plot type")
+
+        assertthat::assert_that(requireNamespace("tidygraph", quietly = TRUE),
+                                msg = "tidygraph package is required for this plot type")
     }
 
     if (any(is.null(directed),
@@ -57,7 +63,6 @@ mapDGEobj <- function(dgeObj,
     child <- names(dgeObj) %>%
         as.data.frame()
     colnames(child) <- "child"
-
 
     parent_list <- attr(dgeObj, "parent")
     mul_parent <- setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("child", "parent"))
@@ -135,7 +140,21 @@ mapDGEobj <- function(dgeObj,
                                    events            = events)
 
     } else {
-        igraph::graph_from_data_frame(d = edges, vertices = nodes, directed = directed)
-    }
+        tidy_graph <- tidygraph::tbl_graph(nodes = nodes, edges = edges)
 
+        if (directed) {
+            plain_graph <- ggraph::ggraph(tidy_graph, layout = "sugiyama") +
+                ggraph::geom_edge_link(arrow = arrow(length = unit(4, "mm")),
+                                       end_cap = ggraph::circle(6, "mm"))
+
+        } else {
+            plain_graph <- ggraph::ggraph(tidy_graph, layout = "sugiyama") +
+                ggraph::geom_edge_link()
+        }
+
+        plain_graph  +
+            ggraph::geom_node_point(aes(color = Type), size = 12) +
+            ggraph::geom_node_label(aes(label = child), size = 3)
+
+    }
 }

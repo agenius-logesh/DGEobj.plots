@@ -22,22 +22,23 @@ Imports:
     DGEobj  (>= 1.0),
     DGEobj.utils, 
     dplyr   (>= 0.8),
+    edgeR,
     ggplot2 (>= 3.0),
     ggrepel,
     grid,
-    igraph,
+    htmlwidgets,
+    limma  (>= 3.38),
     magrittr,
+    rlang,
     stats,
     stringr,
-    utils,
-    edgeR,
-    limma  (>= 3.38),
-    htmlwidgets,
     tidyr,
-    rlang
+    utils
 Suggests:
+    ggraph,
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    tidygraph
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr
