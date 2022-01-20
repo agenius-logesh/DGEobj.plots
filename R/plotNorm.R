@@ -6,16 +6,16 @@
 #' Either a box plot or density plot category can be chosen.
 #'
 #' Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored for count-based
-#' data.  Thus this function is only appropriate for count-based data.
+#' data. Thus this function is only appropriate for count-based data.
 #'
 #' @param dgeObj DGEobj with a counts Matrix (required)
 #' @param plotType Plot type must be canvasXpress or ggplot (defaults to canvasXpress).
-#' @param plotCategory  One of "box" or "density" (default = "box")
-#' @param normalize Default = "TMM" and invokes TMM normalization. Other allowed
+#' @param plotCategory Show a "box" or "density" plot (default = "box")
+#' @param normalize The type of normalization to use (default = "TMM"). Other allowed
 #'   values are: "RLE", "upperquartile" and "none". Invokes edgeR::calcNormFactors for
 #'   normalization.
 #'
-#' @return A faceted canvasXpress/ggplot plot showing before/after log2CPM normalization.
+#' @return A faceted canvasXpress/ggplot plot showing the before/after log2CPM normalization.
 #'
 #' @examples
 #' \dontrun{

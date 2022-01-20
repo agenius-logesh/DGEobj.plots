@@ -16,14 +16,14 @@ plotNorm(
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (defaults to canvasXpress).}
 
-\item{plotCategory}{One of "box" or "density" (default = "box")}
+\item{plotCategory}{Show a "box" or "density" plot (default = "box")}
 
-\item{normalize}{Default = "TMM" and invokes TMM normalization. Other allowed
+\item{normalize}{The type of normalization to use (default = "TMM"). Other allowed
 values are: "RLE", "upperquartile" and "none". Invokes edgeR::calcNormFactors for
 normalization.}
 }
 \value{
-A faceted canvasXpress/ggplot plot showing before/after log2CPM normalization.
+A faceted canvasXpress/ggplot plot showing the before/after log2CPM normalization.
 }
 \description{
 Takes a DGEobj containing a counts matrix as input. Returns a canvasXpress or ggplot
@@ -33,7 +33,7 @@ object containing a faceted plot of log2CPM before and after normalization.
 Either a box plot or density plot category can be chosen.
 
 Normalization is performed by edgeR::calcNormFactors. Note TMM is specifically tailored for count-based
-data.  Thus this function is only appropriate for count-based data.
+data. Thus this function is only appropriate for count-based data.
 }
 \examples{
 \dontrun{

@@ -15,28 +15,27 @@ QCplots(
 )
 }
 \arguments{
-\item{DGEdata}{DGEobj(Required)}
+\item{DGEdata}{A DGEobj object with an item of type "alignQC" (required)}
 
 \item{metricNames}{A list of metrics to plot. Values must exist in column names of the item
-of type AlignQC. (Required)}
+of type AlignQC. (required)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{plotCategory}{One of "bar", "point", "pointline" or "histogram".  For a different
+\item{plotCategory}{One of "bar", "point", "pointline" or "histogram". For a different
 plot type for each metric, pass a list of plotCategories with length equal to
 length(metricNames). (default = "bar")}
 
-\item{labelAngle}{Angle to set the sample labels on the X axis (default = 30;
-Range = 0 - 90)}
+\item{labelAngle}{Angle (0 - 90) to set the sample labels on the X axis (default = 30)}
 
-\item{hlineSD}{Draw two reference lines 1) at the median value 2) the number of
-SDs defined by the value of hlineSD. (default = 3; 0 to disable the reference lines.)}
+\item{hlineSD}{Draw two reference lines: 1) at the median value 2) the number of
+SDs defined by the value of hlineSD. (default = 3). Set to 0 to disable the reference lines.}
 
 \item{winsorize}{This implements a robust method to calculate standard
 deviations.  It is used to calculate the standard deviation for the
 placement of horizontal reference lines (hlineSD argument).  The adaptive
 winsorization used here only trims extreme values when normality is
-violated. see https://www.r-bloggers.com/winsorization/ for details.
+violated. See https://www.r-bloggers.com/winsorization/ for details.
 (default = TRUE).}
 }
 \value{
@@ -51,7 +50,7 @@ qcdata is a dataframe with metric names as column names and samples as row name.
 
 Returns a list of QC plots for the metricNames provided as input.
 
-By default, horizontal reference lines are drawn  at the median and +/- n SDs based on the
+By default, horizontal reference lines are drawn at the median and +/- n SDs based on the
 hlineSD argument. These are statistical reference points, NOT pass/fail limits.
 }
 \examples{

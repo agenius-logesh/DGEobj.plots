@@ -5,10 +5,10 @@
 #' but should be useful for any dataframe of numeric columns.
 #'
 #' @param dgeObj DGEobj with topTables (required)
-#' @param P.Val p-value column name in the topTables in DGEobj. Default="P.Value".
+#' @param P.Val p-value column name in the topTables in DGEobj (default = "P.Value")
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
-#' @param facet Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)
-#' @param binWidth size of each bin.Value is always between 0 and 1. (default = 0.02)
+#' @param facet Set to FALSE to print individual plots instead of a faceted plot (default = TRUE)
+#' @param binWidth Size (between 0 and 1) of each bin.Value (default = 0.02)
 #'
 #' @return A canvasXpress or a ggplot2 object if facet = TRUE or a list of plots if facet = FALSE. (default = TRUE)
 #'
@@ -27,10 +27,10 @@
 #'
 #' @export
 plotPvalHist <- function(dgeObj,
-                         P.Val          = "P.Value",
-                         plotType       = "canvasXpress",
-                         facet          = TRUE,
-                         binWidth       = 0.02) {
+                         P.Val    = "P.Value",
+                         plotType = "canvasXpress",
+                         facet    = TRUE,
+                         binWidth = 0.02) {
 
     assertthat::assert_that(!missing(dgeObj),
                             !is.null(dgeObj),

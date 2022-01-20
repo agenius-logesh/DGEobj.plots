@@ -21,14 +21,14 @@
 #' @param xlab X axis label (default = "Rank")
 #' @param ylab Y axis label (default = p-value column name)
 #' @param title Plot title (Optional)
-#' @param insetTitle Title for the inset plot (Optional)
+#' @param insetTitle Title for the inset plot, only for ggplots (Optional)
 #' @param referenceLine Color for a horizontal line drawn at the p-threshold
 #'   (default = NULL; NULL disables, set to desired color to enable)
-#' @param insetX x-location for the inset plot (default = 0.15)
-#' @param insetY y-location for the inset plot (default = 0.85)
-#' @param insetWidth width of the inset plot (default = 0.35)
+#' @param insetX x-location for the inset plot, only for ggplots (default = 0.15)
+#' @param insetY y-location for the inset plot, only for ggplots (default = 0.85)
+#' @param insetWidth width of the inset plot, only for ggplots (default = 0.35)
 #'
-#' @return A list of plots.
+#' @return A list of plots -- 2 plots if plotType is 'canvasXpress' or 3 plots if plotType is 'ggplot'.
 #'
 #' @examples
 #' \dontrun{

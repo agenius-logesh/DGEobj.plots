@@ -23,27 +23,27 @@
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
 #' @param dgeObj DGEobj with a topTable dataframe (required)
-#' @param contrast Name of the contrast.
-#' @param plotType Plot type must be canvasXpress or ggplot. (default = canvasXpress)
-#' @param logRatioCol Name of the LogRatio column. (default = "logFC")
-#' @param logIntCol Name of the LogIntensity column. (default = "AveExpr")
-#' @param pvalCol Name of the p-value or FDR column. (default = "P.Value")
-#' @param xlab X axis label. (default is the LogIntensity column name)
-#' @param ylab Y axis label. (default is the LogRatio column name)
-#' @param title Plot title (optional).
-#' @param pthreshold Used to color points. (default = 0.01)
-#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label significantly changed points.
-#' @param pthresholdLine Color for a horizontal line at the p-threshold. (default = NULL (disabled))
-#' @param sizeByIntensity If TRUE, creates a column to support sizeByIntensity. (default = TRUE)
+#' @param contrast Name of the contrast
+#' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress)
+#' @param logRatioCol Name of the LogRatio column (default = "logFC")
+#' @param logIntCol Name of the LogIntensity column (default = "AveExpr")
+#' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
+#' @param xlab X axis label (default = NULL)
+#' @param ylab Y axis label (default = NULL)
+#' @param title Plot title (optional)
+#' @param pthreshold The p-value threshold used to color points (default = 0.01)
+#' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to label significantly changed points (optional)
+#' @param pthresholdLine Color value to use a horizontal line at the p-threshold. (default = NULL (disabled))
+#' @param sizeByIntensity Size points by the LogInt column (default = TRUE) or by the group column (FALSE)
 #' @param foldChangeThreshold Position of reference vertical lines for fold change. (default = 1.5)
 #'
-#' @return canvasxpress or ggplot object based on plotType selection.
+#' @return canvasXpress or ggplot object.
 #'
 #' @examples
 #' \dontrun{
 #'    # Simple plot with custom title
 #'    #(dgeObj is a name of DGEobj and contrast is a name of topTable dataframe)
-#'    contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
+#'    contrast <- names(DGEobj::getType(dgeObj, "topTable"))[1]
 #'    myPlot <- volcanoPlot(dgeObj,
 #'                          contrast,
 #'                          title = "Plot Title")
@@ -83,17 +83,17 @@
 #' @export
 volcanoPlot <- function(dgeObj,
                         contrast,
-                        plotType        = "canvasXpress",
-                        logRatioCol     = "logFC",
-                        logIntCol       = "AveExpr",
-                        pvalCol         = "P.Value",
-                        pthreshold      = 0.01,
+                        plotType            = "canvasXpress",
+                        logRatioCol         = "logFC",
+                        logIntCol           = "AveExpr",
+                        pvalCol             = "P.Value",
+                        pthreshold          = 0.01,
                         geneNameCol,
-                        xlab            = NULL,
-                        ylab            = NULL,
-                        title           = NULL,
-                        sizeByIntensity = TRUE,
-                        pthresholdLine  = NULL,
+                        xlab                = NULL,
+                        ylab                = NULL,
+                        title               = NULL,
+                        sizeByIntensity     = TRUE,
+                        pthresholdLine      = NULL,
                         foldChangeThreshold = 1.5) {
     ##### Asserts
     assertthat::assert_that(!missing(dgeObj),
