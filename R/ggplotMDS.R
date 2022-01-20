@@ -203,11 +203,6 @@ ggplotMDS <- function(dgeObj,
         ylab <- NULL
     }
 
-    # ColorBlind palette:
-    # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-    cbbPalette <- c("#56B4E9", "#009E73", "#0072B2", "#D55E00", "#CC79A7", "#E69F00",  "#F0E442", "#000000")
-    colors <- cbbPalette
-
     if (missing(title)) {
         title <- "MDS Plot"
     } else {
@@ -316,7 +311,6 @@ ggplotMDS <- function(dgeObj,
 
     # PlotType
     if (plotType == "canvasxpress") {
-        colors   <- lapply(colors, .rgbaConversion)
         reflineColor <- "red"
         decorations  <- list()
         hlineIntercept_list <- list()
@@ -363,7 +357,7 @@ ggplotMDS <- function(dgeObj,
                                               dataPointSize           = 10,
                                               showDecorations         = TRUE,
                                               shapes                  = "circle",
-                                              colors                  = colors,
+                                              colorScheme             = "Dark2",
                                               title                   = title,
                                               xAxisTitle              = xlab,
                                               yAxisTitle              = ylab,

@@ -160,9 +160,6 @@ QCplots <- function(DGEdata,
         metricSD     <- sd(as.numeric(thisMetric[-1]), na.rm = TRUE)
         SD           <- metricSD * hlineSD
 
-        #aesthetics
-        color = "dodgerblue3"
-
         if (plotType == "canvasxpress") {
             cx.data <- qcdata %>%
                 dplyr::select(Sample, !!rlang::sym(metric)) %>%
@@ -225,7 +222,7 @@ QCplots <- function(DGEdata,
                               decorations      = decorations,
                               xAxisTitle       = metric,
                               smpLabelRotate   = labelAngle,
-                              colors           = color,
+                              colorScheme      = "Dark2",
                               showLegend       = FALSE)
 
             if (plot_metric == "bar") {
@@ -244,7 +241,6 @@ QCplots <- function(DGEdata,
                 cx.params <- c(cx.params, list( graphType = "Dotplot",
                                                 smpAnnot  = smp.data,
                                                 connectBy = "metric",
-                                                connecyByColor = color,
                                                 setMinX   = min.val,
                                                 setMaxX   = max.val))
             } else if (plot_metric == "histogram") {
@@ -252,7 +248,7 @@ QCplots <- function(DGEdata,
                     dplyr::select(!!rlang::sym(metric))
                 cx.params <- list(data                     = cx.data,
                                   graphType                = "Scatter2D",
-                                  colors                   = color,
+                                  colorScheme              = "Dark2",
                                   # decoration will be disabled until related cx plot is resolved
                                   #decorations              = decorations,
                                   showLegend               = FALSE,

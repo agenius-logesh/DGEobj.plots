@@ -39,6 +39,7 @@
 #'
 #' @examples
 #' \dontrun{
+#'   dgeObj <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'   # Retrieve the first two contrasts from a DGEobj as a list of dataframes (length = 2; named items)
 #'   dgeObj       <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'   contrasts    <- names(DGEobj::getType(dgeObj, "topTable"))[1:2]
@@ -237,7 +238,6 @@ comparePlot <- function(dgeObj,
                 dplyr::rename_with(~ c("Group"))
             colorBy <- "Group"
             sizeBy  <- "Group"
-            colors  <- symbolColor
             sizes   <- c(7,4,7,7)
             shapes  <- rep("circle",4)
         } else {
@@ -245,7 +245,6 @@ comparePlot <- function(dgeObj,
             var.annot <- NULL
             colorBy   <- NULL
             sizeBy    <- NULL
-            colors    <- "deepskyblue4"
             sizes     <- 7
             shapes    <- "circle"
         }
@@ -254,7 +253,7 @@ comparePlot <- function(dgeObj,
                                    decorations      = decorations,
                                    graphType        = "Scatter2D",
                                    colorBy          = colorBy,
-                                   colors           = colors,
+                                   colorScheme      = "Dark2",
                                    shapes           = shapes,
                                    legendPosition   = "right",
                                    scatterAxesEqual = TRUE,

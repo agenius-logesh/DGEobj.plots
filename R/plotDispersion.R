@@ -139,7 +139,7 @@ plotDispersion <- function(dgeObj,
         }
         MyDispPlot <- canvasXpress::canvasXpress(data                    = plotdata,
                                                  graphType               = "Scatter2D",
-                                                 colors                  = "darkblue",
+                                                 colorScheme             = "Dark2",
                                                  scatterOutlineThreshold = 0,
                                                  title                   = title,
                                                  yAxisTitle              = ylab,

@@ -34,8 +34,8 @@ but should be useful for any dataframe of numeric columns.
 \examples{
 \dontrun{
    # Plot to console (dgeObj is a DGEobj and P.Val is a name of topTable data in DGEobj.)
+   dgeObj <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
    myplot <- plotPvalHist(dgeObj, P.Val = "P.Value")
-
    myplot <- plotPvalHist(dgeObj, P.Val = "P.Value", plotType = "ggplot")
 }
 
