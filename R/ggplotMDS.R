@@ -523,11 +523,31 @@ MDS_var_explained <- function(mds,
         mds <- limma::plotMDS(mds, plot = FALSE)
     }
 
-    mds.distances <- mds %$% distance.matrix %>% as.dist
-    mdsvals <- mds.distances %>%
-        {suppressWarnings(cmdscale(., k = ncol(mds$distance.matrix) - 1))} %>%
-        magrittr::set_colnames(stringr::str_c("Dim", seq_len(ncol(.)))) %>%
-        as.data.frame
+    mds.distances <- tryCatch(
+        expr = {
+            mds %$% distance.matrix %>% as.dist
+        },
+        error = function(e) {
+            mds %$% distance.matrix.squared %>% as.dist
+        }
+    )
+
+    mdsvals <- tryCatch(
+        expr = {
+            mds.distances %>%
+                {suppressWarnings(cmdscale(., k = ncol(mds$distance.matrix) - 1))} %>%
+                magrittr::set_colnames(stringr::str_c("Dim", seq_len(ncol(.)))) %>%
+                as.data.frame
+        },
+        error = function(e) {
+            mds.distances %>%
+                {suppressWarnings(cmdscale(., k = ncol(mds$distance.matrix.squared) - 1))} %>%
+                magrittr::set_colnames(stringr::str_c("Dim", seq_len(ncol(.)))) %>%
+                as.data.frame
+        }
+    )
+
+
     var_vec <- unname(apply((mdsvals %>% as.matrix), 2, stats::var)) %>%
         magrittr::divide_by(sum(.))
     var_explained <- data.frame(var    = var_vec,

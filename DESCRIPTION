@@ -38,6 +38,7 @@ Suggests:
     ggraph,
     knitr,
     rmarkdown,
+    statmod,
     testthat,
     tidygraph
 RoxygenNote: 7.1.2
