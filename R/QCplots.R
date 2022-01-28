@@ -261,6 +261,8 @@ QCplots <- function(DGEdata,
             p <- do.call(canvasXpress::canvasXpress, cx.params)
 
         } else {
+            color <- "dodgerblue3"
+
             if (plot_metric == "histogram") {
                 p <- ggplot2::ggplot(qcdata, aes_string(x = metric))
             } else{

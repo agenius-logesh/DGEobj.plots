@@ -72,6 +72,7 @@ input data.
 \examples{
 \dontrun{
      # Plot the first two dimensions using all genes
+     MyDGEobj     <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
      myMDS_cxplot <- ggplotMDS(MyDGEobj)
 
      # MDSplot - ggplot
