@@ -13,7 +13,7 @@
 #' allows for selection of a number close the number of differential genes in the
 #' input data.
 #'
-#' @param dgeObj A DGEobj object with a DGEList and design table (required)
+#' @param dgeObj A DGEobj object with a DGEList and design table
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress)
 #' @param designTable Name of the design table object (default = design)
 #' @param colorBy A column name in the design table. Points are colored by the values in that column (default = ReplicateGroup)
@@ -450,7 +450,7 @@ ggplotMDS <- function(dgeObj,
 #' it plots the first 10 dimensions or the first N dimensions totaling 90%.
 #'
 #' @param mds A class MDS object from limma::plotMDS() or a data matrix to analyze
-#'   (typically log2) (required)
+#'   (typically log2)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param topN The number of dimensions to plot (default = 10)
 #' @param cumVarLimit The maximum cumulative variance to plot. Range 0-1. (default = 0.9)
@@ -527,10 +527,10 @@ MDS_var_explained <- function(mds,
 
     mds.distances <- tryCatch(
         expr = {
-            mds %$% distance.matrix %>% as.dist
+            as.dist(mds$distance.matrix)
         },
         error = function(e) {
-            mds %$% distance.matrix.squared %>% as.dist
+            as.dist(mds$distance.matrix.squared)
         }
     )
 

@@ -13,10 +13,10 @@
 #' If \code{facet} parameter is set to \strong{FALSE} the output will be a list of individual canvasXpress or
 #' ggplots, one for each facetColname value \emph{(typically gene)}.
 #'
-#' @param dgeObj A DGEobj that contains topTable objects (required)
+#' @param dgeObj A DGEobj that contains topTable objects
 #' @param plotType Plot type must be canvasXpress or ggplot (default to canvasXpress).
 #' @param facetColname Column name to separate plots from geneData (default = "rgd_symbol").
-#' @param xColname The computed column to group boxplots by (required) (default = "Contrast").
+#' @param xColname The computed column to group boxplots by (default = "Contrast").
 #' @param yColname Column name for the output of the boxplots (default = "logFC")
 #' @param CI.R_colname Name of the CI high value (default = "CI.R")
 #' @param CI.L_colname Name of the CI low value (default =  "CI.L")

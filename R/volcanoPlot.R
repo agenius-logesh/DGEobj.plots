@@ -22,7 +22,7 @@
 #' threshold are used to color code genes that are significantly increased or decreased.
 #' Use the appropriate arguments to use an FDR measure instead of p-value.
 #'
-#' @param dgeObj DGEobj with a topTable dataframe (required)
+#' @param dgeObj DGEobj with a topTable dataframe
 #' @param contrast Name of the contrast
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress)
 #' @param logRatioCol Name of the LogRatio column (default = "logFC")

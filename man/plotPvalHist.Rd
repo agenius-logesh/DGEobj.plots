@@ -13,7 +13,7 @@ plotPvalHist(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with topTables (required)}
+\item{dgeObj}{DGEobj with topTables}
 
 \item{P.Val}{p-value column name in the topTables in DGEobj (default = "P.Value")}
 

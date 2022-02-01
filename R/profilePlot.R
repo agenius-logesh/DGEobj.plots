@@ -25,7 +25,7 @@
 #' A significance measure (which defaults to P.Value <= 0.01) is used to color code genes that
 #' are significantly increased or decreased.
 #
-#' @param dgeObj DGEobj with a topTable itemType (required).
+#' @param dgeObj DGEobj with a topTable itemType.
 #' @param contrast itemName of the contrast in the dgeObj.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = "canvasXpress").
 #' @param logRatioCol Name of the LogRatio column (default = "logFC")

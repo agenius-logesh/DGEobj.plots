@@ -23,7 +23,7 @@ profilePlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a topTable itemType (required).}
+\item{dgeObj}{DGEobj with a topTable itemType.}
 
 \item{contrast}{itemName of the contrast in the dgeObj.}
 

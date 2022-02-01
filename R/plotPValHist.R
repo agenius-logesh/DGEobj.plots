@@ -4,7 +4,7 @@
 #' numbers. Intended to perform histogram analysis of p-value distributions,
 #' but should be useful for any dataframe of numeric columns.
 #'
-#' @param dgeObj DGEobj with topTables (required)
+#' @param dgeObj DGEobj with topTables
 #' @param P.Val p-value column name in the topTables in DGEobj (default = "P.Value")
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param facet Set to FALSE to print individual plots instead of a faceted plot (default = TRUE)

@@ -12,8 +12,8 @@
 #' the second plot (all_pval) shows all the p-values. For plotType ="ggplot", output also
 #' contains an additional plot that displays the all_pval plot as an inset in below_pvalMax.
 #'
-#' @param dgeObj A DGEobj with one or more topTables (required)
-#' @param contrast Name of a topTable dataframe with p-value or an FDR column (required)
+#' @param dgeObj A DGEobj with one or more topTables
+#' @param contrast Name of a topTable dataframe with p-value or an FDR column
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param pvalCol Name of the p-value or FDR column (default = "P.Value")
 #' @param pvalMax Limit the range of the main plot (default = 0.10)

@@ -22,7 +22,7 @@ volcanoPlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a topTable dataframe (required)}
+\item{dgeObj}{DGEobj with a topTable dataframe}
 
 \item{contrast}{Name of the contrast}
 

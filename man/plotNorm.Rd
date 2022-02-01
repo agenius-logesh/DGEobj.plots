@@ -12,7 +12,7 @@ plotNorm(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a counts Matrix (required)}
+\item{dgeObj}{DGEobj with a counts Matrix}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (defaults to canvasXpress).}
 

@@ -22,9 +22,9 @@ cdfPlot(
 )
 }
 \arguments{
-\item{dgeObj}{A DGEobj with one or more topTables (required)}
+\item{dgeObj}{A DGEobj with one or more topTables}
 
-\item{contrast}{Name of a topTable dataframe with p-value or an FDR column (required)}
+\item{contrast}{Name of a topTable dataframe with p-value or an FDR column}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 

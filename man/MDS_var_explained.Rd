@@ -15,7 +15,7 @@ MDS_var_explained(
 }
 \arguments{
 \item{mds}{A class MDS object from limma::plotMDS() or a data matrix to analyze
-(typically log2) (required)}
+(typically log2)}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
