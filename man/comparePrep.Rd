@@ -7,7 +7,7 @@
 comparePrep(contrastList, valueCol = "logFC", significanceCol = "P.Value")
 }
 \arguments{
-\item{contrastList}{A named list of 2 topTable dataframes (required). The
+\item{contrastList}{A named list of 2 topTable dataframes. The
 names are used as column names for the value columns in the output.}
 
 \item{valueCol}{Name of column containing values to plot (default = "logFC")}

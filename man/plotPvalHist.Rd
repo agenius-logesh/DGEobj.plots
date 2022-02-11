@@ -13,15 +13,15 @@ plotPvalHist(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with topTables (required)}
+\item{dgeObj}{DGEobj with topTables}
 
-\item{P.Val}{p-value column name in the topTables in DGEobj. Default="P.Value".}
+\item{P.Val}{p-value column name in the topTables in DGEobj (default = "P.Value")}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
-\item{facet}{Set to FALSE to print individual plots instead of a faceted plot. (default = TRUE)}
+\item{facet}{Set to FALSE to print individual plots instead of a faceted plot (default = TRUE)}
 
-\item{binWidth}{size of each bin.Value is always between 0 and 1. (default = 0.02)}
+\item{binWidth}{Size (between 0 and 1) of each bin.Value (default = 0.02)}
 }
 \value{
 A canvasXpress or a ggplot2 object if facet = TRUE or a list of plots if facet = FALSE. (default = TRUE)

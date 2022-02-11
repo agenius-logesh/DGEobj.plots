@@ -333,7 +333,7 @@ comparePlot <- function(dgeObj,
 #' (present in both datasets). The two dataframes must have the same type of
 #' gene IDs as rownames.
 #'
-#' @param contrastList A named list of 2 topTable dataframes (required). The
+#' @param contrastList A named list of 2 topTable dataframes. The
 #'   names are used as column names for the value columns in the output.
 #' @param valueCol Name of column containing values to plot (default = "logFC")
 #' @param significanceCol Name of column to use for significance (default = "P.Value")

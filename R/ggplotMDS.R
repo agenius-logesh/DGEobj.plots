@@ -13,7 +13,7 @@
 #' allows for selection of a number close the number of differential genes in the
 #' input data.
 #'
-#' @param dgeObj A DGEobj object with a DGEList and design table (required)
+#' @param dgeObj A DGEobj object with a DGEList and design table
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress)
 #' @param designTable Name of the design table object (default = design)
 #' @param colorBy A column name in the design table. Points are colored by the values in that column (default = ReplicateGroup)
@@ -36,6 +36,7 @@
 #' @examples
 #' \dontrun{
 #'      # Plot the first two dimensions using all genes
+#'      MyDGEobj     <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
 #'      myMDS_cxplot <- ggplotMDS(MyDGEobj)
 #'
 #'      # MDSplot - ggplot
@@ -279,7 +280,8 @@ ggplotMDS <- function(dgeObj,
         bySize <- TRUE
     }
 
-    rownames(plot_data) <- plot_data$sampleID;plot_data$sampleID <- NULL
+    rownames(plot_data) <- plot_data$sampleID
+    plot_data$sampleID  <- NULL
     xylab               <- list(paste(mds.data$axislabel, mds.data$dim.plot[[1]], sep = " "),
                                 paste(mds.data$axislabel, mds.data$dim.plot[[2]], sep = " "))
     citation            <- paste("top ", mds.data$top, " genes : gene.selection = ",
@@ -356,7 +358,6 @@ ggplotMDS <- function(dgeObj,
                                               sizeBy                  = sizeCol,
                                               dataPointSize           = 10,
                                               showDecorations         = TRUE,
-                                              shapes                  = "circle",
                                               colorScheme             = "Dark2",
                                               title                   = title,
                                               xAxisTitle              = xlab,
@@ -365,10 +366,11 @@ ggplotMDS <- function(dgeObj,
                                               citationScaleFontFactor = 0.8,
                                               events                  = events)
     } else {
-        shapes <- .get_valid_symbolShapes_ggplot()[1:8]
-        sizes <- c(1:8)
-        symColor <- "blue"
-        mdsplot <- ggplot(plot_data, aes(x = x, y = y))
+        colors            <- c("#56B4E9", "#009E73", "#0072B2", "#D55E00", "#CC79A7", "#E69F00",  "#F0E442", "#000000")
+        shapes            <- .get_valid_symbolShapes_ggplot()[1:8]
+        sizes             <- c(1:8)
+        symColor          <- "blue"
+        mdsplot           <- ggplot(plot_data, aes(x = x, y = y))
         geom_point_params <- list()
 
         if (byColor) {
@@ -448,7 +450,7 @@ ggplotMDS <- function(dgeObj,
 #' it plots the first 10 dimensions or the first N dimensions totaling 90%.
 #'
 #' @param mds A class MDS object from limma::plotMDS() or a data matrix to analyze
-#'   (typically log2) (required)
+#'   (typically log2)
 #' @param plotType Plot type must be canvasXpress or ggplot (default = canvasXpress).
 #' @param topN The number of dimensions to plot (default = 10)
 #' @param cumVarLimit The maximum cumulative variance to plot. Range 0-1. (default = 0.9)
@@ -523,11 +525,31 @@ MDS_var_explained <- function(mds,
         mds <- limma::plotMDS(mds, plot = FALSE)
     }
 
-    mds.distances <- mds %$% distance.matrix %>% as.dist
-    mdsvals <- mds.distances %>%
-        {suppressWarnings(cmdscale(., k = ncol(mds$distance.matrix) - 1))} %>%
-        magrittr::set_colnames(stringr::str_c("Dim", seq_len(ncol(.)))) %>%
-        as.data.frame
+    mds.distances <- tryCatch(
+        expr = {
+            as.dist(mds$distance.matrix)
+        },
+        error = function(e) {
+            as.dist(mds$distance.matrix.squared)
+        }
+    )
+
+    mdsvals <- tryCatch(
+        expr = {
+            mds.distances %>%
+                {suppressWarnings(cmdscale(., k = ncol(mds$distance.matrix) - 1))} %>%
+                magrittr::set_colnames(stringr::str_c("Dim", seq_len(ncol(.)))) %>%
+                as.data.frame
+        },
+        error = function(e) {
+            mds.distances %>%
+                {suppressWarnings(cmdscale(., k = ncol(mds$distance.matrix.squared) - 1))} %>%
+                magrittr::set_colnames(stringr::str_c("Dim", seq_len(ncol(.)))) %>%
+                as.data.frame
+        }
+    )
+
+
     var_vec <- unname(apply((mdsvals %>% as.matrix), 2, stats::var)) %>%
         magrittr::divide_by(sum(.))
     var_explained <- data.frame(var    = var_vec,

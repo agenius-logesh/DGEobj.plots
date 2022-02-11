@@ -21,7 +21,7 @@ ggplotMDS(
 )
 }
 \arguments{
-\item{dgeObj}{A DGEobj object with a DGEList and design table (required)}
+\item{dgeObj}{A DGEobj object with a DGEList and design table}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress)}
 
@@ -72,6 +72,7 @@ input data.
 \examples{
 \dontrun{
      # Plot the first two dimensions using all genes
+     MyDGEobj     <- readRDS(system.file("exampleObj.RDS", package = "DGEobj", mustWork = TRUE))
      myMDS_cxplot <- ggplotMDS(MyDGEobj)
 
      # MDSplot - ggplot

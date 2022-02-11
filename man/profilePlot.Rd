@@ -23,7 +23,7 @@ profilePlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a topTable itemType (required).}
+\item{dgeObj}{DGEobj with a topTable itemType.}
 
 \item{contrast}{itemName of the contrast in the dgeObj.}
 
@@ -35,7 +35,7 @@ profilePlot(
 
 \item{pvalCol}{Name of the p-value column (default = "P.Value")}
 
-\item{pthreshold}{the p value threshold used to color points (default = 0.01)}
+\item{pthreshold}{the p-value threshold used to color points (default = 0.01)}
 
 \item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to add the gene name
 in the popover for canvasXpress plots only.}

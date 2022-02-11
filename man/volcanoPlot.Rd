@@ -22,36 +22,36 @@ volcanoPlot(
 )
 }
 \arguments{
-\item{dgeObj}{DGEobj with a topTable dataframe (required)}
+\item{dgeObj}{DGEobj with a topTable dataframe}
 
-\item{contrast}{Name of the contrast.}
+\item{contrast}{Name of the contrast}
 
-\item{plotType}{Plot type must be canvasXpress or ggplot. (default = canvasXpress)}
+\item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress)}
 
-\item{logRatioCol}{Name of the LogRatio column. (default = "logFC")}
+\item{logRatioCol}{Name of the LogRatio column (default = "logFC")}
 
-\item{logIntCol}{Name of the LogIntensity column. (default = "AveExpr")}
+\item{logIntCol}{Name of the LogIntensity column (default = "AveExpr")}
 
-\item{pvalCol}{Name of the p-value or FDR column. (default = "P.Value")}
+\item{pvalCol}{Name of the p-value or FDR column (default = "P.Value")}
 
-\item{pthreshold}{Used to color points. (default = 0.01)}
+\item{pthreshold}{The p-value threshold used to color points (default = 0.01)}
 
-\item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to label significantly changed points.}
+\item{geneNameCol}{geneName column in geneData from DGEobj. This column will be used to label significantly changed points (optional)}
 
-\item{xlab}{X axis label. (default is the LogIntensity column name)}
+\item{xlab}{X axis label (default = NULL)}
 
-\item{ylab}{Y axis label. (default is the LogRatio column name)}
+\item{ylab}{Y axis label (default = NULL)}
 
-\item{title}{Plot title (optional).}
+\item{title}{Plot title (optional)}
 
-\item{sizeByIntensity}{If TRUE, creates a column to support sizeByIntensity. (default = TRUE)}
+\item{sizeByIntensity}{Size points by the LogInt column (default = TRUE) or by the group column (FALSE)}
 
-\item{pthresholdLine}{Color for a horizontal line at the p-threshold. (default = NULL (disabled))}
+\item{pthresholdLine}{Color value to use a horizontal line at the p-threshold. (default = NULL (disabled))}
 
 \item{foldChangeThreshold}{Position of reference vertical lines for fold change. (default = 1.5)}
 }
 \value{
-canvasxpress or ggplot object based on plotType selection.
+canvasXpress or ggplot object.
 }
 \description{
 A volcano plot shows Log Ratio data on the X axis and Negative Log P-values (NLP) on the
@@ -81,7 +81,7 @@ Use the appropriate arguments to use an FDR measure instead of p-value.
 \dontrun{
    # Simple plot with custom title
    #(dgeObj is a name of DGEobj and contrast is a name of topTable dataframe)
-   contrast <- names(DGEobj::getItems(dgeObj, "topTable"))[1]
+   contrast <- names(DGEobj::getType(dgeObj, "topTable"))[1]
    myPlot <- volcanoPlot(dgeObj,
                          contrast,
                          title = "Plot Title")

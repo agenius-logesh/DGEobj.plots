@@ -22,9 +22,9 @@ cdfPlot(
 )
 }
 \arguments{
-\item{dgeObj}{A DGEobj with one or more topTables (required)}
+\item{dgeObj}{A DGEobj with one or more topTables}
 
-\item{contrast}{Name of a topTable dataframe with p-value or an FDR column (required)}
+\item{contrast}{Name of a topTable dataframe with p-value or an FDR column}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default = canvasXpress).}
 
@@ -38,21 +38,21 @@ cdfPlot(
 
 \item{title}{Plot title (Optional)}
 
-\item{insetTitle}{Title for the inset plot (Optional)}
+\item{insetTitle}{Title for the inset plot, only for ggplots (Optional)}
 
 \item{referenceLine}{Color for a horizontal line drawn at the p-threshold
 (default = NULL; NULL disables, set to desired color to enable)}
 
-\item{insetX}{x-location for the inset plot (default = 0.15)}
+\item{insetX}{x-location for the inset plot, only for ggplots (default = 0.15)}
 
-\item{insetY}{y-location for the inset plot (default = 0.85)}
+\item{insetY}{y-location for the inset plot, only for ggplots (default = 0.85)}
 
-\item{insetWidth}{width of the inset plot (default = 0.35)}
+\item{insetWidth}{width of the inset plot, only for ggplots (default = 0.35)}
 
 \item{pvalMax}{Limit the range of the main plot (default = 0.10)}
 }
 \value{
-A list of plots.
+A list of plots -- 2 plots if plotType is 'canvasXpress' or 3 plots if plotType is 'ggplot'.
 }
 \description{
 CDF plots are a good complement to p-value histograms as a way to evaluate

@@ -23,19 +23,19 @@ logRatioPlot(
 )
 }
 \arguments{
-\item{dgeObj}{A DGEobj that contains topTable objects (required)}
+\item{dgeObj}{A DGEobj that contains topTable objects}
 
 \item{plotType}{Plot type must be canvasXpress or ggplot (default to canvasXpress).}
 
-\item{facetColname}{Define the column name to separate plots from geneData (default = "rgd_symbol").}
+\item{facetColname}{Column name to separate plots from geneData (default = "rgd_symbol").}
 
-\item{xColname}{Define name for the computed column to group boxplots by (Required) (default = "Contrast").}
+\item{xColname}{The computed column to group boxplots by (default = "Contrast").}
 
-\item{yColname}{Define the column name for the output of the boxplots (default = "logFC")}
+\item{yColname}{Column name for the output of the boxplots (default = "logFC")}
 
-\item{CI.R_colname}{Define name of the CI high value (default = "CI.R")}
+\item{CI.R_colname}{Name of the CI high value (default = "CI.R")}
 
-\item{CI.L_colname}{Define name of the CI low value (default =  "CI.L")}
+\item{CI.L_colname}{Name of the CI low value (default =  "CI.L")}
 
 \item{plotCategory}{One of "bar" or "point" (default = "bar")}
 
@@ -45,15 +45,14 @@ logRatioPlot(
 
 \item{ylab}{Y axis label (defaults to yColname)}
 
-\item{title}{Plot title, set to NULL to disable (Optional, default is NULL)}
+\item{title}{Plot title, set to NULL to disable (Optional, default = NULL)}
 
 \item{facet}{Specifies whether to facet (TRUE) or print individual plots
 (FALSE)  (default = TRUE)}
 
-\item{labelAngle}{Angle to set the sample labels on the X axis (default =  45; Range = 0-90)}
+\item{labelAngle}{Angle (0-90) to set the sample labels on the X axis (default =  45)}
 
-\item{axisFree}{Specify same scale or independent scales for each subplot (default = TRUE;
-Allowed values: TRUE and FALSE)}
+\item{axisFree}{Specify same scale or independent scales for each subplot (default = TRUE)}
 }
 \value{
 canvasXpress (the default) or a ggplot object:

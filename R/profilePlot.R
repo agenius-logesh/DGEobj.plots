@@ -25,7 +25,7 @@
 #' A significance measure (which defaults to P.Value <= 0.01) is used to color code genes that
 #' are significantly increased or decreased.
 #
-#' @param dgeObj DGEobj with a topTable itemType (required).
+#' @param dgeObj DGEobj with a topTable itemType.
 #' @param contrast itemName of the contrast in the dgeObj.
 #' @param plotType Plot type must be canvasXpress or ggplot (default = "canvasXpress").
 #' @param logRatioCol Name of the LogRatio column (default = "logFC")
@@ -34,7 +34,7 @@
 #' @param xlab X axis label (defaults = "LogIntensity column name")
 #' @param ylab Y axis label (defaults = "LogRatio column name")
 #' @param title Plot title (optional)
-#' @param pthreshold the p value threshold used to color points (default = 0.01)
+#' @param pthreshold the p-value threshold used to color points (default = 0.01)
 #' @param geneNameCol geneName column in geneData from DGEobj. This column will be used to add the gene name
 #'        in the popover for canvasXpress plots only.
 #' @param sizeBySignificance Set to TRUE to size points by the negative Log10 of the
